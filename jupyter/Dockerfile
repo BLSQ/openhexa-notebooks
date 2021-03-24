@@ -87,8 +87,8 @@ RUN jupyter labextension install jupyterlab-plotly@4.* --no-build && \
 COPY config /etc/jupyter/
 
 # custom local (Python) modules
-COPY local_modules /opt/local_modules
-ENV PYTHONPATH /opt/local_modules/
+COPY local_python_modules /opt/local_python_modules
+ENV PYTHONPATH /opt/local_python_modules/
 
 # sample files
 # k8s: stored in /tmp within the pod, then copied back in the home directory after the PVC has been mounted through
