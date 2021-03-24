@@ -10,6 +10,8 @@ RUN apt-get install -y libgdal-dev
 # For sf (R)
 RUN apt-get install -y libudunits2-dev
 
+USER $NB_UID
+
 # Use mamba instead of conda
 RUN conda install --quiet --yes mamba -c conda-forge
 

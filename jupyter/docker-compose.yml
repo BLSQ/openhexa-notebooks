@@ -1,0 +1,16 @@
+# This compose file can be useful to debug the Jupyter(lab) part, outside of Jupyterhub
+version: '3'
+
+services:
+  jupyter:
+    build: .
+    image: openhexa-base-notebook
+    environment:
+      DEBUG: "true"
+    volumes:
+      - ./config:/etc/jupyter
+      - ./ipython-startup:/home/jovyan/.ipython/profile_default/startup
+
+    ports:
+      - 8888:8888
+    command: ["jupyter", "lab", "--ip=0.0.0.0"]
