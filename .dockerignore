@@ -1,8 +1,7 @@
 .github
 .git
 .idea
-docker-compose.yml
-k8s
+helm
 
 **/*.DS_Store
 **/*.pyc
