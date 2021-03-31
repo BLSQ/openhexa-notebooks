@@ -14,6 +14,7 @@ services:
       DOCKER_NETWORK_NAME: openhexa-notebooks_default
       HUB_IP: jupyterhub
       HUB_DB_URL: postgresql://postgres:postgres@postgres:5432/jupyterhub
+      APP_URL: http://localhost:8000
       APP_USER_INFO_URL: http://host.docker.internal:8000/user/info
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

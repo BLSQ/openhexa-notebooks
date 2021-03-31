@@ -22,7 +22,7 @@ c.DockerSpawner.debug = True
 c.DockerSpawner.remove = True
 c.DockerSpawner.network_name = os.environ["DOCKER_NETWORK_NAME"]
 
-# c.DockerSpawner.env_keep = ["FOO", "BAR"]
+c.DockerSpawner.env_keep = ["APP_URL"]
 
 # Volume mounts & environment variables
 # c.DockerSpawner.volumes = {
@@ -95,6 +95,6 @@ c.JupyterHub.db_url = os.environ["HUB_DB_URL"]
 # Allow hub to be embedded in an iframe
 c.JupyterHub.tornado_settings = {
     "headers": {
-        "Content-Security-Policy": "frame-ancestors 'self' http://localhost:8000"
+        "Content-Security-Policy": f"frame-ancestors 'self' {os.environ['APP_URL']}"
     }
 }
