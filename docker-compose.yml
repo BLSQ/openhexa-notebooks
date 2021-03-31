@@ -1,0 +1,33 @@
+# This compose file can be useful to develop and debug Jupyterhub code locally.
+# It is not meant to be deployed in production.
+
+version: '3'
+
+services:
+  jupyterhub:
+    build: jupyterhub
+    container_name: jupyterhub
+    depends_on:
+      - postgres
+    environment:
+      JUPYTER_IMAGE: openhexa-base-notebook
+      DOCKER_NETWORK_NAME: openhexa-notebooks_default
+      HUB_IP: jupyterhub
+      HUB_DB_URL: postgresql://postgres:postgres@postgres:5432/jupyterhub
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 8001:8000
+    restart: on-failure
+
+  jupyter:  # just used for building - the jupyterhub service will spawn jupyter containers on demand
+    build: jupyter
+    image: openhexa-base-notebook
+    command: echo
+
+  postgres:
+    image: postgres:12
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: jupyterhub
