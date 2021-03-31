@@ -86,7 +86,7 @@ RUN jupyter labextension install jupyterlab-plotly@4.* --no-build && \
     rm -rf "/home/${NB_USER}/.cache/yarn"
 
 # custom config
-COPY config /etc/jupyter/
+COPY jupyter_notebook_config.py /etc/jupyter/
 
 # custom local (Python) modules
 COPY local_python_modules /opt/local_python_modules

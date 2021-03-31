@@ -7,6 +7,14 @@ from s3contents import GCSContentsManager
 
 c = get_config()
 
+# Iframe stuff
+c.NotebookApp.tornado_settings = {
+    'headers': {
+        'Content-Security-Policy':
+        "frame-ancestors 'self' http://localhost:8000"
+    }
+}
+
 # Contents managers
 # We start with a LargeFileManager at the root, and we will mount other managers depending on
 # user permissions
@@ -41,4 +49,4 @@ for gcs_config in []:
 # Fix for https://github.com/BLSQ/habari/issues/31
 c.GenericFileCheckpoints.root_dir = "./.checkpoints"
 
-c.ServerApp.tornado_settings = {"autoreload": os.environ.get("DEBUG", False)}
+c.ServerApp.tornado_settings = {"autoreload": True}
