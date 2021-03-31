@@ -1,13 +1,14 @@
 import os
-from jupyterhub.auth import DummyAuthenticator
+from jupyterhub.auth import Authenticator
+from jupyterhub.handlers import BaseHandler
+import requests
+from tornado import gen, web
 
 c = get_config()
 
 # General
 c.Spawner.default_url = "/lab"
-c.Spawner.args = [
-    "--ResourceUseDisplay.track_cpu_percent=True"
-]
+c.Spawner.args = ["--ResourceUseDisplay.track_cpu_percent=True"]
 
 # Docker Spawner (see https://github.com/jupyterhub/dockerspawner)
 c.JupyterHub.spawner_class = "dockerspawner.DockerSpawner"
@@ -36,19 +37,64 @@ c.JupyterHub.hub_connect_ip = os.environ[
     "HUB_IP"
 ]  # ip as seen on the docker network. Can also be a hostname.
 
-# TODO: custom auth
-c.JupyterHub.authenticator_class = DummyAuthenticator
-c.DummyAuthenticator.password = "openhexa"
+
+# Authentication
+# Our custom authenticator uses a login handler that forwards the cookies from the app component for
+# cross-components authentication
+
+
+class AppAuthenticatorLoginHandler(BaseHandler):
+    """This login handler uses the cookies set by our app component. As the app and notebooks components run
+    on the same domain, we can make a request to the app component using the cookies that it had set."""
+
+    def get(self):
+        try:
+            response = requests.get(
+                os.environ["APP_USER_INFO_URL"],
+                cookies={"sessionid": self.cookies["sessionid"].value},
+            )
+        except requests.RequestException:
+            raise web.HTTPError(401)
+
+        if response.status_code == 200:
+            user = self.user_from_username(response.json()["username"])
+            self.set_login_cookie(user)
+            next_url = self.get_next_url(user)
+            self.redirect(next_url)
+
+        raise web.HTTPError(401)
+
+
+class AppAuthenticator(Authenticator):
+    """This authenticator redefines the handlers to use our cookies-based login handler."""
+
+    def get_handlers(self, app):
+        return [
+            (r"/login", AppAuthenticatorLoginHandler),
+        ]
+
+    @gen.coroutine
+    def authenticate(self, *args):
+        """This authenticator does not support "form" authentication."""
+
+        raise NotImplementedError()
+
+
+c.JupyterHub.authenticator_class = AppAuthenticator
 
 # Use Postgres as the hub database
 c.JupyterHub.db_url = os.environ["HUB_DB_URL"]
 
 # shutdown the server after no activity for an hour
-#c.NotebookApp.shutdown_no_activity_timeout = 60 * 60
+# c.NotebookApp.shutdown_no_activity_timeout = 60 * 60
 # shutdown kernels after no activity for 20 minutes
 # c.MappingKernelManager.cull_idle_timeout = 20 * 60
 # check for idle kernels every two minutes
 # c.MappingKernelManager.cull_interval = 2 * 60
 
 # Allow hub to be embedded in an iframe
-c.JupyterHub.tornado_settings = {'headers': {'Content-Security-Policy': "frame-ancestors 'self' http://localhost:8000"}}
+c.JupyterHub.tornado_settings = {
+    "headers": {
+        "Content-Security-Policy": "frame-ancestors 'self' http://localhost:8000"
+    }
+}

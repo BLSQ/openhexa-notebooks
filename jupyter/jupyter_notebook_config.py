@@ -9,9 +9,8 @@ c = get_config()
 
 # Iframe stuff
 c.NotebookApp.tornado_settings = {
-    'headers': {
-        'Content-Security-Policy':
-        "frame-ancestors 'self' http://localhost:8000"
+    "headers": {
+        "Content-Security-Policy": "frame-ancestors 'self' http://localhost:8000"
     }
 }
 
