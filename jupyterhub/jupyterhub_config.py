@@ -49,16 +49,24 @@ class AppAuthenticatorLoginHandler(BaseHandler):
 
     def get(self):
         try:
-            response = requests.get(
-                os.environ["APP_USER_INFO_URL"],
-                cookies={"sessionid": self.cookies["sessionid"].value},
+            response = requests.post(
+                os.environ["APP_CREDENTIALS_URL"],
+                data={"csrfmiddlewaretoken": self.cookies["csrftoken"].value},
+                cookies={
+                    "sessionid": self.cookies["sessionid"].value,
+                    "csrftoken": self.cookies["csrftoken"].value,
+                },
             )
         except requests.RequestException:
             raise web.HTTPError(401)
 
         if response.status_code == 200:
-            user = self.user_from_username(response.json()["username"])
+            response_data = response.json()
+            user = self.user_from_username(response_data["username"])
             self.set_login_cookie(user)
+
+            # Attach credentials to the user model - they will be used later to set env variables on the spawner
+            user._credentials = {"env": response_data["env"]}
             next_url = self.get_next_url(user)
             self.redirect(next_url)
 
@@ -67,6 +75,12 @@ class AppAuthenticatorLoginHandler(BaseHandler):
 
 class AppAuthenticator(Authenticator):
     """This authenticator redefines the handlers to use our cookies-based login handler."""
+
+    def pre_spawn_start(self, user, spawner):
+        super().pre_spawn_start(user, spawner)
+        # Update the spawner env variables with the credentials attached earlier (see AppAuthenticatorLoginHandler)
+        if hasattr(user, "_credentials"):
+            spawner.environment.update(user._credentials["env"])
 
     def get_handlers(self, app):
         return [

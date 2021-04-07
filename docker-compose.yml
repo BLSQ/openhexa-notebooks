@@ -15,7 +15,7 @@ services:
       HUB_IP: jupyterhub
       HUB_DB_URL: postgresql://postgres:postgres@postgres:5432/jupyterhub
       APP_URL: http://localhost:8000
-      APP_USER_INFO_URL: http://host.docker.internal:8000/user/info
+      APP_CREDENTIALS_URL: http://host.docker.internal:8000/notebooks/credentials
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./jupyterhub:/srv/jupyterhub/
