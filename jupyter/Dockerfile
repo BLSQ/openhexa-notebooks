@@ -1,4 +1,4 @@
-FROM jupyter/datascience-notebook:3395de4db93a
+FROM jupyter/datascience-notebook:8d32a5208ca1
 
 USER root
 
@@ -10,7 +10,13 @@ RUN apt-get install -y libgdal-dev
 # For sf (R)
 RUN apt-get install -y libudunits2-dev
 
-USER $NB_UID
+# Install AWS CLI tools
+RUN mkdir -p /usr/local/src/awcli
+WORKDIR /usr/local/src/awcli
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
+RUN rm -rf /usr/local/src/awcli
 
 # Use mamba instead of conda
 RUN conda install --quiet --yes mamba -c conda-forge
@@ -42,6 +48,7 @@ RUN mamba install --quiet --yes \
 # Python packages, in multiple steps for Docker layering (mamba preferred method)
 RUN mamba install --quiet --yes \
     'dask-ml=1.*' \
+    'dask-labextension=5.0.1' \
     'descartes=1.*' \
     'geoalchemy2=0.*' \
     'geopandas=0.*' \
