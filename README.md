@@ -36,12 +36,12 @@ the [`openhexa-pipelines`](https://github.com/blsq/openhexa-pipelines) repositor
 Notebooks component overview
 ----------------------------
 
-The **Notebook component** is not meant to be use in a stand-alone fashion. It is a part of the OpenHexa platform, and
+The **Notebooks component** is not meant to be use in a stand-alone fashion. It is a part of the OpenHexa platform, and
 from a user perspective, it is embedded within the [OpenHexa App](https://github.com/BLSQ/openhexa-app) component.
 
-The **Notebook component** is a JupyterHub setup, deployed in a **Kubernetes cluster**. OpenHexa relies on the official
+The **Notebooks component** is a JupyterHub setup, deployed in a **Kubernetes cluster**. OpenHexa relies on the official
 [Zero to JupyterHub](https://zero-to-jupyterhub.readthedocs.io/) Jupyterhub distribution, which contains a Helm chart
-that we use to manage deployments.
+to manage deployments.
 
 When the hub starts a single-user Jupyter notebook server, it actually spawns a new pod within the Kubernetes cluster. 
 Each single-user server instance is totally isolated from other instances.
@@ -50,382 +50,237 @@ Those single-user server instances use a customized Docker image based on the `d
 the [Jupyter Docker Stacks](https://github.com/jupyter/docker-stacks) project. The OpenHexa Docker image is publicly 
 available on [Docker Hub](https://hub.docker.com/r/blsq/openhexa-jupyuter).
 
-Data stores
------------
-
-TBC (// with openhexa-app).
-
-Requirements
-------------
-
-In order to run the OpenHexa platform, you will need, at the minimum:
-
-1. A Kubernetes cluster
-1. A PostgreSQL server running PostgreSQL 11 or later
-1. An Airflow server
-
 Provisioning
 ------------
 
-### Kubernetes cluster
+**Note:** the following instructions are tailored to a Google Cloud Platform setup (using Google Kubernetes Engine and
+Google Cloud SQL). OpenHexa can be deployed on other cloud providers or in a private cloud, but you will need to adapt
+the instructions below to your infrastructure of choice.
 
-The Django application and the Jupyterhub instance will both run on the Kubernetes cluster
+### Requirements
 
+In order to run the OpenHexa **App component**, you will need:
 
-### PostgreSQL
+1. A **Kubernetes cluster**
+1. A **PostgreSQL server** running PostgreSQL 11 or later
 
-TBC.
+It is perfectly fine to run the OpenHexa **Notebooks component** in an existing Kubernetes cluster. All the Kubernetes
+resources created for this component will be attached to a specific Kubernetes namespace named `hexa-notebooks`.
 
+#### Configure gcloud
 
+We will need the [`gcloud`](https://cloud.google.com/sdk/gcloud) command-line tool for the next steps. Make sure it is
+installed and configured properly - among other things, that the appropriate configuration is active.
 
-### Set up Helm
-
-We use Helm 3 for deployment, which is still in preview mode for Zero To JupyterHub but appears to work quite well.
-
-It means that we don't need to configure Tiller. The Helm 3 setup is
-explained [here](https://zero-to-jupyterhub.readthedocs.io/en/latest/setup-jupyterhub/setup-helm3.html).
-
-Don't forget to add the JupyterHub helm chart repo:
-
-```bash
-helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
-helm repo update
-```
-
-### About the single-user server image
-
-The hub uses a custom single-user server image, based on the
-[`jupyter/datascience-notebook`](https://hub.docker.com/r/jupyter/datascience-notebook/) image. This
-[`blsq/habari-jupyter`](https://hub.docker.com/r/blsq/habari-jupyter) base image is available publicly on
-[Dockerhub](https://hub.docker.com/r/blsq/habari-jupyter).
-
-Note that we use incremental values for tags (`0.1`, `0.2` etc). It's safer to use those incremental tags in your
-project config files rather than relying on the `latest` tag, as the image puller service does not always detect that a
-new image has been published. It also prevents accidental deployments of new image versions.
-
-The sample project config file uses this base image. You can, however, use any other image. Images can be specified on a
-per-project basis (using the `singleuser.image` configuration as documented in the
-[Zero To Jupyterhub documentation](https://zero-to-jupyterhub.readthedocs.io/en/latest/resources/reference.html#singleuser-image))
-.
-
-Creating a new project
-----------------------
-
-Now that you have a running cluster, and the JupyterHub Helm chart, you can create a new project. The project will be
-deployed in its own Kubernetes namespace.
-
-### Add a Helm values file
-
-We will use two [Helm values files](https://helm.sh/docs/chart_template_guide/values_files/) when deploying:
-
-1. The base `shared_config.yaml` file, containing config values shared across projects
-1. A project-specific file
-
-You will use both files when deploying the project using `helm`.
-
-Feel free to organize project config files as you see fit. Be careful about version control: those project-specific file
-typically contain sensitive data (such as database or s3 credentials). You can either ignore the files in version
-control, encrypt them (using [sops](https://github.com/mozilla/sops) for example), or handle those config files in a
-secure fashion in your continuous deployment infrastructure.
-
-To create a new project, simply copy the `sample_project_config.yaml`:
+The following command will show which configuration you are using:
 
 ```bash
-cd jupyter
-cp sample_project_config.yaml path_to_project_config.yaml
+gcloud config configurations list
 ```
 
-You can already fill some of the values within the files. You will set other values while going through the installation
-steps below.
+#### Create a Cloud SQL instance
 
-The sample file is commented with links to the relevant parts of the Zero To JupyterHub documentation. Most of the edits
-you need to make are straightforward.
+Unless you already have a ready-to-use Google Cloud SQL instance, you can create one using the following command:
 
-### Create a GitHub OAuth application
-
-As of now, Habari uses Github to authenticate its users. The setup is documented
-[here](https://zero-to-jupyterhub.readthedocs.io/en/latest/administrator/authentication.html#github).
-
-For the `Authorization callback URL` parameter, use `https://your-habari-workspace-address/hub/oauth_callback`.
-
-Please note that you will need to whitelist both admin and regular users using their Github usernames in your project
-config (see the "Add a Helm values file" section below).
-
-Update the Helm values file with the application client id and secret (in `auth.github`).
-
-### Create the S3 buckets and associated user
-
-For each project, you need to:
-
-- Create the "lake" and "notebooks" buckets in S3, and note their names somewhere
-- If you haven't done it already, create the "public" bucket
-- Create a user and attach an inline policy that grants access to the S3 buckets
-- Create an access key for the user, and note the associated `Access key ID` and `Secret access key`
-  (you will need them later)
-
-Example policy:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "S3HabariPublicBucketNameRead",
-      "Action": [
-        "s3:GetObject",
-        "s3:ListBucket"
-      ],
-      "Effect": "Allow",
-      "Resource": [
-        "arn:aws:s3:::public-bucket-name",
-        "arn:aws:s3:::public-bucket-name/*"
-      ]
-    },
-    {
-      "Sid": "S3HabariPublicBucketNameWriteKeepFile",
-      "Action": [
-        "s3:*"
-      ],
-      "Effect": "Allow",
-      "Resource": [
-        "arn:aws:s3:::public-bucket-name/.s3keep"
-      ]
-    },
-    {
-      "Sid": "S3HabariLakeBucketName",
-      "Action": "s3:*",
-      "Effect": "Allow",
-      "Resource": [
-        "arn:aws:s3:::lake-bucket-name",
-        "arn:aws:s3:::lake-bucket-name/*"
-      ]
-    },
-    {
-      "Sid": "S3HabariNotebookBucketName",
-      "Action": "s3:*",
-      "Effect": "Allow",
-      "Resource": [
-        "arn:aws:s3:::notebooks-bucket-name",
-        "arn:aws:s3:::notebooks-bucket-name/*"
-      ]
-    }
-  ]
-}
+```bash
+gcloud sql instances create hexa-main \
+ --database-version=POSTGRES_12 \
+ --cpu=2 --memory=7680MiB --zone=europe-west1-b --root-password=asecurepassword
 ```
 
-Update the Helm values file with the user credentials (in `singleuser.extraEnv` - `AWS_ACCESS_KEY_ID` and
-`AWS_SECRET_ACCESS_KEY`).
+You will then need to create a database for the Notebooks component:
 
-### Create the project databases
+```bash
+gcloud sql databases create hexa-notebooks --instance=hexa-main
+```
 
-Each Habari project uses two PostgreSQL databases:
+You will need a user as well:
 
-1. The "hub" database, used as an admin database for Jupyterhub itself (instead of the default SQLite database)
-1. The "explore" database, intended as a storage for user-generated data
+```bash
+gcloud sql users create hexa-notebooks --instance=hexa-main --password=asecurepassword
+```
 
-Create the two databases and the associated users (don't use the same PostgreSQL users across projects, especially for
-the explore database: its credentials are exposed to the end users).
+🚨 The created user will have root access on your instance. You should make sure to adapt its permissions accordingly if
+needed.
 
-Update the Helm values file with the database user credentials (in `hub.db.url` for the hub database, and in
-`singleuser.extraEnv` for the explore database - check the `EXPLORE_DB_` environment variables.
+The last step is to get the connection string of your Cloud SQL instance. Launch the following command and write down
+the value next to the `connectionName` key, you will need it later:
+
+```bash
+gcloud sql instances describe hexa-main
+```
+
+#### Create a service account for the Cloud SQL proxy
+
+The OpenHexa app component will connect to the Cloud SQL instance using a
+[Cloud SQL Proxy](https://cloud.google.com/sql/docs/postgres/sql-proxy). The proxy requires a GCP service account. If 
+you have not created such a service account yet, create one:
+
+```bash
+gcloud iam service-accounts create hexa-cloud-sql-proxy \
+  --display-name=hexa-cloud-sql-proxy \
+  --description='Used to allow pods to access Cloud SQL'
+```
+
+Give it the `roles/cloudsql.client` role:
+
+```bash
+gcloud projects add-iam-policy-binding blsq-dip-test \
+    --member=serviceAccount:hexa-cloud-sql-proxy@blsq-dip-test.iam.gserviceaccount.com \
+    --role=roles/cloudsql.client
+```
+
+Finally, download a key file for the service account and keep it somewhere safe, we will need it later:
+
+```bash
+mkdir -p ../gcp_keyfiles
+gcloud iam service-accounts keys create ../gcp_keyfiles/hexa-cloud-sql-proxy.json \
+  --iam-account=hexa-cloud-sql-proxy@blsq-dip-test.iam.gserviceaccount.com
+```
+
+Note that we deliberately download the key file outside the current repository to avoid it being included 
+in Git or in the Docker image.
+
+#### Create a GKE cluster:
+
+Unless you already have a running Kubernetes cluster, you need to create one. The following command 
+will create a new cluster in Google Kubernetes Engine, along with a default node pool:
+
+```bash
+gcloud container clusters create hexa-main \
+  --machine-type=n2-standard-2 \
+  --zone=europe-west1-b \
+  --enable-autoscaling \
+  --num-nodes=1 \
+  --min-nodes=1 \
+  --max-nodes=4 \
+  --cluster-version=latest
+```
+
+The default node pool will be used by JupyterHub. The single-user Jupyter server pods can run in the default pool, but 
+for performance considerations, we recommend creating a dedicated pool for them, with a more performant machine type:
+
+```bash
+gcloud container node-pools create user-pool-n2h16 \
+  --cluster hexa-main \
+  --machine-type=n2-highmem-16 \
+  --zone=europe-west1-b \
+  --enable-autoscaling \
+  --num-nodes=1 \
+  --min-nodes=1 \
+  --max-nodes=4 \
+  --node-labels=hub.jupyter.org/node-purpose=user \
+  --node-taints=hub.jupyter.org_dedicated=user:NoSchedule
+```
+
+The `node-labels` and `node-taints` options will allow JupyterHub to spawn the single-user Jupyter server pods in the 
+user node pool.
+
+To make sure that the `kubectl` utility can access the newly created cluster, you need to launch another command:
+
+```bash
+gcloud container clusters get-credentials hexa-main --region=europe-west1-b
+```
+
+Deploying
+---------
+
+### Prepare the cluster
+
+Before going further, check that `kubectl` is configured to use the proper cluster:
+
+```bash
+kubectl config current-context
+```
+
+Create a new namespace for the Notebooks component:
+
+```bash
+kubectl create namespace hexa-notebooks
+```
+
+Before we can deploy the Notebooks component, we need to create a secret for the Cloud SQL proxy:
+
+```bash
+kubectl create secret generic hexa-cloudsql-oauth-credentials -n hexa-notebooks \
+  --from-file=credentials.json=../gcp_keyfiles/hexa-cloud-sql-proxy.json
+```
+
+### Prepare the Helm values file
+
+We will deploy the Notebooks component with the `helm` utility. The Helm chart is deployed using a Helm values file 
+that provide the necessary customizations. We provide a sample `helm/sample_config.yaml` file to serve as a basis.
+
+Copy the sample value files and adapt it to your needs:
+
+```bash
+cp helm/sample_config.yaml helm/config.yaml
+nano helm/config.yaml
+```
+
+Most of the placeholders in the sample file are self-explanatory. A few notes about some of them:
+
+1. `HEXA_NOTEBOOKS_PROXY_SECRET_TOKEN` and `HEXA_NOTEBOOKS_HUB_COOKIE_SECRET` can be generated 
+   using the `openssl rand -hex 32` command
+1. `HEXA_NOTEBOOKS_DOMAIN` is the qualified domain name for the **Notebooks component** itself, without `https://`
+1. `CLOUDSQL_CONNECTION_STRING` can be obtained using the `gcloud sql instances describe hexa-main` command mentioned
+   earlier
+1. `HEXA_APP_DOMAIN` is the qualified domain name for the **App component** 
+   (see [https://github.com/blsq/openhexa-app](https://github.com/blsq/openhexa-app)) 
+1. You can use `HEXA_NOTEBOOKS_IMAGE_NAME` to specify which image to use for single-user Jupyter server
+   ([blsq/openhexa-base-notebook](https://hub.docker.com/r/blsq/openhexa-base-notebook) is a sensible default)
 
 ### Deploy
 
-You can then deploy using `helm`:
+You can them deploy the Helm chart in your cluster:
 
 ```bash
-helm upgrade --install "habari-<project_name>" jupyterhub/jupyterhub \
-  --namespace "<project_name>" \
-  --create-namespace \
-  --version=0.9.0 \
-  --values shared_config.yaml \
-  --values path_to_project_config.yaml
+helm upgrade --cleanup-on-fail --install hexa-notebooks jupyterhub/jupyterhub \
+  --namespace=hexa-notebooks \
+  --version=0.11.1-n379.hf1f2aa05 \
+  --values=helm/config.yaml \
+  --set-file=hub.extraFiles.jupyterhub_config.stringData=./jupyterhub/jupyterhub_config.py
 ```
 
-Updating and redeploying an existing project
---------------------------------------------
+Authentication
+--------------
 
-Redeploying a project is a simple process:
+The **Notebooks component** uses a custom authenticator that will connect to the 
+(**App component**)[https://github.com/blsq/openhexa-app] to authenticate users. You will need to have the App 
+component up-and-running to be able to authenticate users.
 
-1. If needed, update the jupyter image used by the project
-1. Adapt the project-specific value files if appropriate (don't forget to change `singleuser.image.tag` if your jupyter
-   image has changed)
-1. Re-deploy using `helm`
+Data stores
+-----------
 
-The deploy command is the same as the one we used when creating the project:
+When the **Notebooks component** authenticates a user through the **App component**, it will also receive a set of 
+environment variables that can be used to connect to external data stores:
 
-```bash
-cd jupyter
-helm upgrade --install "habari-<project_name>" jupyterhub/jupyterhub \
-  --namespace "<project_name>" \
-  --version=0.9.0 \
-  --values shared_config.yaml \
-  --values path_to_project_config.yaml
-```
+- AWS S3 Bucket names and associated credentials (mounted on notebook servers using 
+  [s3contents](https://github.com/danielfrg/s3contents))
+- PostgreSQL database connection strings (users will have to use [SQLAlchemy](https://github.com/sqlalchemy) to connect 
+  to those)
 
 Uninstalling
 ------------
 
-Please note that that
-the ["Tearing Everything Down"](https://zero-to-jupyterhub.readthedocs.io/en/latest/setup-jupyterhub/turn-off.html)
-section of the Zero To Jupyterhub doc is not up-to-date for Helm 3. Give it a read to check the specifics for your cloud
-provider.
-
-You can use `helm` and `kubectl` to delete the Helm release and the Kubernetes namespace:
+You can uninstall the Helm release and delete the Kubernetes namespace using the following commands:
 
 ```bash
-helm uninstall "habari-<project_name>" --namespace "<project_name>"
-kubectl delete namespace <project_name>
+helm uninstall hexa-notebooks --namespace=hexa-notebooks
+kubectl delete namespace hexa-notebooks
 ```
 
-Local setup
------------
+Please note that this will only delete the deployment and the namespace, not resources provisioned for the project.
 
-When developing / testing locally, you have two options:
+Local development
+-----------------
 
-1. Launching Jupyter only (without the hub) using `docker-compose` - this might be ideal when developing Jupyter
-   extensions or Jupyter-specific code
-1. Launching Habari in a local Kubernetes cluster - this is the best option if you want a local setup close to the
-   production one
+This repository provides a ready-to-use `docker-compose.yaml` file for local development. It assumes that the 
+[App component](https://github.com/blsq/openhexa-app) is running on [http://localhost:8000](http://localhost:8000).
 
-### Jupyter-only with docker-compose
-
-First, create the S3 buckets, the IAM user and the associated policy. You can use the same instructions as for the cloud
-setup described above.
-
-You can then enter the `jupyter` directory and copy the `.env` file:
-
-```bash
-cd jupyter
-cp .env.dist .env
-```
-
-Adapt the copied file to your needs using the AWS credentials created earlier.
-
-Build the Docker images and launch:
+Build the images, and you are ready to go:
 
 ```bash
 docker-compose build
 docker-compose up
-```
-
-The platform will be available at http://localhost:8000/.
-
-### Local Kubernetes cluster
-
-First, create the Github Oauth app, the S3 buckets, the IAM user and the associated policy. You can use the same
-instructions as for the cloud setup described above.
-
-Then, make sure that you current Kubernetes context is correct: `kubectl config current-context` should return the name
-of your local cluster.
-
-For your convenience, we provide a `docker-compose.postgres.yaml` file to provision locally the different Postgres
-instances:
-
-```bash
-cd jupyter
-docker-compose -f docker-compose.postgres.yaml up
-```
-
-You can then follow the same instructions as the ones provided for the cloud setup above, keeping in mind that:
-
-- The `proxy.https` part can be commented, as it will be challenging to make it work locally
-- The Github Oauth system won't work with localhost - you will have to use something like
-  [ngrok](https://ngrok.com/), and use the provided IP address in the Oauth app setting and in your project config file
-- The Kubernetes pods won't be able to connect to the database through localhost, you will need to use an IP
-  (if you use Docker Desktop on Mac, `host.docker.internal` will do the trick)
-
-Troubleshooting
----------------
-
-### My hub is configured with letsencrypt but is not accessible through tls/https
-
-It might be an issue with the `autohttps` service. A possible solution is to delete the `autohttps` pod in your project
-namespace and redeploy.
-
-Platform
---------
-
-🚧 This part of the platform is very WIP
-
-What we mean by platform is a web application, in which the Jupyter component described above will be embedded.
-
-As of now, the platform is a simple Django application connected to a PostgreSQL database. A `docker-compose` file
-allows run to develop and test it locally.
-
-The UX relies on TailwindCSS (& TailwindUI), through [django-tailwind](https://github.com/timonweb/django-tailwind).
-
-A [`blsq/habari-platform`](https://hub.docker.com/r/blsq/habari-platform) Docker image is published on Docker hub for
-your convenience.
-
-### Local development
-
-Build and Launch with:
-
-```bash
-docker-compose build
-docker-compose up
-```
-
-In another terminal, use the `fixtures` command to migrate, create a superuser and load the fixtures:
-
-```bash
-docker-compose run app fixtures
-```
-
-If you want to perform TailwindUI/TailwindCSS optimizations or update, you need to start tailwind in dev mode:
-
-`docker-compose run app python manage.py tailwind start`.
-
-### Tests
-
-Running the tests is as simple as:
-
-```bash
-docker-compose run app test
-```
-
-Some tests call external resources (such as the public DHIS2 API) and will slow down the suite. You can exclude them 
-when running the test suite for unrelated parts of the codebase:
-
-```bash
-docker-compose run app test --exclude-tag=external
-```
-
-Test coverage is evaluated using the [`coverage`](https://github.com/nedbat/coveragepy) library:
-
-```bash
-docker-compose run app coverage
-```
-
-### Code style
-
-Our python code is linted using [`black`](https://github.com/psf/black).
-
-We use a [pre-commit](https://pre-commit.com/) hook to lint the code before committing. Make sure that `pre-commit` is 
-installed, and run `pre-commit install` the first time you check out the code.
-
-### Deploying
-
-This Django application can be deployed on any server that supports Python. The `k8s` directory contains a sample
-Kubernetes deployment config.
-
-The platform docker image can be built (or rebuilt) using the "Build Platform image" Github workflow. Update the `Dockerfile`
-and launch the workflow to publish it on Dockerhub.
-
-Don't forget to build the production stylesheet before rebuilding your image:
-
-`docker-compose run app manage tailwind build`.
-
-### Building the image
-
-We build the platform image using the following commands:
-
-```bash
-docker build -t habari-platform .
-docker tag habari-platform:latest habari-platform:x.y.z
-docker tag habari-platform:latest blsq/habari-platform:latest
-docker tag habari-platform:x.y.z blsq/habari-platform:x.y.z
-docker push blsq/habari-platform:latest
-docker push blsq/habari-platform:x.y.z
 ```
