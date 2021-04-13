@@ -8,6 +8,8 @@ proxy:
       - <HEXA_NOTEBOOKS_DOMAIN>  # without https://
     letsencrypt:
       contactEmail: <HEXA_NOTEBOOKS_PROXY_HTTP_LETSENCRYPT_CONTACT_EMAIL>
+  service:
+    loadBalancerIP: <HEXA_NOTEBOOKS_PROXY_SERVICE_LOAD_BALANCER_IP>
 
 hub:
   # https://zero-to-jupyterhub.readthedocs.io/en/stable/resources/reference.html#hub-cookiesecret

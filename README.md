@@ -236,6 +236,7 @@ Most of the placeholders in the sample file are self-explanatory. A few notes ab
 
 1. `HEXA_NOTEBOOKS_PROXY_SECRET_TOKEN` and `HEXA_NOTEBOOKS_HUB_COOKIE_SECRET` can be generated 
    using the `openssl rand -hex 32` command
+1. For `HEXA_NOTEBOOKS_PROXY_SERVICE_LOAD_BALANCER_IP`, use the value of the static IP address created earlier
 1. `HEXA_NOTEBOOKS_DOMAIN` is the qualified domain name for the **Notebooks component** itself, without `https://`
 1. `CLOUDSQL_CONNECTION_STRING` can be obtained using the `gcloud sql instances describe hexa-main` command mentioned
    earlier
