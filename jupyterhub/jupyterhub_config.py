@@ -4,8 +4,6 @@ from jupyterhub.handlers import BaseHandler
 import requests
 from tornado import gen, web
 
-c = get_config()
-
 
 # Authentication
 # Our custom authenticator uses a login handler that forwards the cookies from the app component for

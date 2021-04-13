@@ -4,8 +4,6 @@ from jupyterhub.handlers import BaseHandler
 import requests
 from tornado import gen, web
 
-c = get_config()
-
 # General
 c.Spawner.default_url = "/lab"
 c.Spawner.args = ["--ResourceUseDisplay.track_cpu_percent=True"]
