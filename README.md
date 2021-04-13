@@ -63,6 +63,8 @@ In order to run the OpenHexa **App component**, you will need:
 
 1. A **Kubernetes cluster**
 1. A **PostgreSQL server** running PostgreSQL 11 or later
+1. An up-and-running instance of the OpenHexa **App component** (see 
+   [https://github.com/blsq/openhexa-app](https://github.com/blsq/openhexa-app))
 
 It is perfectly fine to run the OpenHexa **Notebooks component** in an existing Kubernetes cluster. All the Kubernetes
 resources created for this component will be attached to a specific Kubernetes namespace named `hexa-notebooks`.
@@ -78,7 +80,7 @@ The following command will show which configuration you are using:
 gcloud config configurations list
 ```
 
-#### Create a Cloud SQL instance
+#### Create a Cloud SQL instance, database and user
 
 Unless you already have a ready-to-use Google Cloud SQL instance, you can create one using the following command:
 
@@ -182,6 +184,18 @@ To make sure that the `kubectl` utility can access the newly created cluster, yo
 gcloud container clusters get-credentials hexa-main --region=europe-west1-b
 ```
 
+#### Create a global IP address (and a DNS record)
+
+The Kubernetes ingress used to access the OpenHexa notebooks component exposes an external IP. This IP might change 
+when re-deploying or re-provisioning. In order to prevent it, create an address in GCP compute and get back its value:
+
+```bash
+gcloud compute addresses create <HEXA_NOTEBOOKS_ADDRESS_NAME> --global
+gcloud compute addresses describe <HEXA_NOTEBOOKS_ADDRESS_NAME> --global
+```
+
+Then, you can create a DNS record that points to the ip address returned by the `describe` command above.
+
 Deploying
 ---------
 
@@ -259,6 +273,14 @@ environment variables that can be used to connect to external data stores:
   [s3contents](https://github.com/danielfrg/s3contents))
 - PostgreSQL database connection strings (users will have to use [SQLAlchemy](https://github.com/sqlalchemy) to connect 
   to those)
+
+Building the Docker image
+-------------------------
+
+The OpenHexa Notebooks base Docker image is publicly available on Docker Hub
+([blsq/openhexa-base-notebook](https://hub.docker.com/r/blsq/openhexa-base-notebook)).
+
+This repository also provides a Github workflow to build the Docker image in the `.github/workflows` directory.
 
 Uninstalling
 ------------
