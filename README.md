@@ -163,7 +163,7 @@ The default node pool will be used by JupyterHub. The single-user Jupyter server
 for performance considerations, we recommend creating a dedicated pool for them, with a more performant machine type:
 
 ```bash
-gcloud container node-pools create user-pool-n2h4 \
+gcloud container node-pools create user-pool-n2h2 \
   --cluster hexa-main \
   --machine-type=n2-highmem-2 \
   --zone=europe-west1-b \
