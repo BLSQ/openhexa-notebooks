@@ -20,7 +20,7 @@ c.DockerSpawner.debug = True
 c.DockerSpawner.remove = True
 c.DockerSpawner.network_name = os.environ["DOCKER_NETWORK_NAME"]
 
-c.DockerSpawner.env_keep = ["APP_URL"]
+c.DockerSpawner.env_keep = ["APP_URL", "CONTENT_SECURITY_POLICY"]
 
 # Volume mounts & environment variables
 # c.DockerSpawner.volumes = {

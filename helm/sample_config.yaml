@@ -27,9 +27,10 @@ hub:
     10-authenticator: |
       c.JupyterHub.authenticator_class = AppAuthenticator
     20-tornado: |
+      import os
       c.JupyterHub.tornado_settings = {
           "headers": {
-              "Content-Security-Policy": f"frame-ancestors 'self' {os.environ['APP_URL']}"
+              "Content-Security-Policy": os.environ["CONTENT_SECURITY_POLICY"],
           }
       }
   extraContainers:
@@ -49,6 +50,7 @@ hub:
   extraEnv:
     APP_URL: https://<HEXA_APP_DOMAIN>
     APP_CREDENTIALS_URL: https://<HEXA_APP_DOMAIN>/notebooks/credentials/
+    CONTENT_SECURITY_POLICY: "frame-ancestors 'self' <HEXA_APP_DOMAIN>;"
   extraVolumes:
     - name: cloudsql-oauth-credentials
       secret:
@@ -88,6 +90,8 @@ singleuser:
   memory:
     limit: 32G
     guarantee: 512M
+  extraEnv:
+    CONTENT_SECURITY_POLICY: "frame-ancestors 'self' <HEXA_APP_DOMAIN>;"
 
 scheduling:
   # see https://zero-to-jupyterhub.readthedocs.io/en/latest/administrator/optimization.html#optimizations
