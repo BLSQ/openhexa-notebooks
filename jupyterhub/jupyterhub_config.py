@@ -16,10 +16,8 @@ class AppAuthenticatorLoginHandler(BaseHandler):
         try:
             response = requests.post(
                 os.environ["APP_CREDENTIALS_URL"],
-                data={"csrfmiddlewaretoken": self.cookies["csrftoken"].value},
                 cookies={
                     "sessionid": self.cookies["sessionid"].value,
-                    "csrftoken": self.cookies["csrftoken"].value,
                 },
             )
         except requests.RequestException:
