@@ -57,13 +57,3 @@ class AppAuthenticator(Authenticator):
         """This authenticator does not support "form" authentication."""
 
         raise NotImplementedError()
-
-
-c.JupyterHub.authenticator_class = AppAuthenticator
-
-# Allow hub to be embedded in an iframe
-c.JupyterHub.tornado_settings = {
-    "headers": {
-        "Content-Security-Policy": f"frame-ancestors 'self' {os.environ['APP_URL']}"
-    }
-}

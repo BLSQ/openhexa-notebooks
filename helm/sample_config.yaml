@@ -24,6 +24,14 @@ hub:
       c.Spawner.args = [
         "--ResourceUseDisplay.track_cpu_percent=True"
       ]
+    10-authenticator: |
+      c.JupyterHub.authenticator_class = AppAuthenticator
+    20-tornado: |
+      c.JupyterHub.tornado_settings = {
+          "headers": {
+              "Content-Security-Policy": f"frame-ancestors 'self' {os.environ['APP_URL']}"
+          }
+      }
   extraContainers:
     - name: cloudsql-proxy
       image: gcr.io/cloudsql-docker/gce-proxy:1.21.0

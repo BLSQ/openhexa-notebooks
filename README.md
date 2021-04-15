@@ -80,6 +80,18 @@ The following command will show which configuration you are using:
 gcloud config configurations list
 ```
 
+#### Create a regional IP address (and a DNS record)
+
+The Kubernetes ingress used to access the OpenHexa notebooks component exposes an external IP. This IP might change 
+when re-deploying or re-provisioning. In order to prevent it, create an address in GCP compute and get back its value:
+
+```bash
+gcloud compute addresses create <HEXA_NOTEBOOKS_ADDRESS_NAME> --region=europe-west1
+gcloud compute addresses describe <HEXA_NOTEBOOKS_ADDRESS_NAME> --region=europe-west1
+```
+
+Then, you can create a DNS record that points to the ip address returned by the `describe` command above.
+
 #### Create a Cloud SQL instance, database and user
 
 Unless you already have a ready-to-use Google Cloud SQL instance, you can create one using the following command:
@@ -184,18 +196,6 @@ To make sure that the `kubectl` utility can access the newly created cluster, yo
 gcloud container clusters get-credentials hexa-main --region=europe-west1-b
 ```
 
-#### Create a global IP address (and a DNS record)
-
-The Kubernetes ingress used to access the OpenHexa notebooks component exposes an external IP. This IP might change 
-when re-deploying or re-provisioning. In order to prevent it, create an address in GCP compute and get back its value:
-
-```bash
-gcloud compute addresses create <HEXA_NOTEBOOKS_ADDRESS_NAME> --global
-gcloud compute addresses describe <HEXA_NOTEBOOKS_ADDRESS_NAME> --global
-```
-
-Then, you can create a DNS record that points to the ip address returned by the `describe` command above.
-
 Deploying
 ---------
 
@@ -252,9 +252,17 @@ You can them deploy the Helm chart in your cluster:
 ```bash
 helm upgrade --cleanup-on-fail --install hexa-notebooks jupyterhub/jupyterhub \
   --namespace=hexa-notebooks \
-  --version=0.11.1-n379.hf1f2aa05 \
+  --version=0.11.1-n393.h2aa513d9 \
   --values=helm/config.yaml \
   --set-file=hub.extraFiles.jupyterhub_config.stringData=./jupyterhub/jupyterhub_config.py
+```
+
+There is currently an issue with the `autohttps` pod, which seems to start too early (before the successful deployment 
+of the load balancer), resulting in the inability to provision the certificate. After a first deployment, you will 
+have to restart it: 
+
+```bash
+kubectl rollout restart deployment/autohttps --namespace=hexa-notebooks        
 ```
 
 Authentication
