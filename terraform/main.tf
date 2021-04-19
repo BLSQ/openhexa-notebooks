@@ -14,12 +14,12 @@ resource "google_compute_address" "hexa" {
 
 # Create a DNS record
 data "aws_route53_zone" "blsq" {
-  name         = "bluesquare.org"
+  name         = "openhexa.org"
   private_zone = false
 }
 resource "aws_route53_record" "www" {
   zone_id = data.aws_route53_zone.blsq.zone_id
-  name    = "openhexa.${data.aws_route53_zone.blsq.name}"
+  name    = "${var.record_name}.test.${data.aws_route53_zone.blsq.name}"
   type    = "A"
   ttl     = "300"
   records = [

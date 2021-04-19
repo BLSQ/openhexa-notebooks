@@ -81,3 +81,8 @@ variable "gcp_global_address_region" {
   default = "europe-west1"
 }
 
+# Route 53
+
+variable "record_name" {
+  default = "notebooks"
+}
