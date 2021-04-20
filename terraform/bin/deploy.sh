@@ -24,7 +24,7 @@ gcloud iam service-accounts keys create ../gcp_keyfiles/hexa-cloud-sql-proxy.jso
   --iam-account=$gcp_service_account_email
 
 # Make sure that the kubectl utility can access the newly created cluster
-gcloud container clusters get-credentials $gcp_gke_cluster_name --zone $gcp_gke_cluster_zone
+gcloud container clusters get-credentials $gcp_gke_cluster_name --region=$gcp_gke_cluster_zone
  
 # Create a specific Kubernetes namespace
 kubectl create namespace $namesapce
@@ -43,9 +43,6 @@ then
     echo "Sed Failure!"
     exit 1
 fi
-
-echo "HEXA_NOTEBOOKS_PROXY_SECRET_TOKEN: $(openssl rand -hex 32)" >> "$output_file_path" 
-echo "HEXA_NOTEBOOKS_HUB_COOKIE_SECRET: $(openssl rand -hex 32)" >> "$output_file_path"
 
 # Update app file using Python
 
