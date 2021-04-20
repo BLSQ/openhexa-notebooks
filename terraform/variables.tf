@@ -23,7 +23,10 @@ variable "gcp_sql_database_name" {
 variable "gcp_sql_user_name" {
   default = "hexa-notebooks"
 }
-
+variable "disk_size" {
+  description = "The disk size for the master instance."
+  default     = 10
+}
 #Service account for the Cloud SQL proxy
 variable "account_id" {
   default = "hexa-cloud-sql-proxy"
@@ -46,7 +49,7 @@ variable "gcp_gke_default_machine_type" {
   description = " GCP machine type"
 }
 variable "gcp_gke_default_pool_name" {
-  default = "default-pool-n2s2"
+  default = "default-pool"
 }
 variable "gcp_gke_user_machine_type" {
   default     = "n2-highmem-2"
@@ -75,7 +78,7 @@ variable "gcp_gke_user_node_pool_taint_value" {
 
 # Global IP address
 variable "gcp_global_address_name" {
-  default = "openhexa-test"
+  default = "hexa-test-notebooks"
 }
 variable "gcp_global_address_region" {
   default = "europe-west1"

@@ -34,9 +34,18 @@ resource "google_sql_database_instance" "hexa" {
   region           = var.gcp_sql_instance_region
   root_password    = random_password.root_password.result
   settings {
-    tier = var.gcp_sql_machine_type_tier
-  }
+    tier      = var.gcp_sql_machine_type_tier
+    disk_size = var.disk_size
 
+    ip_configuration {
+      ipv4_enabled = true
+      require_ssl  = false
+
+    }
+    location_preference {
+      zone = "europe-west1-b"
+    }
+  }
 }
 resource "random_password" "root_password" {
   length  = 48
@@ -81,6 +90,7 @@ resource "google_project_iam_binding" "hexa" {
 resource "google_container_cluster" "hexa" {
   name     = var.gcp_gke_cluster_name
   location = var.gcp_gke_cluster_zone
+  # Default Node Pool
   node_pool {
     name       = var.gcp_gke_default_pool_name
     node_count = 1
@@ -95,28 +105,26 @@ resource "google_container_cluster" "hexa" {
       }
     }
   }
-  lifecycle {
-    ignore_changes = [ip_allocation_policy]
-  }
-}
-
-resource "google_container_node_pool" "hexa" {
-  name       = var.gcp_gke_user_node_pool_name
-  location   = var.gcp_gke_user_node_pool_zone
-  cluster    = google_container_cluster.hexa.name
-  node_count = 1
-  autoscaling {
-    max_node_count = 4
-    min_node_count = 1
-  }
-
-  node_config {
-    machine_type = var.gcp_gke_user_machine_type
-    taint {
+  # User Node Pool
+   node_pool {
+    name       = var.gcp_gke_user_node_pool_name
+    node_count = 1
+    autoscaling {
+      max_node_count = 4
+      min_node_count = 1
+    }
+    node_config {
+      machine_type = var.gcp_gke_user_machine_type
+      metadata = {
+        disable-legacy-endpoints = true
+      }
+      taint {
       effect = var.gcp_gke_user_node_pool_taint_effect
       key    = var.gcp_gke_user_node_pool_taint_key
       value  = var.gcp_gke_user_node_pool_taint_value
     }
     labels = var.gcp_gke_user_node_pool_labels
+    }
   }
+ 
 }

@@ -18,9 +18,6 @@ output "gcp_gke_cluster_name" {
 output "hexa_domain" {
   value = aws_route53_record.www.name
 }
-output "NODE_POOL_SELECTOR" {
-  value = google_container_cluster.hexa.node_pool.0.name
-}
 output "gcp_compute_address" {
   value = google_compute_address.hexa.address
 }
