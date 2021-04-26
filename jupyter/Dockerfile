@@ -1,4 +1,4 @@
-FROM jupyter/datascience-notebook:8d32a5208ca1
+FROM jupyter/datascience-notebook:584f43f06586
 
 USER root
 
@@ -16,6 +16,7 @@ WORKDIR /usr/local/src/awcli
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 RUN unzip awscliv2.zip
 RUN ./aws/install
+WORKDIR $HOME
 RUN rm -rf /usr/local/src/awcli
 
 # Use mamba instead of conda
@@ -46,10 +47,12 @@ RUN mamba install --quiet --yes \
     && mamba clean --yes --all
 
 # Python packages, in multiple steps for Docker layering (mamba preferred method)
+# TODO: unpin s3contents, fsspec, gcsfs & s3fs once https://github.com/danielfrg/s3contents/issues/122 is fixed
 RUN mamba install --quiet --yes \
     'dask-ml=1.*' \
-    'dask-labextension=5.0.1' \
     'descartes=1.*' \
+    'fsspec=0.9.0' \
+    'gcsfs=0.8.0' \
     'geoalchemy2=0.*' \
     'geopandas=0.*' \
     'hybridcontents=0.*' \
@@ -61,9 +64,11 @@ RUN mamba install --quiet --yes \
     'psycopg2=2.*' \
     'rapidfuzz=0.*' \
     'rasterstats=0.*' \
-    's3contents=0.*' \
+    's3contents=0.6.0' \
+    's3fs=0.4.2' \
     && mamba clean --yes --all
 
+# Jupyter extensions
 RUN mamba install --quiet --yes \
     'jupyter-dash=0.*' \
     'jupyter-server-proxy=1.*' \
@@ -72,13 +77,12 @@ RUN mamba install --quiet --yes \
 # Python packages (pip - for what is not available in mamba)
 RUN pip install \
     'cowsay==3.*' \
+    'fake-useragent==0.*' \
     'hdx-python-api==4.*' \
     'jupyterlab-topbar==0.*' \
     'jupyterlab-system-monitor==0.*' \
+    'lckr-jupyterlab-variableinspector==3.*' \
     'tabpy==2.*'
-RUN pip install \
-    'fake-useragent==0.*' \
-    'lckr-jupyterlab-variableinspector==3.*'
 
 # R packages (cran - for what is not available in mamba)
 RUN R -e "install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
