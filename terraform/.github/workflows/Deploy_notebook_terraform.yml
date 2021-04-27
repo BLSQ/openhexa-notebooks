@@ -64,70 +64,25 @@ jobs:
            service_account_key: ${{ secrets.GKE_SA_KEY_TEST }}
            export_default_credentials: true
            
-           
-      # Get outputs from file
+       # Get outputs from file
       - name: Terraform Output
-        run: terraform output >> "$output_file_path"
+        run: terraform output -json >> ./output.json
         
-      # Export variables from output file
-      - name: Export Variables
-        run: |
-          sed -i 's/ //g' ${{ github.event.inputs.output_file_path }} && sed -i 's/"//g' ${{ github.event.inputs.output_file_path }}
-          . $output_file_path
-
-      # Download a key file for the service account and keep it somewhere safe
-      - name: Download key file
-        run: |
-          mkdir -p ../gcp_keyfiles
-          gcloud iam service-accounts keys create ../gcp_keyfiles/hexa-cloud-sql-proxy.json \
-          --iam-account=$gcp_service_account_email
-
-      # Get the connection string of your Cloud SQL instance and add it into $output_file_path
-      - name: Get connection string
-        run: |
-         gcloud sql instances describe $gcp_sql_database_name  >> instance_description.yaml
-         ConnectionName=$(yq -r .connectionName test.yaml)
-         rm instance_description.yaml
-         echo CLOUDSQL_CONNECTION_STRING=$ConnectionName >> ${{ github.event.inputs.output_file_path }}  
-
       # Make sure that the kubectl utility can access the newly created cluster
       - name: Access to cluster
         run: |
-         gcloud container clusters get-credentials $gcp_gke_cluster_name --region=$gcp_gke_cluster_zone
+         gcloud container clusters get-credentials $(terraform output -raw gcp_gke_cluster_name) --zone $(terraform output -raw gcp_gke_cluster_zone)
  
-      # Create a specific Kubernetes namespace
-      - name: Create a Kubernetes namespace
-        run: |
-         kubectl create namespace ${{ github.event.inputs.namesapce }} 
-
-      # Create a secret for the Cloud SQL proxy
-      - name : Create a secret
-        run: |
-          kubectl create secret generic hexa-cloudsql-oauth-credentials -n ${{ github.event.inputs.namesapce }} \
-          --from-file=credentials.json=../gcp_keyfiles/hexa-cloud-sql-proxy.json
-         
-
       # Prepare the Helm values file
       - name: Copy the sample file
         run: |
           cp helm/sample_config.yaml helm/config.yaml
 
-      # Transform output file to YAML
-      - name: Transform output file to YAML
-        run: |
-         sed -i 's/=/: /g' ${{ github.event.inputs.output_file_path }} 
-
       # Update app file using Python
       - name: Update app file
         run: |
          python bin/update_app_file.py  \
-         ${{ github.event.inputs.output_file_path }} \
          helm/config.yaml 
-         
-       # Delete output file
-      - name: Delete output file
-        run: |
-          rm ${{ github.event.inputs.output_file_path }} 
 
       # Deploy 
       - name: Deploy 

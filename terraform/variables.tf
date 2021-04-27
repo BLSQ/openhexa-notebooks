@@ -89,3 +89,10 @@ variable "gcp_global_address_region" {
 variable "record_name" {
   default = "notebooks"
 }
+# Kubernetes
+variable "kubernetes_namespace_name" {
+  default = "hexa-notebooks"
+}
+variable "kubernetes_secret_sql_proxy_name" {
+  default = "hexa-cloudsql-oauth-credentials"
+}

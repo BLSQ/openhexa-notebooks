@@ -1,4 +1,6 @@
-
+output "gcp_sql_instance_connection_name" {
+  value = google_sql_database_instance.hexa.connection_name
+}
 output "gcp_sql_database_name" {
   value = google_sql_database.hexa.name
 }
@@ -26,4 +28,7 @@ output "gcp_service_account_email" {
 }
 output "aws_route53_record_name" {
   value = aws_route53_record.www.name
+}
+output "kubernetes_namespace" {
+  value = kubernetes_namespace.hexa.metadata.0.name
 }

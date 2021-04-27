@@ -1,3 +1,12 @@
+terraform {
+  backend "s3" {
+    bucket  = "terraform-openhexa-notebooks-state"
+    key     = "openhexa-notebooks-test/terraform.tfstate"
+    region  = "eu-central-1"
+    encrypt = true
+  }
+}
+
 provider "google" {
   project = var.gcp_project_id
 }
@@ -32,40 +41,38 @@ resource "google_sql_database_instance" "hexa" {
   name             = var.gcp_sql_instance_name
   database_version = "POSTGRES_12"
   region           = var.gcp_sql_instance_region
-  root_password    = random_password.root_password.result
   settings {
-    tier      = var.gcp_sql_machine_type_tier
-    disk_size = var.disk_size
-
+    tier = var.gcp_sql_machine_type_tier
     ip_configuration {
       ipv4_enabled = true
-      require_ssl  = false
 
-    }
-    location_preference {
-      zone = "europe-west1-b"
     }
   }
 }
-resource "random_password" "root_password" {
-  length  = 48
-  special = false
-}
-
 resource "google_sql_database" "hexa" {
   name     = var.gcp_sql_database_name
   instance = google_sql_database_instance.hexa.name
 
 }
 resource "random_password" "user_password" {
-  length  = 48
+  length  = 20
   special = false
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 resource "google_sql_user" "hexa" {
   name     = var.gcp_sql_user_name
   instance = google_sql_database_instance.hexa.name
   password = random_password.user_password.result
+  provisioner "local-exec" {
+    command = <<EOT
+      psql postgresql://${google_sql_user.hexa.name}:${google_sql_user.hexa.password}@${google_sql_database_instance.hexa.public_ip_address}:5432/${google_sql_database.hexa.name} <<EOT
+      GRANT ALL PRIVILEGES ON DATABASE ${google_sql_database.hexa.name} TO "${google_sql_user.hexa.name}";
+      GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "${google_sql_user.hexa.name}";
+    EOT
+  }
 }
 
 # Create a service account for the Cloud SQL proxy
@@ -81,6 +88,7 @@ resource "google_service_account_key" "hexa" {
 resource "google_project_iam_binding" "hexa" {
   project = var.gcp_project_id
   role    = "roles/cloudsql.client"
+
   members = [
     "serviceAccount:${google_service_account.hexa.email}",
   ]
@@ -106,7 +114,7 @@ resource "google_container_cluster" "hexa" {
     }
   }
   # User Node Pool
-   node_pool {
+  node_pool {
     name       = var.gcp_gke_user_node_pool_name
     node_count = 1
     autoscaling {
@@ -119,12 +127,39 @@ resource "google_container_cluster" "hexa" {
         disable-legacy-endpoints = true
       }
       taint {
-      effect = var.gcp_gke_user_node_pool_taint_effect
-      key    = var.gcp_gke_user_node_pool_taint_key
-      value  = var.gcp_gke_user_node_pool_taint_value
-    }
-    labels = var.gcp_gke_user_node_pool_labels
+        effect = var.gcp_gke_user_node_pool_taint_effect
+        key    = var.gcp_gke_user_node_pool_taint_key
+        value  = var.gcp_gke_user_node_pool_taint_value
+      }
+      labels = var.gcp_gke_user_node_pool_labels
     }
   }
- 
+
+}
+provider "kubernetes" {
+  load_config_file = true
+}
+# Create namespace
+resource "kubernetes_namespace" "hexa" {
+  metadata {
+    name = var.kubernetes_namespace_name
+  }
+}
+resource "null_resource" "hexa" {
+  provisioner "local-exec" {
+    command = <<EOT
+      mkdir -p ../gcp_keyfiles 
+      gcloud iam service-accounts keys create ../gcp_keyfiles/hexa-cloud-sql-proxy.json --iam-account=hexa-cloud-sql-proxy@blsq-dip-test.iam.gserviceaccount.com    
+      EOT
+  }
+}
+# Create a secret for the Cloud SQL proxy
+resource "kubernetes_secret" "sql_proxy" {
+  metadata {
+    name      = var.kubernetes_secret_sql_proxy_name
+    namespace = var.kubernetes_namespace_name
+  }
+  data = {
+    "credentials.json" = file("../gcp_keyfiles/hexa-cloud-sql-proxy.json")
+  }
 }
