@@ -111,27 +111,27 @@ resource "google_container_cluster" "cluster" {
       }
     }
   }
-  # User node pool
-  node_pool {
-    name       = var.gcp_gke_user_pool_name
-    node_count = 1
-    autoscaling {
-      min_node_count = 1
-      max_node_count = var.gcp_gke_user_pool_max_node_count
+}
+resource "google_container_node_pool" "user_pool" {
+  cluster    = google_container_cluster.cluster
+  name       = var.gcp_gke_user_pool_name
+  node_count = 1
+  autoscaling {
+    min_node_count = 1
+    max_node_count = var.gcp_gke_user_pool_max_node_count
+  }
+  node_config {
+    machine_type = var.gcp_gke_user_pool_machine_type
+    metadata = {
+      disable-legacy-endpoints = true
     }
-    node_config {
-      machine_type = var.gcp_gke_user_pool_machine_type
-      metadata = {
-        disable-legacy-endpoints = true
-      }
-      taint {
-        effect = "NO_SCHEDULE"
-        key    = "hub.jupyter.org_dedicated"
-        value  = "user"
-      }
-      labels = {
-        "hub.jupyter.org/node-purpose" = "user"
-      }
+    taint {
+      effect = "NO_SCHEDULE"
+      key    = "hub.jupyter.org_dedicated"
+      value  = "user"
+    }
+    labels = {
+      "hub.jupyter.org/node-purpose" = "user"
     }
   }
 }
@@ -218,7 +218,7 @@ resource "helm_release" "notebooks" {
     value = "{/cloud_sql_proxy,--dir=/cloudsql,-instances=${google_sql_database_instance.notebooks.connection_name}=tcp:5432,-credential_file=/secrets/cloudsql/credentials.json}"
   }
   set {
-    name = "hub.extraVolumes[0].secret.secretName"
+    name  = "hub.extraVolumes[0].secret.secretName"
     value = kubernetes_secret.cloud_sql_proxy.metadata[0].name
   }
   set {
