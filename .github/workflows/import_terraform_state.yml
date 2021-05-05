@@ -42,10 +42,6 @@ jobs:
             -backend-config="key=openhexa-notebooks-${{ github.event.inputs.environment }}/terraform.tfstate" \
             -backend-config="region=${{ secrets.AWS_REGION }}"
 
-      - run: echo "bucket=${{ secrets.TERRAFORM_AWS_S3_BUCKET_NAME }}"
-      - run: echo "key=openhexa-notebooks-${{ github.event.inputs.environment }}/terraform.tfstate"
-      - run: echo "region=${{ secrets.AWS_REGION }}"
-
       # Terraform import
       - name: Terraform import (sql instance)
         run: |
@@ -57,7 +53,7 @@ jobs:
             -var 'gcp_project_id=${{ secrets.GCP_PROJECT_ID }}' \
             -var 'gcp_region=${{ secrets.GCP_REGION }}' \
             -var 'gcp_zone=${{ secrets.GCP_ZONE }}' \
-            -var 'gcp_global_address_name=${{ secrets.GCP_GLOBAL_ADDRESS_NAME }}' \
+            -var 'gcp_address_name=${{ secrets.GCP_GLOBAL_ADDRESS_NAME }}' \
             -var 'gcp_sql_instance_tier=${{ secrets.GCP_SQL_INSTANCE_TIER }}' \
             -var 'gcp_sql_database_name=${{ secrets.GCP_SQL_DATABASE_NAME }}' \
             -var 'gcp_sql_user_name=${{ secrets.GCP_SQL_USER_NAME }}' \
@@ -75,8 +71,6 @@ jobs:
             -var 'aws_route53_zone_name=${{ secrets.AWS_ROUTE_53_ZONE_NAME }}' \
             -var 'aws_route53_record_name=${{ secrets.AWS_ROUTE_53_RECORD_NAME }}' \
             google_sql_database_instance.notebooks blsq-dip-test/hexa-prime
-        env:
-          TF_LOG: DEBUG
 
       - name: Terraform import (IAM SA)
         run: |
@@ -88,7 +82,7 @@ jobs:
             -var 'gcp_project_id=${{ secrets.GCP_PROJECT_ID }}' \
             -var 'gcp_region=${{ secrets.GCP_REGION }}' \
             -var 'gcp_zone=${{ secrets.GCP_ZONE }}' \
-            -var 'gcp_global_address_name=${{ secrets.GCP_GLOBAL_ADDRESS_NAME }}' \
+            -var 'gcp_address_name=${{ secrets.GCP_GLOBAL_ADDRESS_NAME }}' \
             -var 'gcp_sql_instance_tier=${{ secrets.GCP_SQL_INSTANCE_TIER }}' \
             -var 'gcp_sql_database_name=${{ secrets.GCP_SQL_DATABASE_NAME }}' \
             -var 'gcp_sql_user_name=${{ secrets.GCP_SQL_USER_NAME }}' \
@@ -117,7 +111,7 @@ jobs:
             -var 'gcp_project_id=${{ secrets.GCP_PROJECT_ID }}' \
             -var 'gcp_region=${{ secrets.GCP_REGION }}' \
             -var 'gcp_zone=${{ secrets.GCP_ZONE }}' \
-            -var 'gcp_global_address_name=${{ secrets.GCP_GLOBAL_ADDRESS_NAME }}' \
+            -var 'gcp_address_name=${{ secrets.GCP_GLOBAL_ADDRESS_NAME }}' \
             -var 'gcp_sql_instance_tier=${{ secrets.GCP_SQL_INSTANCE_TIER }}' \
             -var 'gcp_sql_database_name=${{ secrets.GCP_SQL_DATABASE_NAME }}' \
             -var 'gcp_sql_user_name=${{ secrets.GCP_SQL_USER_NAME }}' \
