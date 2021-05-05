@@ -177,11 +177,11 @@ resource "helm_release" "notebooks" {
   }
   set {
     name  = "proxy.https.letsencrypt.contactEmail"
-    value = var.certificate_email
+    value = var.helm_proxy_https_letsencrypt_contact_email
   }
   set {
     name  = "proxy.service.loadBalancerIP"
-    value = google_compute_global_address.notebooks.address
+    value = google_compute_address.notebooks.address
   }
 
   # Hub
