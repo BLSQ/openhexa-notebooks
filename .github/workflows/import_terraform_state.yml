@@ -8,8 +8,8 @@ on:
         default: test
 
 jobs:
-  provision_and_deploy:
-    name: Provision and deploy using Terraform
+  import_terraform_state:
+    name: Import Terraform state
     environment:
       name: ${{ github.event.inputs.environment }}
     runs-on: ubuntu-latest
