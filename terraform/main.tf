@@ -96,7 +96,6 @@ resource "google_project_iam_binding" "notebooks_cloud_sql_proxy" {
 resource "google_container_cluster" "cluster" {
   name     = var.gcp_gke_cluster_name
   location = var.gcp_zone
-  # Default node pool
   node_pool {
     name       = var.gcp_gke_default_pool_name
     node_count = 1
@@ -113,7 +112,7 @@ resource "google_container_cluster" "cluster" {
   }
 }
 resource "google_container_node_pool" "user_pool" {
-  cluster    = google_container_cluster.cluster
+  cluster    = google_container_cluster.cluster.name
   name       = var.gcp_gke_user_pool_name
   node_count = 1
   autoscaling {
