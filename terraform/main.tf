@@ -219,7 +219,7 @@ resource "helm_release" "notebooks" {
   }
   set {
     name = "hub.extraVolumes[0].secret.secretName"
-    value = kubernetes_secret.cloud_sql_proxy.metadata.name
+    value = kubernetes_secret.cloud_sql_proxy.metadata[0].name
   }
   set {
     name  = "hub.extraEnv.APP_URL"
