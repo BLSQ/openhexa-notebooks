@@ -114,6 +114,7 @@ resource "google_container_cluster" "cluster" {
 resource "google_container_node_pool" "user_pool" {
   cluster    = google_container_cluster.cluster.name
   name       = var.gcp_gke_user_pool_name
+  location = var.gcp_zone
   node_count = 1
   autoscaling {
     min_node_count = 1
@@ -135,7 +136,7 @@ resource "google_container_node_pool" "user_pool" {
   }
 }
 
-# KUBERNETES
+# HELM
 data "google_client_config" "terraform" {}
 provider "helm" {
   kubernetes {
