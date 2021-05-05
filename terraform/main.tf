@@ -9,7 +9,7 @@ provider "google" {
   project = var.gcp_project_id
 }
 # Global IP address
-resource "google_compute_global_address" "notebooks" {
+resource "google_compute_address" "notebooks" {
   name   = var.gcp_global_address_name
   region = var.gcp_region
 }
