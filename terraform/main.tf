@@ -2,6 +2,20 @@ terraform {
   backend "s3" {
     encrypt = true
   }
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "3.66.1"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "2.1.0"
+    }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "3.38.0"
+    }
+  }
 }
 
 # GCP
@@ -18,6 +32,9 @@ resource "google_sql_database_instance" "notebooks" {
   database_version = "POSTGRES_12"
   name             = var.gcp_sql_instance_name
   region           = var.gcp_region
+  lifecycle {
+    prevent_destroy = true
+  }
   settings {
     tier = var.gcp_sql_instance_tier
     ip_configuration {
@@ -122,12 +139,15 @@ resource "google_container_cluster" "cluster" {
 
 # KUBERNETES
 data "google_client_config" "terraform" {}
-provider "kubernetes" {
-  host             = "https://${google_container_cluster.cluster.endpoint}"
-  token            = data.google_client_config.terraform.access_token
-  cluster_ca_certificate = base64decode(
-    google_container_cluster.cluster.master_auth[0].cluster_ca_certificate,
-  )
+provider "helm" {
+  kubernetes {
+    host  = "https://${google_container_cluster.cluster.endpoint}"
+    token = data.google_client_config.terraform.access_token
+    cluster_ca_certificate = base64decode(
+      google_container_cluster.cluster.master_auth[0].cluster_ca_certificate,
+    )
+  }
+
 }
 # Namespace
 resource "kubernetes_namespace" "notebooks" {
@@ -162,9 +182,10 @@ resource "random_password" "hub_cookie_secret" {
   }
 }
 resource "helm_release" "notebooks" {
-  chart   = "jupyterhub/jupyterhub"
-  name    = "hexa-notebooks"
-  version = "0.11.1-n438.h7e6a66e9"
+  chart             = "jupyterhub/jupyterhub"
+  name              = "hexa-notebooks"
+  version           = "0.11.1-n438.h7e6a66e9"
+  dependency_update = true
 
   # Proxy
   set {
