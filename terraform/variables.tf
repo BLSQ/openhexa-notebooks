@@ -1,98 +1,126 @@
-# Project ID
-variable "gcp_project_id" {
-  default = "blsq-dip-test"
+variable "notebooks_domain" {
+  description = "The fully-qualified domain name of the notebooks component"
 }
-# Cloud SQL instance
-variable "gcp_sql_instance_name" {
-  default = "hexa-main"
+variable "app_domain" {
+  description = "The fully-qualified domain name of the app component"
 }
-variable "gcp_sql_instance_region" {
-  default     = "europe-west1"
-  description = "The region for the Cloud SQL instances"
+variable "app_url" {
+  description = "The full URL of the app component"
 }
-variable "gcp_sql_hub_instance_access_cidr" {
-  default     = "0.0.0.0/0"
-  description = "The IPv4 CIDR to provide access the database instance"
+variable "notebooks_base_image_name" {
+  description = "The base Docker image to use for the notebooks component"
+  default     = "blsq/openhexa-base-notebook"
 }
-variable "gcp_sql_machine_type_tier" {
-  default = "db-custom-2-7680"
-}
-variable "gcp_sql_database_name" {
-  default = "hexa-notebooks"
-}
-variable "gcp_sql_user_name" {
-  default = "hexa-notebooks"
-}
-variable "disk_size" {
-  description = "The disk size for the master instance."
-  default     = 10
-}
-#Service account for the Cloud SQL proxy
-variable "account_id" {
-  default = "hexa-cloud-sql-proxy"
-}
-variable "display_name" {
-  default = "hexa-cloud-sql-proxy"
+variable "notebooks_base_image_tag" {
+  description = "The tag of the Docker image for the notebooks component"
+  default     = "latest"
 }
 
-#GKE cluster
-variable "gcp_gke_cluster_zone" {
-  default     = "europe-west1-b"
-  description = "The zone for the GKE cluster"
+# GCP
+variable "gcp_project_id" {
+  description = "The ID of your Google Cloud Platform project"
 }
-variable "gcp_gke_cluster_name" {
-  default     = "hexa-main"
-  description = "name of cluster"
+variable "gcp_region" {
+  description = "The name of the region to use for GCP resources"
 }
-variable "gcp_gke_default_machine_type" {
-  default     = "n2-standard-2"
-  description = " GCP machine type"
-}
-variable "gcp_gke_default_pool_name" {
-  default = "default-pool"
-}
-variable "gcp_gke_user_machine_type" {
-  default     = "n2-highmem-2"
-  description = " GCP machine type"
-}
-variable "gcp_gke_user_node_pool_name" {
-  default = "user-pool-n2h2"
-}
-variable "gcp_gke_user_node_pool_zone" {
-  default = "europe-west1-b"
-}
-variable "gcp_gke_user_node_pool_labels" {
-  default = {
-    "hub.jupyter.org/node-purpose" = "user"
-  }
-}
-variable "gcp_gke_user_node_pool_taint_effect" {
-  default = "NO_SCHEDULE"
-}
-variable "gcp_gke_user_node_pool_taint_key" {
-  default = "hub.jupyter.org_dedicated"
-}
-variable "gcp_gke_user_node_pool_taint_value" {
-  default = "user"
+variable "gcp_zone" {
+  description = "The name of the zone to use for GCP resources"
 }
 
 # Global IP address
 variable "gcp_global_address_name" {
-  default = "hexa-test-notebooks"
-}
-variable "gcp_global_address_region" {
-  default = "europe-west1"
+  description = "The name of the GCP global address to use for the notebooks component"
 }
 
-# Route 53
+# Cloud SQL instance
+variable "gcp_sql_instance_name" {
+  description = "The name of the GCP Cloud SQL instance"
+  default     = "hexa-prime"
+}
+variable "gcp_sql_instance_tier" {
+  description = "The tier to use for the Cloud SQL instance"
+}
+variable "gcp_sql_database_name" {
+  description = "The name of the notebooks component database"
+  default     = "hexa-notebooks"
+}
+variable "gcp_sql_user_name" {
+  description = "The username for the notebooks component database"
+  default     = "hexa-notebooks"
+}
+# Service account for the Cloud SQL proxy
+variable "gcp_iam_service_account_id" {
+  description = "The ID of the service account use for the Cloud SQL proxy"
+  default     = "hexa-cloud-sql-proxy"
+}
+variable "gcp_iam_service_account_display_name" {
+  description = "The display name of the service account use for the Cloud SQL proxy"
+  default     = "hexa-cloud-sql-proxy"
+}
 
-variable "record_name" {
-  default = "notebooks"
+# GKE cluster
+variable "gcp_gke_cluster_name" {
+  description = "The name of the Kubernetes cluster in GKE"
+  default     = "hexa-prime"
 }
-# Kubernetes
-variable "kubernetes_namespace_name" {
-  default = "hexa-notebooks"
+variable "gcp_gke_default_pool_name" {
+  description = "The name of the default node pool"
+  default     = "default-pool"
 }
-variable "kubernetes_secret_sql_proxy_name" {
-  default = "hexa-cloudsql-oauth-credentials"
+variable "gcp_gke_default_pool_max_node_count" {
+  description = "The max number of nodes in the default pool"
+  default     = 3
+}
+variable "gcp_gke_default_pool_machine_type" {
+  description = "The machine type to use for nodes in the default pool"
+  default     = "e2-standard-2"
+}
+variable "gcp_gke_user_pool_name" {
+  description = "The name of the user node pool"
+  default     = "user-pool"
+}
+variable "gcp_gke_user_pool_max_node_count" {
+  description = "The max number of nodes in the user pool"
+  default     = 3
+}
+variable "gcp_gke_user_pool_machine_type" {
+  description = "The machine type to use for nodes in the user pool"
+  default     = "e2-highmem-2"
+}
+
+# KUBERNETES
+variable "kubernetes_namespace" {
+  description = "The namespace in which to deploy the resources of the notebooks component"
+  default     = "hexa-notebooks"
+}
+variable "helm_proxy_https_letsencrypt_contact_email" {
+  description = "The contact email address for the letsencrypt certificate"
+}
+variable "helm_singleuser_cpu_guarantee" {
+  description = "The minimum fraction of CPU guaranteed for notebook servers"
+  default     = "0.05"
+}
+variable "helm_singleuser_cpu_limit" {
+  description = "The max fraction of CPU available for notebook servers"
+  default     = "1"
+}
+variable "helm_singleuser_memory_guarantee" {
+  description = "The minimum amount of memory guaranteed for notebook servers"
+  default     = "64M"
+}
+variable "helm_singleuser_memory_limit" {
+  description = "The max amount of memory available for notebook servers"
+  default     = "512M"
+}
+
+# AWS
+variable "aws_region" {
+  description = "The name of the region to use for AWS resources"
+}
+# Route53
+variable "aws_route53_zone_name" {
+  description = "The name of the Route53 hosted zone"
+}
+variable "aws_route53_record_name" {
+  description = "The record to add in the hosted zone"
 }
