@@ -46,7 +46,7 @@ jobs:
       # Terraform import
       - name: Terraform import (sql instance)
         run: |
-          terraform -chdir=terraform \ import \
+          terraform -chdir=terraform import \
             -var 'notebooks_domain=${{ secrets.NOTEBOOKS_DOMAIN }}' \
             -var 'app_domain=${{ secrets.APP_DOMAIN }}' \
             -var 'app_url=${{ secrets.APP_URL }}' \
@@ -75,7 +75,7 @@ jobs:
 
       - name: Terraform import (IAM SA)
         run: |
-          terraform -chdir=terraform \ import \
+          terraform -chdir=terraform import \
             -var 'notebooks_domain=${{ secrets.NOTEBOOKS_DOMAIN }}' \
             -var 'app_domain=${{ secrets.APP_DOMAIN }}' \
             -var 'app_url=${{ secrets.APP_URL }}' \
@@ -104,7 +104,7 @@ jobs:
 
       - name: Terraform import (IAM SA binding)
         run: |
-          terraform -chdir=terraform \ import \
+          terraform -chdir=terraform import \
             -var 'notebooks_domain=${{ secrets.NOTEBOOKS_DOMAIN }}' \
             -var 'app_domain=${{ secrets.APP_DOMAIN }}' \
             -var 'app_url=${{ secrets.APP_URL }}' \
@@ -133,7 +133,7 @@ jobs:
 
       - name: Terraform import (GKE cluster)
         run: |
-          terraform -chdir=terraform \ import \
+          terraform -chdir=terraform import \
             -var 'notebooks_domain=${{ secrets.NOTEBOOKS_DOMAIN }}' \
             -var 'app_domain=${{ secrets.APP_DOMAIN }}' \
             -var 'app_url=${{ secrets.APP_URL }}' \
