@@ -42,6 +42,10 @@ jobs:
             -backend-config="key=openhexa-notebooks-${{ github.event.inputs.environment }}/terraform.tfstate" \
             -backend-config="region=${{ secrets.AWS_REGION }}"
 
+      - run: echo "bucket=${{ secrets.TERRAFORM_AWS_S3_BUCKET_NAME }}"
+      - run: echo "key=openhexa-notebooks-${{ github.event.inputs.environment }}/terraform.tfstate"
+      - run: echo "region=${{ secrets.AWS_REGION }}"
+
       # Terraform import
       - name: Terraform import (sql instance)
         run: |
