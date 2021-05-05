@@ -60,7 +60,7 @@ jobs:
 
       - name: Terraform import (GKE cluster)
         run: |
-          terraform -chdir=terraform import \
+          terraform -chdir=terraform_import import \
             -var 'gcp_project_id=${{ secrets.GCP_PROJECT_ID }}' \
             -var 'gcp_region=${{ secrets.GCP_REGION }}' \
             -var 'gcp_zone=${{ secrets.GCP_ZONE }}' \
