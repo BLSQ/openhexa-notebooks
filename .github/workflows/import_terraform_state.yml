@@ -30,12 +30,14 @@ jobs:
       # Cloud user API token
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@3d8debd658c92063839bc97da5c2427100420dec
+        with:
+          terraform_version: 0.15.1
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state,
       # downloading modules, etc.
       - name: Terraform Init
         run: |
-          terraform -chdir=terraform init \
+          terraform -chdir=terraform_import init \
             -backend-config="bucket=${{ secrets.TERRAFORM_AWS_S3_BUCKET_NAME }}" \
             -backend-config="key=openhexa-notebooks-${{ github.event.inputs.environment }}/terraform.tfstate" \
             -backend-config="region=${{ secrets.AWS_REGION }}"
@@ -43,7 +45,7 @@ jobs:
       # Terraform import
       - name: Terraform import (sql instance)
         run: |
-          terraform -chdir=terraform import \
+          terraform -chdir=terraform_import import \
             -var 'notebooks_domain=${{ secrets.NOTEBOOKS_DOMAIN }}' \
             -var 'app_domain=${{ secrets.APP_DOMAIN }}' \
             -var 'app_url=${{ secrets.APP_URL }}' \
@@ -72,7 +74,7 @@ jobs:
 
       - name: Terraform import (IAM SA)
         run: |
-          terraform -chdir=terraform import \
+          terraform -chdir=terraform_import import \
             -var 'notebooks_domain=${{ secrets.NOTEBOOKS_DOMAIN }}' \
             -var 'app_domain=${{ secrets.APP_DOMAIN }}' \
             -var 'app_url=${{ secrets.APP_URL }}' \
@@ -101,7 +103,7 @@ jobs:
 
       - name: Terraform import (IAM SA binding)
         run: |
-          terraform -chdir=terraform import \
+          terraform -chdir=terraform_import import \
             -var 'notebooks_domain=${{ secrets.NOTEBOOKS_DOMAIN }}' \
             -var 'app_domain=${{ secrets.APP_DOMAIN }}' \
             -var 'app_url=${{ secrets.APP_URL }}' \
@@ -127,32 +129,3 @@ jobs:
             -var 'aws_route53_zone_name=${{ secrets.AWS_ROUTE_53_ZONE_NAME }}' \
             -var 'aws_route53_record_name=${{ secrets.AWS_ROUTE_53_RECORD_NAME }}' \
             google_project_iam_binding.cloud_sql_proxy "blsq-dip-test roles/cloudsql.client"
-
-      - name: Terraform import (GKE cluster)
-        run: |
-          terraform -chdir=terraform import \
-            -var 'notebooks_domain=${{ secrets.NOTEBOOKS_DOMAIN }}' \
-            -var 'app_domain=${{ secrets.APP_DOMAIN }}' \
-            -var 'app_url=${{ secrets.APP_URL }}' \
-            -var 'notebooks_base_image_tag=${{ github.event.inputs.tag }}' \
-            -var 'gcp_project_id=${{ secrets.GCP_PROJECT_ID }}' \
-            -var 'gcp_region=${{ secrets.GCP_REGION }}' \
-            -var 'gcp_zone=${{ secrets.GCP_ZONE }}' \
-            -var 'gcp_global_address_name=${{ secrets.GCP_GLOBAL_ADDRESS_NAME }}' \
-            -var 'gcp_sql_instance_tier=${{ secrets.GCP_SQL_INSTANCE_TIER }}' \
-            -var 'gcp_sql_database_name=${{ secrets.GCP_SQL_DATABASE_NAME }}' \
-            -var 'gcp_sql_user_name=${{ secrets.GCP_SQL_USER_NAME }}' \
-            -var 'gcp_gke_default_pool_max_node_count=${{ secrets.GCP_GKE_DEFAULT_POOL_MAX_NODE_COUNT }}' \
-            -var 'gcp_gke_default_pool_machine_type=${{ secrets.GCP_GKE_DEFAULT_POOL_MACHINE_TYPE }}' \
-            -var 'gcp_gke_user_pool_max_node_count=${{ secrets.GCP_GKE_USER_POOL_MAX_NODE_COUNT }}' \
-            -var 'gcp_gke_user_pool_machine_type=${{ secrets.GCP_GKE_USER_POOL_MACHINE_TYPE }}' \
-            -var 'kubernetes_namespace=${{ secrets.KUBERNETES_NAMESPACE }}' \
-            -var 'helm_proxy_https_letsencrypt_contact_email=${{ secrets.HELM_PROXY_HTTPS_LETSENCRYPT_CONTACT_EMAIL }}' \
-            -var 'helm_singleuser_cpu_guarantee=${{ secrets.HELM_SINGLEUSER_CPU_GUARANTEE }}' \
-            -var 'helm_singleuser_cpu_limit=${{ secrets.HELM_SINGLEUSER_CPU_LIMIT }}' \
-            -var 'helm_singleuser_memory_guarantee=${{ secrets.HELM_SINGLEUSER_MEMORY_GUARANTEE }}' \
-            -var 'helm_singleuser_memory_limit=${{ secrets.HELM_SINGLEUSER_MEMORY_LIMIT }}' \
-            -var 'aws_region=${{ secrets.AWS_REGION }}' \
-            -var 'aws_route53_zone_name=${{ secrets.AWS_ROUTE_53_ZONE_NAME }}' \
-            -var 'aws_route53_record_name=${{ secrets.AWS_ROUTE_53_RECORD_NAME }}' \
-            google_container_cluster.cluster europe-west1-b/hexa-prime
