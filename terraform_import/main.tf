@@ -22,7 +22,6 @@ terraform {
 provider "google" {
   project = var.gcp_project_id
 }
-
 # Cloud SQL
 resource "google_sql_database_instance" "notebooks" {
   database_version = "POSTGRES_12"
@@ -40,18 +39,46 @@ resource "google_sql_database_instance" "notebooks" {
     }
   }
 }
-
-# IAM (Cloud SQL proxy)
-resource "google_service_account" "cloud_sql_proxy" {
-  account_id   = var.gcp_iam_service_account_id
-  display_name = var.gcp_iam_service_account_display_name
-  project      = var.gcp_project_id
-  description  = "Used to allow pods to access Cloud SQL"
-}
-resource "google_project_iam_binding" "cloud_sql_proxy" {
-  project = var.gcp_project_id
-  role    = "roles/cloudsql.client"
-  members = [
-    "serviceAccount:${google_service_account.cloud_sql_proxy.email}",
-  ]
+# GKE cluster
+resource "google_container_cluster" "cluster" {
+  name     = var.gcp_gke_cluster_name
+  location = var.gcp_zone
+  # Default node pool
+  node_pool {
+    name       = var.gcp_gke_default_pool_name
+    node_count = 1
+    autoscaling {
+      min_node_count = 1
+      max_node_count = var.gcp_gke_default_pool_max_node_count
+    }
+    node_config {
+      machine_type = var.gcp_gke_default_pool_machine_type
+      metadata = {
+        disable-legacy-endpoints = true
+      }
+    }
+  }
+  # User node pool
+  node_pool {
+    name       = var.gcp_gke_user_pool_name
+    node_count = 1
+    autoscaling {
+      min_node_count = 1
+      max_node_count = var.gcp_gke_user_pool_max_node_count
+    }
+    node_config {
+      machine_type = var.gcp_gke_user_pool_machine_type
+      metadata = {
+        disable-legacy-endpoints = true
+      }
+      taint {
+        effect = "NO_SCHEDULE"
+        key    = "hub.jupyter.org_dedicated"
+        value  = "user"
+      }
+      labels = {
+        "hub.jupyter.org/node-purpose" = "user"
+      }
+    }
+  }
 }

@@ -71,28 +71,27 @@ resource "google_sql_user" "notebooks" {
   }
 }
 # IAM (Cloud SQL proxy)
-resource "google_service_account" "cloud_sql_proxy" {
-  account_id   = var.gcp_iam_service_account_id
-  display_name = var.gcp_iam_service_account_display_name
+resource "google_service_account" "notebooks_cloud_sql_proxy" {
+  account_id   = var.gcp_iam_cloud_sql_proxy_service_account_id
+  display_name = var.gcp_iam_cloud_sql_proxy_service_account_display_name
   project      = var.gcp_project_id
   description  = "Used to allow pods to access Cloud SQL"
 }
-resource "google_service_account_key" "cloud_sql_proxy" {
-  service_account_id = google_service_account.cloud_sql_proxy.name
+resource "google_service_account_key" "notebooks_cloud_sql_proxy" {
+  service_account_id = google_service_account.notebooks_cloud_sql_proxy.name
 
   keepers = {
     # Keep the key alive as long as the service account ID stays the same
-    service_account_id = google_service_account.cloud_sql_proxy.name
+    service_account_id = google_service_account.notebooks_cloud_sql_proxy.account_id
   }
 }
-resource "google_project_iam_binding" "cloud_sql_proxy" {
+resource "google_project_iam_binding" "notebooks_cloud_sql_proxy" {
   project = var.gcp_project_id
   role    = "roles/cloudsql.client"
   members = [
-    "serviceAccount:${google_service_account.cloud_sql_proxy.email}",
+    "serviceAccount:${google_service_account.notebooks_cloud_sql_proxy.email}",
   ]
 }
-
 # GKE cluster
 resource "google_container_cluster" "cluster" {
   name     = var.gcp_gke_cluster_name
@@ -163,7 +162,7 @@ resource "kubernetes_secret" "cloud_sql_proxy" {
   }
   # TODO: Use workload identity, see # https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
   data = {
-    "credentials.json" = base64decode(google_service_account_key.cloud_sql_proxy.private_key)
+    "credentials.json" = base64decode(google_service_account_key.notebooks_cloud_sql_proxy.private_key)
   }
 }
 # Helm
@@ -215,8 +214,12 @@ resource "helm_release" "notebooks" {
     value = "postgresql://${google_sql_user.notebooks.name}:${google_sql_user.notebooks.password}@127.0.0.1:5432/${google_sql_database.notebooks.name}"
   }
   set {
-    name  = "hub.extraContainers[0][command]"
+    name  = "hub.extraContainers[0].command"
     value = "{/cloud_sql_proxy,--dir=/cloudsql,-instances=${google_sql_database_instance.notebooks.connection_name}=tcp:5432,-credential_file=/secrets/cloudsql/credentials.json}"
+  }
+  set {
+    name = "hub.extraVolumes[0].secret.secretName"
+    value = kubernetes_secret.cloud_sql_proxy.metadata.name
   }
   set {
     name  = "hub.extraEnv.APP_URL"
