@@ -10,7 +10,7 @@ provider "google" {
 }
 # Global IP address
 resource "google_compute_address" "notebooks" {
-  name   = var.gcp_global_address_name
+  name   = var.gcp_address_name
   region = var.gcp_region
 }
 # Cloud SQL
@@ -256,6 +256,6 @@ resource "aws_route53_record" "notebooks" {
   type    = "A"
   ttl     = "300"
   records = [
-    google_compute_global_address.notebooks.address
+    google_compute_address.notebooks.address
   ]
 }

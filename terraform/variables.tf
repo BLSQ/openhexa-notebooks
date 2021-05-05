@@ -28,7 +28,7 @@ variable "gcp_zone" {
 }
 
 # Global IP address
-variable "gcp_global_address_name" {
+variable "gcp_address_name" {
   description = "The name of the GCP global address to use for the notebooks component"
 }
 
