@@ -268,8 +268,10 @@ EOF
   }
   # see https://github.com/hashicorp/terraform-provider-helm/issues/628
   set {
-    name = "hub.extraFiles.jupyterhub_config.stringData"
-    value = file("../jupyterhub/jupyterhub_config.py")
+    name  = "hub.extraFiles.jupyterhub_config.stringData"
+    value = <<EOF
+${file("../jupyterhub/jupyterhub_config.py")}
+EOF
   }
 
   # Single User
