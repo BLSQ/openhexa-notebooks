@@ -182,16 +182,14 @@ provider "helm" {
     )
   }
 }
-resource "random_password" "proxy_secret_token" {
-  length  = 50
-  special = true
+resource "random_id" "proxy_secret_token" {
+  byte_length  = 32
   lifecycle {
     ignore_changes = all
   }
 }
-resource "random_password" "hub_cookie_secret" {
-  length  = 50
-  special = true
+resource "random_id" "hub_cookie_secret" {
+  byte_length  = 32
   lifecycle {
     ignore_changes = all
   }
@@ -222,7 +220,7 @@ EOF
   # Proxy
   set {
     name  = "proxy.secretToken"
-    value = random_password.proxy_secret_token.result
+    value = random_id.proxy_secret_token.hex
   }
   set {
     name  = "proxy.https.hosts"
@@ -240,7 +238,7 @@ EOF
   # Hub
   set {
     name  = "hub.cookieSecret"
-    value = random_password.hub_cookie_secret.result
+    value = random_id.hub_cookie_secret.hex
   }
   set {
     name  = "hub.db.url"
