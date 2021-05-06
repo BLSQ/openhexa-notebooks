@@ -215,8 +215,7 @@ hub:
   extraFiles:
     jupyterhub_config:
       mountPath: /usr/local/etc/jupyterhub/jupyterhub_config.d/jupyterhub_config.py
-      stringData: |
-        ${file("../jupyterhub/jupyterhub_config.py")}
+      binaryData: ${base64encode(file("../jupyterhub/jupyterhub_config.py"))}
 EOF,
 <<EOF
 singleuser:
