@@ -54,3 +54,27 @@ resource "google_container_node_pool" "default_pool" {
     }
   }
 }
+resource "google_container_node_pool" "user_pool" {
+  cluster    = google_container_cluster.cluster.name
+  name       = var.gcp_gke_user_pool_name
+  location = var.gcp_zone
+  node_count = 1
+  autoscaling {
+    min_node_count = 1
+    max_node_count = var.gcp_gke_user_pool_max_node_count
+  }
+  node_config {
+    machine_type = var.gcp_gke_user_pool_machine_type
+    metadata = {
+      disable-legacy-endpoints = true
+    }
+    taint {
+      effect = "NO_SCHEDULE"
+      key    = "hub.jupyter.org_dedicated"
+      value  = "user"
+    }
+    labels = {
+      "hub.jupyter.org/node-purpose" = "user"
+    }
+  }
+}

@@ -93,6 +93,9 @@ resource "google_project_iam_binding" "notebooks_cloud_sql_proxy" {
   ]
 }
 # GKE cluster
+# Please note that as we will share the cluster between the app and notebooks components, we need to declare
+# all the node pools in the terraform config of both components - terraform cannot handle the node pools
+# separately
 resource "google_container_cluster" "cluster" {
   name                     = var.gcp_gke_cluster_name
   location                 = var.gcp_zone
