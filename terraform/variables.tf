@@ -94,11 +94,11 @@ variable "helm_proxy_https_letsencrypt_contact_email" {
 }
 variable "helm_singleuser_cpu_guarantee" {
   description = "The minimum fraction of CPU guaranteed for notebook servers"
-  default     = "0.05"
+  default     = 0.05
 }
 variable "helm_singleuser_cpu_limit" {
   description = "The max fraction of CPU available for notebook servers"
-  default     = "1"
+  default     = 1
 }
 variable "helm_singleuser_memory_guarantee" {
   description = "The minimum amount of memory guaranteed for notebook servers"
