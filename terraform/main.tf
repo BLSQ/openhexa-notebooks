@@ -266,6 +266,10 @@ EOF
     name  = "hub.extraEnv.CONTENT_SECURITY_POLICY"
     value = "frame-ancestors 'self' ${var.app_domain};"
   }
+  set {
+    name = "hub.extraFiles.jupyterhub_config.stringData"
+    value = file("../jupyterhub/jupyterhub_config.py")
+  }
 
   # Single User
   set {
