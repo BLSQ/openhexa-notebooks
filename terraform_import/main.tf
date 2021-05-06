@@ -11,18 +11,11 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "2.1.0"
     }
-    aws = {
-      source  = "hashicorp/aws"
-      version = "3.38.0"
-    }
   }
 }
-
-# GCP
 provider "google" {
   project = var.gcp_project_id
 }
-# Cloud SQL
 resource "google_sql_database_instance" "notebooks" {
   database_version = "POSTGRES_12"
   name             = var.gcp_sql_instance_name
@@ -39,46 +32,25 @@ resource "google_sql_database_instance" "notebooks" {
     }
   }
 }
-# GKE cluster
 resource "google_container_cluster" "cluster" {
-  name     = var.gcp_gke_cluster_name
-  location = var.gcp_zone
-  # Default node pool
-  node_pool {
-    name       = var.gcp_gke_default_pool_name
-    node_count = 1
-    autoscaling {
-      min_node_count = 1
-      max_node_count = var.gcp_gke_default_pool_max_node_count
-    }
-    node_config {
-      machine_type = var.gcp_gke_default_pool_machine_type
-      metadata = {
-        disable-legacy-endpoints = true
-      }
-    }
+  name                     = var.gcp_gke_cluster_name
+  location                 = var.gcp_zone
+  initial_node_count       = 1
+  remove_default_node_pool = true
+}
+resource "google_container_node_pool" "default_pool" {
+  cluster    = google_container_cluster.cluster.name
+  name       = var.gcp_gke_default_pool_name
+  location   = var.gcp_zone
+  node_count = 1
+  autoscaling {
+    min_node_count = 1
+    max_node_count = var.gcp_gke_default_pool_max_node_count
   }
-  # User node pool
-  node_pool {
-    name       = var.gcp_gke_user_pool_name
-    node_count = 1
-    autoscaling {
-      min_node_count = 1
-      max_node_count = var.gcp_gke_user_pool_max_node_count
-    }
-    node_config {
-      machine_type = var.gcp_gke_user_pool_machine_type
-      metadata = {
-        disable-legacy-endpoints = true
-      }
-      taint {
-        effect = "NO_SCHEDULE"
-        key    = "hub.jupyter.org_dedicated"
-        value  = "user"
-      }
-      labels = {
-        "hub.jupyter.org/node-purpose" = "user"
-      }
+  node_config {
+    machine_type = var.gcp_gke_default_pool_machine_type
+    metadata = {
+      disable-legacy-endpoints = true
     }
   }
 }

@@ -73,7 +73,7 @@ resource "google_sql_user" "notebooks" {
 # IAM (Cloud SQL proxy)
 resource "google_service_account" "notebooks_cloud_sql_proxy" {
   account_id   = var.gcp_iam_cloud_sql_proxy_service_account_id
-  display_name = var.gcp_iam_cloud_sql_proxy_service_account_display_name
+  display_name = var.gcp_iam_cloud_sql_proxy_service_account_id
   project      = var.gcp_project_id
   description  = "Cloud SQL Proxy"
 }
@@ -96,7 +96,24 @@ resource "google_project_iam_binding" "notebooks_cloud_sql_proxy" {
 resource "google_container_cluster" "cluster" {
   name                     = var.gcp_gke_cluster_name
   location                 = var.gcp_zone
+  initial_node_count       = 1
   remove_default_node_pool = true
+}
+resource "google_container_node_pool" "default_pool" {
+  cluster    = google_container_cluster.cluster.name
+  name       = var.gcp_gke_default_pool_name
+  location   = var.gcp_zone
+  node_count = 1
+  autoscaling {
+    min_node_count = 1
+    max_node_count = var.gcp_gke_default_pool_max_node_count
+  }
+  node_config {
+    machine_type = var.gcp_gke_default_pool_machine_type
+    metadata = {
+      disable-legacy-endpoints = true
+    }
+  }
 }
 resource "google_container_node_pool" "user_pool" {
   cluster    = google_container_cluster.cluster.name
