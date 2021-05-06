@@ -165,7 +165,7 @@ resource "kubernetes_namespace" "notebooks" {
 resource "kubernetes_secret" "cloud_sql_proxy" {
   metadata {
     name      = "cloud-sql-proxy-secret"
-    namespace = var.kubernetes_namespace
+    namespace = kubernetes_namespace.notebooks.metadata[0].name
   }
   # TODO: Use workload identity, see # https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
   data = {
@@ -201,6 +201,7 @@ resource "helm_release" "notebooks" {
   name              = "hexa-notebooks"
   version           = "0.11.1-n438.h7e6a66e9"
   dependency_update = true
+  namespace = kubernetes_namespace.notebooks.metadata[0].name
 
   # Proxy
   set {
