@@ -305,3 +305,12 @@ resource "aws_route53_record" "notebooks" {
     google_compute_address.notebooks.address
   ]
 }
+resource "aws_route53_record" "letsencrypt_caa" {
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = "${var.aws_route53_record_name}.${data.aws_route53_zone.zone.name}"
+  type    = "CAA"
+  ttl     = "300"
+  records = [
+    "0 issue \"letsencrypt.org\"",
+  ]
+}
