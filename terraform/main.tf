@@ -206,7 +206,17 @@ resource "helm_release" "notebooks" {
 
   # Base value file
   values = [
-    file("helm/base_config.yaml")
+    file("helm/base_config.yaml"),
+    # set {} cannot handle numbers...
+    <<EOF
+singleuser:
+  cpu:
+    guarantee: ${var.helm_singleuser_cpu_guarantee}
+    limit: ${var.helm_singleuser_cpu_limit}
+  memory:
+    guarantee: ${var.helm_singleuser_memory_guarantee}
+    limit: ${var.helm_singleuser_memory_limit}
+EOF
   ]
 
   # Proxy
@@ -265,24 +275,6 @@ resource "helm_release" "notebooks" {
   set {
     name  = "singleuser.image.tag"
     value = var.notebooks_base_image_tag
-  }
-  set {
-    name  = "singleuser.cpu.guarantee"
-    value = tonumber(var.helm_singleuser_cpu_guarantee)
-    type  = "auto"
-  }
-  set {
-    name  = "singleuser.cpu.limit"
-    value = tonumber(var.helm_singleuser_cpu_limit)
-    type  = "auto"
-  }
-  set {
-    name  = "singleuser.memory.guarantee"
-    value = var.helm_singleuser_memory_guarantee
-  }
-  set {
-    name  = "singleuser.memory.guarantee"
-    value = var.helm_singleuser_memory_limit
   }
   set {
     name  = "singleuser.extraEnv.CONTENT_SECURITY_POLICY"
