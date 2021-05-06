@@ -204,6 +204,11 @@ resource "helm_release" "notebooks" {
   dependency_update = true
   namespace         = kubernetes_namespace.notebooks.metadata[0].name
 
+  # Base value file
+  values = [
+    file("helm/base_config.yaml")
+  ]
+
   # Proxy
   set {
     name  = "proxy.secretToken"
