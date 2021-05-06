@@ -268,11 +268,11 @@ resource "helm_release" "notebooks" {
   }
   set {
     name  = "singleuser.cpu.guarantee"
-    value = var.helm_singleuser_cpu_guarantee
+    value = tonumber(var.helm_singleuser_cpu_guarantee)
   }
   set {
     name  = "singleuser.cpu.limit"
-    value = var.helm_singleuser_cpu_limit
+    value = tonumber(var.helm_singleuser_cpu_limit)
   }
   set {
     name  = "singleuser.memory.guarantee"
