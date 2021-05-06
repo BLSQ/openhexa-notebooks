@@ -210,7 +210,7 @@ resource "helm_release" "notebooks" {
   # We also need to handle CPU / memory guarantees & limits here as set {} cannot handle numbers...
   values = [
     file("helm/base_config.yaml"),
-    <<EOF
+<<EOF
 hub:
   extraFiles:
     jupyterhub_config:
@@ -218,7 +218,7 @@ hub:
       stringData: |
         ${file("../jupyterhub/jupyterhub_config.py")}
 EOF,
-    <<EOF
+<<EOF
 singleuser:
   cpu:
     guarantee: ${var.helm_singleuser_cpu_guarantee}
