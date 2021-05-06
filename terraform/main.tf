@@ -216,7 +216,7 @@ resource "helm_release" "notebooks" {
   }
   set {
     name  = "proxy.https.hosts"
-    value = "{${var.notebooks_domain},"
+    value = "{${var.notebooks_domain}}"
   }
   set {
     name  = "proxy.https.letsencrypt.contactEmail"
