@@ -197,11 +197,12 @@ resource "random_password" "hub_cookie_secret" {
   }
 }
 resource "helm_release" "notebooks" {
-  chart             = "jupyterhub/jupyterhub"
+  chart             = "jupyterhub"
+  repository        = "https://jupyterhub.github.io/helm-chart/"
   name              = "hexa-notebooks"
   version           = "0.11.1-n438.h7e6a66e9"
   dependency_update = true
-  namespace = kubernetes_namespace.notebooks.metadata[0].name
+  namespace         = kubernetes_namespace.notebooks.metadata[0].name
 
   # Proxy
   set {
