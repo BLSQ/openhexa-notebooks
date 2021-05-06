@@ -38,9 +38,7 @@ hub:
         path: /etc/ssl/certs
     - name: cloudsql
       emptyDir: { }
-  extraFiles:
-    jupyterhub_config:
-      mountPath: /usr/local/etc/jupyterhub/jupyterhub_config.d/jupyterhub_config.py
+
 singleuser:
   defaultUrl: "/lab"
   lifecycleHooks:
