@@ -266,6 +266,7 @@ EOF
     name  = "hub.extraEnv.CONTENT_SECURITY_POLICY"
     value = "frame-ancestors 'self' ${var.app_domain};"
   }
+  # see https://github.com/hashicorp/terraform-provider-helm/issues/628
   set {
     name = "hub.extraFiles.jupyterhub_config.stringData"
     value = file("../jupyterhub/jupyterhub_config.py")
