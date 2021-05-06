@@ -146,17 +146,14 @@ resource "google_container_node_pool" "user_pool" {
   }
 }
 
-# HELM
+# KUBERNETES
 data "google_client_config" "terraform" {}
-provider "helm" {
-  kubernetes {
-    host  = "https://${google_container_cluster.cluster.endpoint}"
-    token = data.google_client_config.terraform.access_token
-    cluster_ca_certificate = base64decode(
-      google_container_cluster.cluster.master_auth[0].cluster_ca_certificate,
-    )
-  }
-
+provider "kubernetes" {
+  host  = "https://${google_container_cluster.cluster.endpoint}"
+  token = data.google_client_config.terraform.access_token
+  cluster_ca_certificate = base64decode(
+    google_container_cluster.cluster.master_auth[0].cluster_ca_certificate,
+  )
 }
 # Namespace
 resource "kubernetes_namespace" "notebooks" {
@@ -175,7 +172,16 @@ resource "kubernetes_secret" "cloud_sql_proxy" {
     "credentials.json" = base64decode(google_service_account_key.notebooks_cloud_sql_proxy.private_key)
   }
 }
-# Helm
+# HELM
+provider "helm" {
+  kubernetes {
+    host  = "https://${google_container_cluster.cluster.endpoint}"
+    token = data.google_client_config.terraform.access_token
+    cluster_ca_certificate = base64decode(
+      google_container_cluster.cluster.master_auth[0].cluster_ca_certificate,
+    )
+  }
+}
 resource "random_password" "proxy_secret_token" {
   length  = 50
   special = true
