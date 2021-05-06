@@ -205,19 +205,10 @@ resource "helm_release" "notebooks" {
   namespace         = kubernetes_namespace.notebooks.metadata[0].name
 
   # Base value file
-  # We need to handle extraFiles here as -set-file is not supported by the helm provider
-  # (see https://github.com/hashicorp/terraform-provider-helm/issues/628)
-  # We also need to handle CPU / memory guarantees & limits here as set {} cannot handle numbers...
   values = [
     file("helm/base_config.yaml"),
-<<EOF
-hub:
-  extraFiles:
-    jupyterhub_config:
-      mountPath: /usr/local/etc/jupyterhub/jupyterhub_config.d/jupyterhub_config.py
-      binaryData: ${base64encode(file("../jupyterhub/jupyterhub_config.py"))}
-EOF,
-<<EOF
+    # set {} cannot handle numbers...
+    <<EOF
 singleuser:
   cpu:
     guarantee: ${var.helm_singleuser_cpu_guarantee}
@@ -274,6 +265,11 @@ EOF
   set {
     name  = "hub.extraEnv.CONTENT_SECURITY_POLICY"
     value = "frame-ancestors 'self' ${var.app_domain};"
+  }
+  # see https://github.com/hashicorp/terraform-provider-helm/issues/628
+  set {
+    name  = "hub.extraFiles.jupyterhub_config.binaryData"
+    value = base64encode(file("../jupyterhub/jupyterhub_config.py"))
   }
 
   # Single User
