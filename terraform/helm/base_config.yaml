@@ -11,6 +11,7 @@ hub:
       ]
     10-authenticator: |
       c.JupyterHub.authenticator_class = AppAuthenticator
+      c.Authenticator.refresh_pre_spawn = True
     20-tornado: |
       import os
       c.JupyterHub.tornado_settings = {
