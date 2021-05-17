@@ -16,7 +16,7 @@ services:
       HUB_DB_URL: postgresql://postgres:postgres@postgres:5432/jupyterhub
       APP_URL: http://localhost:8000
       APP_CREDENTIALS_URL: http://host.docker.internal:8000/notebooks/credentials/
-      CONTENT_SECURITY_POLICY: localhost
+      CONTENT_SECURITY_POLICY: "frame-ancestors 'self' localhost:*"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./jupyterhub/dev/:/srv/jupyterhub/

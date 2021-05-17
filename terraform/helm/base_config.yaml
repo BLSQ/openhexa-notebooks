@@ -1,0 +1,70 @@
+proxy:
+  https:
+    enabled: true
+hub:
+  db:
+    type: postgres
+  extraConfig:
+    00-jupyterlab-system-monitor: |
+      c.Spawner.args = [
+        "--ResourceUseDisplay.track_cpu_percent=True"
+      ]
+    10-authenticator: |
+      c.JupyterHub.authenticator_class = AppAuthenticator
+      c.Authenticator.refresh_pre_spawn = True
+    20-tornado: |
+      import os
+      c.JupyterHub.tornado_settings = {
+          "headers": {
+              "Content-Security-Policy": os.environ["CONTENT_SECURITY_POLICY"],
+          }
+      }
+  extraContainers:
+    - name: cloudsql-proxy
+      image: gcr.io/cloudsql-docker/gce-proxy:1.21.0
+      volumeMounts:
+        - name: cloudsql-oauth-credentials
+          mountPath: /secrets/cloudsql
+          readOnly: true
+        - name: ssl-certs
+          mountPath: /etc/ssl/certs
+        - name: cloudsql
+          mountPath: /cloudsql
+  extraVolumes:
+    - name: cloudsql-oauth-credentials
+      secret:
+        secretName: hexa-cloudsql-oauth-credentials
+    - name: ssl-certs
+      hostPath:
+        path: /etc/ssl/certs
+    - name: cloudsql
+      emptyDir: { }
+  extraFiles:
+    jupyterhub_config:
+      mountPath: /usr/local/etc/jupyterhub/jupyterhub_config.d/jupyterhub_config.py
+singleuser:
+  defaultUrl: "/lab"
+  lifecycleHooks:
+    postStart:
+      exec:
+        command:
+          - "sh"
+          - "-c"
+          - >
+            cp -r /tmp/habari_sample_files/* /home/jovyan/;
+            mkdir -p /home/jovyan/work;
+scheduling:
+  userScheduler:
+    enabled: true
+  podPriority:
+    enabled: true
+  userPlaceholder:
+    enabled: true
+    replicas: 4
+  userPods:
+    nodeAffinity:
+      matchNodePurpose: require
+cull:
+  enabled: true
+  timeout: 3600
+  every: 300
