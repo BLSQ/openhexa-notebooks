@@ -27,6 +27,12 @@ resource "google_compute_address" "notebooks" {
   name   = var.gcp_address_name
   region = var.gcp_region
 }
+
+
+# If prevent_destroy is set to true, the deploy will fail 
+# And the plan too when a resource which attribute (if changed) causes the resource to be destroyed and recreated.
+# It is applied  for cluster, node pools, Database instances, Databases, Database users
+
 # Cloud SQL
 resource "google_sql_database_instance" "notebooks" {
   database_version = "POSTGRES_12"
@@ -54,6 +60,9 @@ resource "google_sql_database_instance" "notebooks" {
 resource "google_sql_database" "notebooks" {
   name     = var.gcp_sql_database_name
   instance = google_sql_database_instance.notebooks.name
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 resource "random_password" "notebooks_database" {
   length  = 20
@@ -72,6 +81,9 @@ resource "google_sql_user" "notebooks" {
       GRANT ALL PRIVILEGES ON DATABASE ${google_sql_database.notebooks.name} TO "${google_sql_user.notebooks.name}";
       GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "${google_sql_user.notebooks.name}";
     EOT
+  }
+  lifecycle {
+    prevent_destroy = true
   }
 }
 # IAM (Cloud SQL proxy)
@@ -105,6 +117,7 @@ resource "google_container_cluster" "cluster" {
   remove_default_node_pool = true
   lifecycle {
     ignore_changes = [remove_default_node_pool]
+    prevent_destroy = true
   }
 }
 resource "google_container_node_pool" "shared_pool" {
@@ -121,6 +134,9 @@ resource "google_container_node_pool" "shared_pool" {
     metadata = {
       disable-legacy-endpoints = true
     }
+  }
+  lifecycle {
+    prevent_destroy = true
   }
 }
 resource "google_container_node_pool" "user_pool" {
@@ -145,6 +161,9 @@ resource "google_container_node_pool" "user_pool" {
     labels = {
       "hub.jupyter.org/node-purpose" = "user"
     }
+  }
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
