@@ -42,7 +42,8 @@ resource "google_sql_database_instance" "notebooks" {
     prevent_destroy = true
   }
   settings {
-    tier = var.gcp_sql_machine_type_tier
+    tier              = var.gcp_sql_machine_type_tier
+    availability_type = var.availability_type
     backup_configuration {
       enabled                        = true
       point_in_time_recovery_enabled = true
