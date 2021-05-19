@@ -50,6 +50,7 @@ jobs:
             -var 'gcp_region=${{ secrets.GCP_REGION }}' \
             -var 'gcp_zone=${{ secrets.GCP_ZONE }}' \
             -var 'gcp_sql_instance_tier=${{ secrets.GCP_SQL_INSTANCE_TIER }}' \
+            -var 'gcp_sql_instance_availability_type=${{ secrets.GCP_SQL_INSTANCE_AVAILABILITY_TYPE }}' \
             -var 'gcp_gke_shared_pool_max_node_count=${{ secrets.GCP_GKE_SHARED_POOL_MAX_NODE_COUNT }}' \
             -var 'gcp_gke_shared_pool_machine_type=${{ secrets.GCP_GKE_SHARED_POOL_MACHINE_TYPE }}' \
             -var 'gcp_gke_user_pool_max_node_count=${{ secrets.GCP_GKE_USER_POOL_MAX_NODE_COUNT }}' \
