@@ -20,8 +20,16 @@ resource "google_sql_database_instance" "notebooks" {
   database_version = "POSTGRES_12"
   name             = var.gcp_sql_instance_name
   region           = var.gcp_region
+  lifecycle {
+    prevent_destroy = true
+  }
   settings {
-    tier = var.gcp_sql_instance_tier
+    tier              = var.gcp_sql_instance_tier
+    availability_type = var.gcp_sql_instance_availability_type
+    backup_configuration {
+      enabled                        = var.gcp_sql_instance_backup_enabled
+      point_in_time_recovery_enabled = var.gcp_sql_instance_point_in_time_recovery_enabled
+    }
     ip_configuration {
       ipv4_enabled = true
       # TODO: find a safer way to access Cloud SQL instance
@@ -39,6 +47,7 @@ resource "google_container_cluster" "cluster" {
   remove_default_node_pool = true
   lifecycle {
     ignore_changes = [remove_default_node_pool]
+    prevent_destroy = true
   }
 }
 resource "google_container_node_pool" "shared_pool" {
@@ -55,6 +64,9 @@ resource "google_container_node_pool" "shared_pool" {
     metadata = {
       disable-legacy-endpoints = true
     }
+  }
+  lifecycle {
+    prevent_destroy = true
   }
 }
 resource "google_container_node_pool" "user_pool" {
@@ -79,5 +91,8 @@ resource "google_container_node_pool" "user_pool" {
     labels = {
       "hub.jupyter.org/node-purpose" = "user"
     }
+  }
+  lifecycle {
+    prevent_destroy = true
   }
 }

@@ -42,10 +42,11 @@ resource "google_sql_database_instance" "notebooks" {
     prevent_destroy = true
   }
   settings {
-    tier = var.gcp_sql_machine_type_tier
+    tier              = var.gcp_sql_instance_tier
+    availability_type = var.gcp_sql_instance_availability_type
     backup_configuration {
-      enabled                        = true
-      point_in_time_recovery_enabled = true
+      enabled                        = var.gcp_sql_instance_backup_enabled
+      point_in_time_recovery_enabled = var.gcp_sql_instance_point_in_time_recovery_enabled
     }
     ip_configuration {
       ipv4_enabled = true
@@ -116,7 +117,7 @@ resource "google_container_cluster" "cluster" {
   initial_node_count       = 1
   remove_default_node_pool = true
   lifecycle {
-    ignore_changes = [remove_default_node_pool]
+    ignore_changes  = [remove_default_node_pool]
     prevent_destroy = true
   }
 }
