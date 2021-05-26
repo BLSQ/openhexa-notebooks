@@ -39,8 +39,6 @@ c.JupyterHub.hub_connect_ip = os.environ[
 # Authentication
 # Our custom authenticator uses a login handler that forwards the cookies from the app component for
 # cross-components authentication
-
-
 class AppAuthenticatorLoginHandler(BaseHandler):
     """This login handler uses the cookies set by our app component. As the app and notebooks components run
     on the same domain, we can make a request to the app component using the cookies that it had set."""
@@ -92,6 +90,7 @@ class AppAuthenticator(Authenticator):
 
 c.JupyterHub.authenticator_class = AppAuthenticator
 c.Authenticator.refresh_pre_spawn = True
+c.Authenticator.auth_refresh_age = 60 * 60 * 12
 
 # Use Postgres as the hub database
 c.JupyterHub.db_url = os.environ["HUB_DB_URL"]
