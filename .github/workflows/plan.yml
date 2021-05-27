@@ -49,7 +49,6 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform -chdir=terraform plan \
-            -out=saved_plan \
             -var 'notebooks_domain=${{ secrets.NOTEBOOKS_DOMAIN }}' \
             -var 'app_domain=${{ secrets.APP_DOMAIN }}' \
             -var 'app_url=${{ secrets.APP_URL }}' \
