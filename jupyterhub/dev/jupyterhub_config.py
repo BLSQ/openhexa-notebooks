@@ -90,7 +90,6 @@ class AppAuthenticator(Authenticator):
 
 c.JupyterHub.authenticator_class = AppAuthenticator
 c.Authenticator.refresh_pre_spawn = True
-c.Authenticator.auth_refresh_age = 60 * 60 * 12
 
 # Use Postgres as the hub database
 c.JupyterHub.db_url = os.environ["HUB_DB_URL"]
