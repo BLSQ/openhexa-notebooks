@@ -1,9 +1,31 @@
 proxy:
   https:
     enabled: true
+    hosts:
+    letsencrypt:
+      contactEmail:
+  service:
+    loadBalancerIP:
 hub:
   db:
     type: postgres
+    url:
+  extraEnv:
+    APP_CREDENTIALS_URL:
+      valueFrom:
+        configMapKeyRef:
+          name: notebooks-config
+          key: APP_CREDENTIALS_URL
+    CONTENT_SECURITY_POLICY:
+      valueFrom:
+        configMapKeyRef:
+          name: notebooks-config
+          key: CONTENT_SECURITY_POLICY
+    PGPASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: notebooks-secret
+          key: PGPASSWORD
   extraConfig:
     00-jupyterlab-system-monitor: |
       c.Spawner.args = [
@@ -22,6 +44,17 @@ hub:
   extraContainers:
     - name: cloudsql-proxy
       image: gcr.io/cloudsql-docker/gce-proxy:1.21.0
+      command: [
+          "/cloud_sql_proxy",
+          "--dir=/cloud-sql",
+          "-credential_file=/secrets/cloudsql/credentials.json"
+      ]
+      env:
+        - name: INSTANCES
+          valueFrom:
+            secretKeyRef:
+              name: csp-secret
+              key: INSTANCES
       volumeMounts:
         - name: cloudsql-oauth-credentials
           mountPath: /secrets/cloudsql
@@ -33,7 +66,10 @@ hub:
   extraVolumes:
     - name: cloudsql-oauth-credentials
       secret:
-        secretName: hexa-cloudsql-oauth-credentials
+        secretName: csp-secret
+        items:
+          - key: credentials.json
+            path: credentials.json
     - name: ssl-certs
       hostPath:
         path: /etc/ssl/certs
@@ -41,9 +77,25 @@ hub:
       emptyDir: { }
   extraFiles:
     jupyterhub_config:
+      binaryData:
       mountPath: /usr/local/etc/jupyterhub/jupyterhub_config.d/jupyterhub_config.py
 singleuser:
+  image:
+    name:
+    tag:
+  cpu:
+    guarantee:
+    limit:
+  memory:
+    guarantee:
+    limit:
   defaultUrl: "/lab"
+  extraEnv:
+    CONTENT_SECURITY_POLICY:
+      valueFrom:
+        configMapKeyRef:
+          name: notebooks-config
+          key: CONTENT_SECURITY_POLICY
   lifecycleHooks:
     postStart:
       exec:
