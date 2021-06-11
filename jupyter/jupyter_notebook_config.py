@@ -1,5 +1,4 @@
 import os
-import re
 
 from notebook.services.contents.largefilemanager import LargeFileManager
 from hybridcontents import HybridContentsManager
@@ -25,7 +24,7 @@ c.HybridContentsManager.manager_kwargs = {
 }
 # S3 managers
 # We are looking for bucket names in env variables
-s3_bucket_names = os.environ.get("AWS_S3_BUCKET_NAMES", "").split(",")
+s3_bucket_names = filter(None, os.environ.get("AWS_S3_BUCKET_NAMES", "").split(","))
 for s3_bucket_name in s3_bucket_names:
     bucket_key = f"s3:{s3_bucket_name}"
     c.HybridContentsManager.manager_classes[bucket_key] = S3ContentsManager
