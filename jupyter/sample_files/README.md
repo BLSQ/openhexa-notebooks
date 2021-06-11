@@ -1,16 +1,15 @@
-# Welcome to Habari!
+<div align="center" style="margin-top:20px;">
+   <img alt="OpenHexa Logo" src="https://raw.githubusercontent.com/BLSQ/openhexa-app/main/hexa/static/img/logo/logo_with_text_grey.svg" height="80">
+</div>
 
-Welcome to Habari, the Bluesquare Data Science platform.
+# Welcome to OpenHexa!
+
+Welcome to OpenHexa, the Bluesquare Data Science platform.
 
 This file is an introduction to the platform - make sure you read it before going further as it contains important 
 information regarding security.
 
-## Other documentation resources
-
-In addition to this introductory document, you can find code samples, example datasets and specific guides for 
-data connectors in the the `s3:habari-public/Documentation` directory (accessible from your file browser).
-
-## 🚧 Habari is alpha/beta software
+## 🚧 OpenHexa is alpha/beta software
 
 This platform is a work in progress, and cannot be considered stable yet. Be prepared for some major changes 
 along the way.
@@ -20,10 +19,43 @@ the platform.
 
 ## 🚒 An important note about sensitive data
 
-At this stage, the Habari platform is not equipped to deal with sensitive data (for example data that contains personal 
-information).
+At this stage, the OpenHexa platform is not equipped to deal with sensitive data (for example data that contains 
+personal information).
 
-**Never upload sensitive or personal data on the Habari platform.**
+**Never upload sensitive or personal data on the OpenHexa platform.**
+
+## 💽 File storage
+
+OpenHexa allows you to store files in 2 different types of storage:
+
+1. **Cloud Storage**: buckets shared with your team
+1. A **personal filesystem**: for your personal drafts and temporary data
+
+### Cloud Storage
+
+In the file explorer on the left, you will see one or more directories beginning with `s3:` or `:gcs`.
+
+These directories correspond to Amazon S3 or Google Cloud Storage buckets. They are shared with your team and are 
+backed up on a regular basis.
+
+**Using Cloud Storage is the recommended way to store code or data in OpenHexa.**
+
+**Pro tip**: you can copy the path to an existing file in this bucket by right-clicking on it and selecting the 
+"Copy path" menu item. 
+
+Don't forget to add a **double slash** after the `s3:` prefix at the beginning of the file (this feature will be improved 
+in the future so that the copied path can be used right away).
+
+### Personal filesystem
+
+Any file or folder that you create outside the `s3:` or `gcs:` directories mentioned above are stored in a personal 
+filesystem. This filesystem is not shared with your team.
+
+As this filesystem is faster than the S3/GCS buckets, it can be useful for your work in progress.
+
+🚨 **This data is not backed up** and even worse - this filesystem is recreated from time to time, meaning 
+that **it should exclusively be used for temporary data and drafts**. We intend to make this personal filesystem 
+more resilient in the future, but in the meantime, you need to move "serious" work in Cloud Storage.
 
 ## 🚓 An important note about credentials
 
@@ -33,7 +65,7 @@ resources often require credentials.
 **Never store those credentials in any form on the platform**.
 
 First, consider whether the data that you want to access can be extracted in a dedicated, secure data pipeline 
-outside Habari.
+outside OpenHexa.
 
 If it is not the case, and you really need to access a protected external resource, use a password prompt so 
 that credentials are not leaked in the file itself or in the notebook output.
@@ -45,69 +77,3 @@ Avoid printing the credentials, as they would be stored in the notebook output.
 
 Once you are satisfied with such an extraction process, especially if it is a recurring task, please 
 consider moving it to an external data pipeline.
-
-## 💽 File storage
-
-Habari allows you to store files in 3 different locations:
-
-1. A **"data lake"** bucket: shared data in flat files (CSV, json, etc...)
-1. A **"shared notebooks"** bucket: Jupyter notebooks that you want to share with your colleagues
-1. A **personal filesystem**: for your personal drafts and temporary data
-
-### The "data lake" bucket
-
-This S3 bucket is accessible from the file browser under a name that looks like `s3:some-workspace-name-lake`.
-
-This bucket can be used to access and read **shared data**.
-
-**Pro tip**: you can copy the path to an existing file in this bucket by right-clicking on it and selecting the 
-"Copy path" menu item. 
-
-Don't forget to add a **double slash** after the `s3:` prefix at the beginning of the file (this feature will be improved 
-in the future so that the copied path can be used right away).
-
-Please **do not store notebooks** in this bucket.
-
-### The "shared notebooks" bucket
-
-This S3 bucket is accessible from the file browser under a name that looks like `s3:some-workspace-name-notebooks`.
-
-This bucket can be used to **share notebooks** with your whole team.
-
-It is ok to store data files along with your notebooks here, but for data that you want to share with your team, the 
-"data lake" bucket is the preferred location.
-
-There is **no version control** for notebooks at this point. Communicate with your teammates and make sure 
-that you are not working on the same notebooks at the same time, otherwise you might end up overwriting your 
-colleague's notebook.
-
-**Pro tip**: As this bucket is backed up on a regular basis, this is the best place to store your work.
-
-### Personal filesystem
-
-Any file or folder that you create outside the two buckets mentioned above are stored in a personal filesystem. Those 
-files are not shared with your team.
-
-As this filesystem is faster than the S3 buckets, it is ideal for your work in progress.
-
-**Pro tip**: While Habari is in alpha/beta state, we encourage you to "back up" your notebooks in the "shared notebooks" 
-bucket.
-
-## 🗂 The exploration database
-
-🚨 **Never store sensitive or personal information in the exploration database**.
-
-Habari allows you to store data in an **exploration database**.
-
-This database can be accessed by external BI tools such as Tableau or Power BI.
-
-To allow you to access this database from your notebook code, Habari puts a series of environment variables at your 
-disposal:
-
-* A ready-to-use connection string for Pandas/SQLAlchemy: `EXPLORE_DB_URL`
-* A series of parameters to use in other contexts (R, BI tool configuration, etc...):
-    * `EXPLORE_DB_USER`
-    * `EXPLORE_DB_PASSWORD`
-    * `EXPLORE_DB_HOST`
-    * `EXPLORE_DB_PORT`
-    * `EXPLORE_DB_NAME`
