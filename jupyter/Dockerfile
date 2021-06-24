@@ -79,9 +79,6 @@ RUN pip install \
     'cowsay==3.*' \
     'fake-useragent==0.*' \
     'hdx-python-api==4.*' \
-    'jupyterlab-topbar==0.*' \
-    'jupyterlab-system-monitor==0.*' \
-    'lckr-jupyterlab-variableinspector==3.*' \
     'tabpy==2.*'
 
 # R packages (cran - for what is not available in mamba)
@@ -107,6 +104,6 @@ ENV PYTHONPATH /opt/local_python_modules/
 # k8s: stored in /tmp within the pod, then copied back in the home directory after the PVC has been mounted through
 # a postStart hook defined in config.yaml
 # (see https://zero-to-jupyterhub.readthedocs.io/en/latest/customizing/user-environment.html#about-user-storage-and-adding-files-to-it)
-COPY sample_files/* /tmp/habari_sample_files/
+COPY sample_files/* /tmp/notebooks_sample_files/
 # the next line is for the local docker-compose environment only
 COPY sample_files/* /home/jovyan/
