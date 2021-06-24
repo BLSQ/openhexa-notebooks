@@ -1,0 +1,9 @@
+# This Dockerfile is only intended for development
+# (In z2jh mode, we use the image provided by the Zero to Jupyterhub Helm chart)
+# It is crucial to use the same jupyterhub version than the one used by z2jh
+FROM jupyterhub/jupyterhub:1.4.1
+
+COPY config/* /etc/jupyterhub/
+
+RUN pip install --upgrade pip
+RUN pip install dockerspawner==12.* psycopg2-binary==2.*
