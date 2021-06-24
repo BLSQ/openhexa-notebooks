@@ -19,9 +19,11 @@ resource "helm_release" "notebooks" {
   namespace         = data.kubernetes_namespace.notebooks.metadata[0].name
   dependency_update = true
 
-  # Base value file
   values = [
+    # Base value file
     file("${path.module}/base_config.yaml"),
+    # The terraform helm provider cannot set int or float values, and that z2jh will not accept/convert
+    # strings, so we need to use this workaround to set those values dynamically
     <<EOT
 singleuser:
   cpu:
@@ -48,7 +50,7 @@ EOT
   }
 
   # Hub
-  set_sensitive { # TODO: use a secret and set PG env variables?
+  set_sensitive {
     name  = "hub.db.url"
     value = "postgresql://hexa-notebooks-${var.environment}@127.0.0.1:5432/hexa-notebooks-${var.environment}"
   }
