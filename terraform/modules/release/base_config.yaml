@@ -26,21 +26,6 @@ hub:
         secretKeyRef:
           name: notebooks-secret
           key: PGPASSWORD
-  extraConfig:
-    00-jupyterlab-system-monitor: |
-      c.Spawner.args = [
-        "--ResourceUseDisplay.track_cpu_percent=True"
-      ]
-    10-authenticator: |
-      c.JupyterHub.authenticator_class = AppAuthenticator
-      c.Authenticator.refresh_pre_spawn = True
-    20-tornado: |
-      import os
-      c.JupyterHub.tornado_settings = {
-          "headers": {
-              "Content-Security-Policy": os.environ["CONTENT_SECURITY_POLICY"],
-          }
-      }
   extraContainers:
     - name: cloudsql-proxy
       image: gcr.io/cloudsql-docker/gce-proxy:1.21.0
@@ -89,7 +74,6 @@ singleuser:
   memory:
     guarantee:
     limit:
-  defaultUrl: "/lab"
   extraEnv:
     CONTENT_SECURITY_POLICY:
       valueFrom:
@@ -103,7 +87,7 @@ singleuser:
           - "sh"
           - "-c"
           - >
-            cp -r /tmp/habari_sample_files/* /home/jovyan/;
+            cp -r /tmp/notebooks_sample_files/* /home/jovyan/;
             mkdir -p /home/jovyan/work;
 scheduling:
   userScheduler:
