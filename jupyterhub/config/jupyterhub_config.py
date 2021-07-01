@@ -42,7 +42,7 @@ class AppAuthenticator(Authenticator):
         app_credentials_url = os.environ["APP_CREDENTIALS_URL"]
         cookies = {
             "sessionid": handler.cookies["sessionid"].value,
-            "csrftoken": handler.cookies["csrftoken"].value,
+            # "csrftoken": handler.cookies["csrftoken"].value,
         }
 
         try:

@@ -7,6 +7,10 @@ proxy:
   service:
     loadBalancerIP:
 hub:
+  config:
+    JupyterHub:
+      # We need to set this to null, otherwise z2jh will put back the default "dummy" authenticator
+      authenticator_class:
   db:
     type: postgres
     url:

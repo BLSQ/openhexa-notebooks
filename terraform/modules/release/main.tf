@@ -57,7 +57,7 @@ EOT
   # see https://github.com/hashicorp/terraform-provider-helm/issues/628
   set {
     name  = "hub.extraFiles.jupyterhub_config.binaryData"
-    value = base64encode(file("${path.module}/../../../jupyterhub/jupyterhub_config.py"))
+    value = base64encode(file("${path.module}/../../../jupyterhub/config/jupyterhub_config.py"))
   }
 
   # Single User
