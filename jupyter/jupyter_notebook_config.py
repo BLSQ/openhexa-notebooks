@@ -47,3 +47,6 @@ for gcs_config in []:
 c.GenericFileCheckpoints.root_dir = "./.checkpoints"
 
 c.ServerApp.tornado_settings = {"autoreload": True}
+
+# https://github.com/jupyter-server/jupyter-resource-usage
+c.ResourceUseDisplay.track_cpu_percent = True

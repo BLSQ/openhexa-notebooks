@@ -68,6 +68,10 @@ RUN mamba install --quiet --yes \
     's3fs=0.4.2' \
     && mamba clean --yes --all
 
+RUN mamba install --quiet --yes \
+    'jupyter-resource-usage=0.*' \
+    && mamba clean --yes --all
+
 # Jupyter extensions
 RUN mamba install --quiet --yes \
     'jupyter-dash=0.*' \
