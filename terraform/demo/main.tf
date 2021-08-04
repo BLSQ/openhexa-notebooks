@@ -49,6 +49,7 @@ module "release" {
   source            = "../modules/release"
   environment       = "demo"
   domain            = "notebooks.demo.openhexa.org"
+  hub_image_tag     = "1.1.1"
   user_image_tag    = "0.3.3"
   user_cpu_limit    = 2
   user_memory_limit = "4G"

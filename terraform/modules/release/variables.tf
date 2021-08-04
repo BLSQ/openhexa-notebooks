@@ -6,6 +6,15 @@ variable "domain" {
   description = "The domain through with the app component will be accessed"
   type        = string
 }
+variable "hub_image_name" {
+  description = "The name of the hub image to use"
+  type        = string
+  default     = "blsq/openhexa-jupyterhub"
+}
+variable "hub_image_tag" {
+  description = "The tag of the hub image to use"
+  type        = string
+}
 variable "user_image_name" {
   description = "The name of the single-user server image to use"
   type        = string

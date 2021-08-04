@@ -5,7 +5,9 @@ version: '3'
 
 services:
   jupyterhub:
-    build: jupyterhub
+    build:
+      context: jupyterhub
+      dockerfile: Dockerfile.dev
     command: ["jupyterhub", "-f", "/etc/jupyterhub/jupyterhub_dev_config.py"]
     container_name: jupyterhub
     depends_on:
