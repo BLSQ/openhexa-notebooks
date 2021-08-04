@@ -54,11 +54,6 @@ EOT
     name  = "hub.db.url"
     value = "postgresql://hexa-notebooks-${var.environment}@127.0.0.1:5432/hexa-notebooks-${var.environment}"
   }
-  # see https://github.com/hashicorp/terraform-provider-helm/issues/628
-  set {
-    name  = "hub.extraFiles.jupyterhub_config.binaryData"
-    value = base64encode(file("${path.module}/../../../jupyterhub/config/jupyterhub_config.py"))
-  }
 
   # Single User
   set {

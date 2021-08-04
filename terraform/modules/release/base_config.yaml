@@ -64,10 +64,6 @@ hub:
         path: /etc/ssl/certs
     - name: cloudsql
       emptyDir: { }
-  extraFiles:
-    jupyterhub_config:
-      binaryData:
-      mountPath: /usr/local/etc/jupyterhub/jupyterhub_config.d/jupyterhub_config.py
 singleuser:
   image:
     name:
