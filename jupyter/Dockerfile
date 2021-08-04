@@ -66,6 +66,7 @@ RUN mamba install --quiet --yes \
     'rasterstats=0.*' \
     's3contents=0.6.0' \
     's3fs=0.4.2' \
+    'papermill==2.3.3' \
     && mamba clean --yes --all
 
 # Jupyter extensions
