@@ -15,7 +15,7 @@ resource "helm_release" "notebooks" {
   chart             = "jupyterhub"
   repository        = "https://jupyterhub.github.io/helm-chart/"
   name              = "hexa-notebooks"
-  version           = "1.0.0"
+  version           = "1.1.1"  # should match the Docker image version we use for the hub as a basis
   namespace         = data.kubernetes_namespace.notebooks.metadata[0].name
   dependency_update = true
 
@@ -53,6 +53,14 @@ EOT
   set_sensitive {
     name  = "hub.db.url"
     value = "postgresql://hexa-notebooks-${var.environment}@127.0.0.1:5432/hexa-notebooks-${var.environment}"
+  }
+  set {
+    name = "hub.image.name"
+    value = var.hub_image_name
+  }
+  set {
+    name = "hub.image.tag"
+    value = var.hub_image_tag
   }
 
   # Single User
