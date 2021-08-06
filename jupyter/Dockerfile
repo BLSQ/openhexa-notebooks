@@ -1,9 +1,13 @@
-FROM jupyter/datascience-notebook:584f43f06586
+FROM jupyter/datascience-notebook:b9f6ce795cfc
 
 USER root
 
 # System libraries
 RUN apt-get update
+
+# Add locales
+RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8
+RUN update-locale
 
 # For rgdal (R)
 RUN apt-get install -y libgdal-dev
