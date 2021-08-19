@@ -88,7 +88,8 @@ RUN pip install \
     'cowsay==3.*' \
     'fake-useragent==0.*' \
     'hdx-python-api==4.*' \
-    'tabpy==2.*'
+    'tabpy==2.*' \
+    'lckr-jupyterlab-variableinspector==3.*'
 
 # R packages (cran - for what is not available in mamba)
 RUN R -e "install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
