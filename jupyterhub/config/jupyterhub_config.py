@@ -5,6 +5,7 @@ import os
 from jupyterhub.auth import Authenticator
 from jupyterhub.handlers import BaseHandler
 import requests
+from jupyterhub.handlers.pages import SpawnHandler
 from tornado import web
 
 
@@ -92,15 +93,13 @@ class AppAuthenticator(Authenticator):
         the trick until we implement a proper revoke system.
 
         We do care about 2. though - we have set refresh_pre_spawn to True, which means that every time a new
-        single-user server is started, refresh_user() will be called. We use the absence of auth_state as an
-        indicator that this is a new spawn (and not a "auth_refresh_age" situation), because well, we delete the
-        auth state on single-user server shutdowns.
+        single-user server is started, refresh_user() will be called. If the handler is a SpawnHandler
+        (i.e we are not in a "auth_refresh_age" situation), we re-authenticate the user, to make sure that they
+        have fresh credentials.
         """
 
-        auth_state = await user.get_auth_state()
-
         # No auth state -> re-authenticate
-        if auth_state is None:
+        if isinstance(handler, SpawnHandler):
             self.log.info(f"Regenerating fresh credentials for user {user.name}")
 
             return await self.authenticate(handler, {})
@@ -120,14 +119,6 @@ class AppAuthenticator(Authenticator):
             self.log.error(
                 f"No auth state for user {user.name}",
             )
-
-    async def post_spawn_stop(self, user, spawner):
-        """When stopping a single-user server, we want to clear the auth state containing the user credentials.
-        As refresh_pre_spawn is set to True, the next time we will spawn a single-user server for this user,
-        refresh_user() will detect the absence of auth state and trigger a new authentication, which in turn will
-        set the auth state with fresh credentials."""
-
-        await user.save_auth_state(None)
 
 
 class AppAuthenticatorLoginHandler(BaseHandler):
