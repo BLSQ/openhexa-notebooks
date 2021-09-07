@@ -5,6 +5,9 @@ USER root
 # System libraries
 RUN apt-get update
 
+# s3fs
+RUN sudo apt install -y s3fs
+
 # Add locales
 RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8
 RUN update-locale
