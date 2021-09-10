@@ -119,3 +119,8 @@ ENV PYTHONPATH /opt/local_python_modules/
 COPY sample_files/* /tmp/notebooks_sample_files/
 # the next line is for the local docker-compose environment only
 COPY sample_files/* /home/jovyan/
+
+# TODO: move higher
+COPY fuse/fuse.conf /etc/.
+COPY fuse/fuse.sh /home/jovyan/fuse.sh
+COPY fuse/fuse_mount.py /home/jovyan/fuse_mount.py

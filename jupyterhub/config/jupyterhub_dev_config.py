@@ -23,9 +23,7 @@ c.DockerSpawner.image = os.environ["JUPYTER_IMAGE"]
 c.Spawner.debug = True  # Seems necessary to see spawner logs / to check
 c.DockerSpawner.debug = True
 c.DockerSpawner.extra_host_config = {"privileged": True, "devices": "/dev/fuse"}
-# TODO: update to latest s3fuse version, which supports the standard env variables
-# TODO: and obviously this should be dynamic
-c.DockerSpawner.post_start_cmd = "sh -c 'export AWSACCESSKEYID=${AWS_ACCESS_KEY_ID};export AWSSECRETACCESSKEY=${AWS_SECRET_ACCESS_KEY};export AWSSESSIONTOKEN=${AWS_SESSION_TOKEN};mkdir -p /home/jovyan/hexa-demo-blsq;s3fs hexa-demo-blsq ${HOME}/hexa-demo-blsq -o endpoint=eu-central-1 -o allow_other'"
+c.DockerSpawner.post_start_cmd = 'sh -c "/home/jovyan/fuse.sh"'
 
 # This is really useful to avoid "dangling containers" that cannot connect to the Hub anymore
 # (and the dreaded The "'ip' trait of a Server instance must be a unicode string, but a value of None
