@@ -122,4 +122,7 @@ COPY sample_files/* /home/jovyan/
 
 # s3f fuse
 COPY fuse/fuse.conf /etc/.
-COPY fuse/fuse_* /home/jovyan/.fuse/
+# k8s: same as sample files, we need to copy those to a temp location
+COPY fuse/* /tmp/fuse/
+# the next line is for the local docker-compose environment only
+COPY fuse/* /home/jovyan/.fuse/
