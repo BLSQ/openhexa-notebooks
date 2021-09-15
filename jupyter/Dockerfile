@@ -5,7 +5,7 @@ USER root
 # System libraries
 RUN apt-get update
 
-# s3fs
+# s3fs fuse
 RUN sudo apt install -y s3fs
 
 # Add locales
@@ -120,7 +120,6 @@ COPY sample_files/* /tmp/notebooks_sample_files/
 # the next line is for the local docker-compose environment only
 COPY sample_files/* /home/jovyan/
 
-# TODO: move higher
+# s3f fuse
 COPY fuse/fuse.conf /etc/.
-COPY fuse/fuse.sh /home/jovyan/fuse.sh
-COPY fuse/fuse_mount.py /home/jovyan/fuse_mount.py
+COPY fuse/fuse_* /home/jovyan/.fuse/
