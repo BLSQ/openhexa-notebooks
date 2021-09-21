@@ -5,6 +5,9 @@ USER root
 # System libraries
 RUN apt-get update
 
+# s3fs fuse
+RUN sudo apt install -y s3fs
+
 # Add locales
 RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8
 RUN update-locale
@@ -116,3 +119,10 @@ ENV PYTHONPATH /opt/local_python_modules/
 COPY sample_files/* /tmp/notebooks_sample_files/
 # the next line is for the local docker-compose environment only
 COPY sample_files/* /home/jovyan/
+
+# s3f fuse
+COPY fuse/fuse.conf /etc/.
+# k8s: same as sample files, we need to copy those to a temp location
+COPY fuse/* /tmp/fuse/
+# the next line is for the local docker-compose environment only
+COPY fuse/* /home/jovyan/.fuse/
