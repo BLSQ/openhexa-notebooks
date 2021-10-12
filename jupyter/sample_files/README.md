@@ -36,7 +36,8 @@ OpenHexa allows you to store files in 2 different types of storage:
 In the file explorer on the left, you will see one or more directories beginning with `s3:` or `:gcs`.
 
 These directories correspond to Amazon S3 or Google Cloud Storage buckets. They are shared with your team and are 
-backed up on a regular basis.
+backed up on a regular basis.  If you experience any problem related to bucket access, please restart the
+Jupyter Server, by going to File -> Logout, then clicking on "restart", then "start the server".
 
 **Using Cloud Storage is the recommended way to store code or data in OpenHexa.**
 
@@ -45,6 +46,10 @@ backed up on a regular basis.
 
 Don't forget to add a **double slash** after the `s3:` prefix at the beginning of the file (this feature will be improved 
 in the future so that the copied path can be used right away).
+
+To access the buckets, Jupyter use an authentication system at the start of session. If the credentials change, or if
+you receive new credentials or permissions, you need to refresh the authentication by restarting the session. You
+can do so by going to File -> Logout, then clicking on "restart", then "start the server".
 
 ### Personal filesystem
 
