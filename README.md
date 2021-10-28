@@ -291,6 +291,14 @@ The OpenHexa Notebooks base Docker image is publicly available on Docker Hub
 
 This repository also provides a Github workflow to build the Docker image in the `.github/workflows` directory.
 
+To build and push the image manually:
+
+```bash
+docker build -t blsq/openhexa-base-notebook:<version> -t blsq/openhexa-base-notebook:latest jupyter
+docker push blsq/openhexa-base-notebook:<version>
+docker push blsq/openhexa-base-notebook:latest
+```
+
 Uninstalling
 ------------
 
