@@ -14,10 +14,9 @@ if os.environ.get("HEXA_FEATURE_FLAG_S3FS", "false") == "true":
     for bucket in fuse_config["buckets"]:
         path_to_mount = os.path.join(f"/home/jovyan/s3-{bucket['name']}")
         region_url = f"https://s3-{bucket['region']}.amazonaws.com/"
-        subprocess.run(["echo", "mkdir", "-p", path_to_mount])
+        subprocess.run(["mkdir", "-p", path_to_mount])
         subprocess.run(
             [
-                "echo",
                 "s3fs",
                 bucket["name"],
                 path_to_mount,
