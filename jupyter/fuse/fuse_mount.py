@@ -30,5 +30,5 @@ if os.environ.get("HEXA_FEATURE_FLAG_S3FS", "false") == "true":
                 # "-f",
                 # "-o",
                 # "curldbg",
-            ]
+            ] + (["-o", "ro"] if bucket["mode"] == "RO" else [])
         )
