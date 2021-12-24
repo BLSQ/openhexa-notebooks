@@ -1,4 +1,4 @@
-FROM jupyter/datascience-notebook:b9f6ce795cfc
+FROM jupyter/datascience-notebook:92ce0af9989f
 
 USER root
 
@@ -72,7 +72,7 @@ RUN mamba install --yes \
     'rasterstats=0.*' \
     's3contents=0.6.0' \
     's3fs=0.4.2' \
-    'papermill==2.3.3' \
+    'papermill==2.*' \
     && mamba clean --yes --all
 
 RUN mamba install --yes \
