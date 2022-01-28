@@ -53,6 +53,7 @@ RUN mamba install --yes 'r-aws.s3=0.*' \
     && mamba clean --yes --all
 
 RUN mamba install --yes 'r-styler=1.*' \
+    && mamba install --yes 'r-arrow=6.*' \
     && mamba clean --yes --all
 
 # Python packages, in multiple steps for Docker layering (mamba preferred method)
