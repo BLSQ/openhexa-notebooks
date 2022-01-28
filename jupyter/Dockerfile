@@ -52,6 +52,9 @@ RUN mamba install --yes 'r-aws.s3=0.*' \
     && mamba install --yes 'r-viridis=0.*' \
     && mamba clean --yes --all
 
+RUN mamba install --yes 'r-styler=1.*' \
+    && mamba clean --yes --all
+
 # Python packages, in multiple steps for Docker layering (mamba preferred method)
 # TODO: unpin s3contents, fsspec, gcsfs & s3fs once https://github.com/danielfrg/s3contents/issues/122 is fixed
 RUN mamba install --yes \
@@ -73,6 +76,12 @@ RUN mamba install --yes \
     's3contents=0.6.0' \
     's3fs=0.4.2' \
     'papermill==2.*' \
+    && mamba clean --yes --all
+RUN mamba install --yes 'jupyterlab_code_formatter=1.*' \
+    'black=21.*' \
+    'isort=5.*' \
+    'rpy2=3.*' \
+    'pyarrow=6.*' \
     && mamba clean --yes --all
 
 RUN mamba install --yes \
