@@ -5,8 +5,15 @@ USER root
 # System libraries
 RUN apt-get update
 
-# s3fs fuse
+# FUSE Amazon S3
 RUN sudo apt install -y s3fs
+
+# FUSE Google Cloud Storage
+WORKDIR /tmp
+RUN wget -q "https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v0.40.0/gcsfuse_0.40.0_amd64.deb" -O "gcsfuse.deb"
+RUN apt install -y ./gcsfuse.deb
+RUN rm ./gcsfuse.deb
+WORKDIR $HOME
 
 # Add locales
 RUN locale-gen fr_FR fr_FR.UTF-8 es_ES es_ES.UTF-8 de_DE de_DE.UTF-8

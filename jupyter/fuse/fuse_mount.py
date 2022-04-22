@@ -4,31 +4,44 @@ import json
 import base64
 
 # TODO: upgrade to more recent version of s3fs, which handles the standard AWS env variables just fine
-if os.environ.get("HEXA_FEATURE_FLAG_S3FS", "false") == "true":
-    fuse_config = json.loads(base64.b64decode(os.environ["_PRIVATE_FUSE_CONFIG"]))
+os.putenv("AWSACCESSKEYID", os.environ["AWS_ACCESS_KEY_ID"])
+os.putenv("AWSSECRETACCESSKEY", os.environ["AWS_SECRET_ACCESS_KEY"])
+os.putenv("AWSSESSIONTOKEN", os.environ["AWS_SESSION_TOKEN"])
 
-    os.putenv("AWSACCESSKEYID", fuse_config["access_key_id"])
-    os.putenv("AWSSECRETACCESSKEY", fuse_config["secret_access_key"])
-    os.putenv("AWSSESSIONTOKEN", fuse_config["session_token"])
+buckets_ro = os.environ.get("AWS_S3_BUCKET_RO_NAMES", "").split(",")
 
-    for bucket in fuse_config["buckets"]:
-        path_to_mount = os.path.join(f"/home/jovyan/s3-{bucket['name']}")
-        region_url = f"https://s3-{bucket['region']}.amazonaws.com/"
-        subprocess.run(["mkdir", "-p", path_to_mount])
-        subprocess.run(
-            [
-                "s3fs",
-                bucket["name"],
-                path_to_mount,
-                "-o",
-                "allow_other",
-                "-o",
-                "url=" + region_url,
-                # Debug
-                # "-o",
-                # "dbglevel=info",
-                # "-f",
-                # "-o",
-                # "curldbg",
-            ] + (["-o", "ro"] if bucket["mode"] == "RO" else [])
-        )
+for bucket_name in os.environ.get("AWS_S3_BUCKET_NAMES", "").split(","):
+    path_to_mount = f"/home/jovyan/s3-{bucket_name}"
+    subprocess.run(["mkdir", "-p", path_to_mount])
+    subprocess.run(
+        [
+            "s3fs",
+            bucket_name,
+            path_to_mount,
+            "-o",
+            "allow_other",
+            # Debug
+            # "-o",
+            # "dbglevel=info",
+            # "-f",
+            # "-o",
+            # "curldbg",
+        ] + (["-o", "ro"] if bucket_name in buckets_ro else [])
+    )
+
+gcsfuse_config_file = f"/home/jovyan/.gcsfuse.json"
+os.putenv("GOOGLE_APPLICATION_CREDENTIALS", gcsfuse_config_file)
+with open(gcsfuse_config_file, "w") as fd:
+    fd.write( base64.b64decode(os.environ["GCS_CREDENTIALS"].encode()).decode() );
+
+for bucket_name in os.environ.get("GCS_BUCKET_NAMES", "").split(","):
+    path_to_mount = f"/home/jovyan/gcs-{bucket_name}"
+    subprocess.run(["mkdir", "-p", path_to_mount])
+    subprocess.run(
+        [
+            "gcsfuse",
+            bucket_name,
+            path_to_mount,
+        ]
+    )
+
