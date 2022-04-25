@@ -105,6 +105,12 @@ RUN mamba install -c conda-forge --yes \
     'jupyterlab_code_formatter=1.*' \
     && mamba clean --yes --all
 
+# Build Jupyterlab - needed for extensions
+RUN jupyter lab build -y && \
+    jupyter lab clean -y && \
+    npm cache clean --force && \
+    rm -rf "/home/${NB_USER}/.cache/yarn"
+
 # custom config
 COPY jupyter_notebook_config.py /etc/jupyter/
 
