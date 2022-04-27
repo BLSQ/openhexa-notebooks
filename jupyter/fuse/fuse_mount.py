@@ -3,30 +3,31 @@ import subprocess
 import json
 import base64
 
-# TODO: upgrade to more recent version of s3fs, which handles the standard AWS env variables just fine
-os.putenv("AWSACCESSKEYID", os.environ["AWS_ACCESS_KEY_ID"])
-os.putenv("AWSSECRETACCESSKEY", os.environ["AWS_SECRET_ACCESS_KEY"])
-os.putenv("AWSSESSIONTOKEN", os.environ["AWS_SESSION_TOKEN"])
+aws_fuse_config = json.loads(base64.b64decode(os.environ["AWS_S3_FUSE_CONFIG"]))
+os.putenv("AWSACCESSKEYID", aws_fuse_config["AWS_ACCESS_KEY_ID"])
+os.putenv("AWSSECRETACCESSKEY", aws_fuse_config["AWS_SECRET_ACCESS_KEY"])
+os.putenv("AWSSESSIONTOKEN", aws_fuse_config["AWS_SESSION_TOKEN"])
 
-buckets_ro = os.environ.get("AWS_S3_BUCKET_RO_NAMES", "").split(",")
-
-for bucket_name in filter(None, os.environ.get("AWS_S3_BUCKET_NAMES", "").split(",")):
-    path_to_mount = f"/home/jovyan/s3-{bucket_name}"
+for bucket in filter(None, aws_fuse_config["buckets"]):
+    path_to_mount = f"/home/jovyan/s3-{bucket['name']}"
+    region_url = f"https://s3-{bucket['region']}.amazonaws.com/"
     subprocess.run(["mkdir", "-p", path_to_mount])
     subprocess.run(
         [
             "s3fs",
-            bucket_name,
+            bucket["name"],
             path_to_mount,
             "-o",
             "allow_other",
+            "-o",
+            "url=" + region_url,
             # Debug
             # "-o",
             # "dbglevel=info",
             # "-f",
             # "-o",
             # "curldbg",
-        ] + (["-o", "ro"] if bucket_name in buckets_ro else [])
+        ] + (["-o", "ro"] if bucket["mode"] == "RO" else [])
     )
 
 gcsfuse_config_file = f"/home/jovyan/.gcsfuse.json"
