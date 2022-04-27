@@ -29,7 +29,7 @@ RUN conda install --quiet --yes mamba -c conda-forge
 
 # R packages (mamba + conda-forge)
 RUN mamba install --yes -c conda-forge \
-    'r-arrow=6.*' \
+    'r-arrow=7.*' \
     'r-aws.s3=0.*' \
     'r-geojsonio=0.*' \
     'r-getpass=0.*' \
@@ -44,17 +44,18 @@ RUN mamba install --yes -c conda-forge \
     'r-rgdal=1.*' \
     'r-rgeos=0.*' \
     'r-rgooglemaps=1.*' \
-    'r-rjava=0.*' \
+    'r-rjava=1.*' \
     'r-rjson=0.*' \
     'r-rpostgres=1.*' \
-    'r-sf=0.*' \
+    'r-sf=1.*' \
     'r-styler=1.*' \
     'r-tidyverse=1.*' \
     'r-viridis=0.*' \
     && mamba clean --yes --all
 
 # R packages (cran)
-RUN R -e "install.packages(c('GISTools', 'OpenStreetMap'), dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+RUN R -e "install.packages('GISTools', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
+RUN R -e "install.packages('OpenStreetMap', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
 RUN R -e "install.packages('isotree', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
 RUN R -e "install.packages('MMWRweek', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
 RUN R -e "install.packages('imputeTS', dependencies=TRUE, quiet=TRUE, repos='https://cran.r-project.org/')"
@@ -62,11 +63,11 @@ RUN R -e "install.packages('tsbox', dependencies=TRUE, quiet=TRUE, repos='https:
 
 # Python packages (mamba + conda-forge)
 RUN mamba install --yes -c conda-forge \
-    'black=21.*' \
-    'dask-ml=1.*' \
+    'black=22.*' \
+    'dask-ml=2022.*' \
     'descartes=1.*' \
-    'fsspec=0.*' \
-    'gcsfs=0.*' \
+    'fsspec=2022.*' \
+    'gcsfs=2022.*' \
     'geoalchemy2=0.*' \
     'geopandas=0.*' \
     'hybridcontents=0.*' \
@@ -77,14 +78,14 @@ RUN mamba install --yes -c conda-forge \
     'nbresuse=0.*' \
     'netCDF4=1.*' \
     'papermill==2.*' \
-    'plotly=4.*' \
+    'plotly=5.*' \
     'psycopg2=2.*' \
-    'pyarrow=6.*' \
-    'rapidfuzz=0.*' \
+    'pyarrow=7.*' \
+    'rapidfuzz=2.*' \
     'rasterstats=0.*' \
     'rpy2=3.*' \
     's3contents=0.*' \
-    's3fs=0.*' \
+    's3fs=2022.*' \
     'slack_sdk=3.*' \
     'xarray=2022.*' \
     'zarr=2.*' \
@@ -92,16 +93,16 @@ RUN mamba install --yes -c conda-forge \
 
 # Python packages (pip)
 RUN pip install \
-    'cowsay==3.*' \
+    'cowsay==4.*' \
     'fake-useragent==0.*' \
-    'hdx-python-api==4.*' \
+    'hdx-python-api==5.*' \
     'tabpy==2.*'
 
 # Jupyter extensions
 RUN mamba install -c conda-forge --yes \
     'jupyter-dash=0.*' \
     'jupyter-resource-usage=0.*' \
-    'jupyter-server-proxy=1.*' \
+    'jupyter-server-proxy=3.*' \
     'jupyterlab_code_formatter=1.*' \
     && mamba clean --yes --all
 
