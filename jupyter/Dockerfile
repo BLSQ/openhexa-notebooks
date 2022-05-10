@@ -87,6 +87,7 @@ RUN mamba install --yes -c conda-forge \
     's3contents=0.*' \
     's3fs=2022.*' \
     'slack_sdk=3.*' \
+    'voila=0.*' \
     'xarray=2022.*' \
     'zarr=2.*' \
     && mamba clean --yes --all
