@@ -30,18 +30,19 @@ for bucket in filter(None, aws_fuse_config["buckets"]):
         ] + (["-o", "ro"] if bucket["mode"] == "RO" else [])
     )
 
-gcsfuse_config_file = f"/home/jovyan/.gcsfuse.json"
-os.putenv("GOOGLE_APPLICATION_CREDENTIALS", gcsfuse_config_file)
-with open(gcsfuse_config_file, "w") as fd:
+gcsfuse_credentials_file = f"/home/jovyan/.gcsfuse.json"
+os.putenv("GOOGLE_APPLICATION_CREDENTIALS", gcsfuse_credentials_file)
+with open(gcsfuse_credentials_file, "w") as fd:
     fd.write( base64.b64decode(os.environ.get("GCS_CREDENTIALS", "").encode()).decode() );
 
-for bucket_name in filter(None, os.environ.get("GCS_BUCKET_NAMES", "").split(",")):
-    path_to_mount = f"/home/jovyan/gcs-{bucket_name}"
+gcsfuse_buckets = json.loads(base64.b64decode(os.environ["GCS_BUCKETS"]))
+for bucket in filter(None, gcsfuse_buckets["buckets"]):
+    path_to_mount = f"/home/jovyan/gcs-{bucket['name']}"
     subprocess.run(["mkdir", "-p", path_to_mount])
     subprocess.run(
         [
             "gcsfuse",
-            bucket_name,
+            bucket["name"],
             path_to_mount,
-        ]
+        ] + (["-o", "ro"] if bucket["mode"] == "RO" else [])
     )

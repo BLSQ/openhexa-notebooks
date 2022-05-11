@@ -12,7 +12,8 @@ for bucket_name in umount_list:
     )
     subprocess.run(["rmdir", path_to_umount])
 
-umount_list = filter(None, os.environ.get("GCS_BUCKET_NAMES", "").split(","))
+gcsfuse_buckets = json.loads(base64.b64decode(os.environ["GCS_BUCKETS"]))
+umount_list = filter(None, gcsfuse_buckets["buckets"]):
 for bucket_name in umount_list:
     path_to_umount = f"/home/jovyan/gcs-{bucket_name}"
     subprocess.run(
