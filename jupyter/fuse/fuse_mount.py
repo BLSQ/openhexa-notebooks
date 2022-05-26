@@ -35,8 +35,9 @@ os.putenv("GOOGLE_APPLICATION_CREDENTIALS", gcsfuse_credentials_file)
 with open(gcsfuse_credentials_file, "w") as fd:
     fd.write( base64.b64decode(os.environ.get("GCS_CREDENTIALS", "").encode()).decode() );
 
-gcsfuse_buckets = json.loads(base64.b64decode(os.environ["GCS_BUCKETS"]))
-for bucket in filter(None, gcsfuse_buckets["buckets"]):
+# b64("{}") == b'e30='
+gcsfuse_buckets = json.loads(base64.b64decode(os.environ.get("GCS_BUCKETS", b'e30=')))
+for bucket in filter(None, gcsfuse_buckets.get("buckets", [])):
     path_to_mount = f"/home/jovyan/gcs-{bucket['name']}"
     subprocess.run(["mkdir", "-p", path_to_mount])
     subprocess.run(
