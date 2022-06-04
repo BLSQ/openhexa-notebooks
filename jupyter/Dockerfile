@@ -91,6 +91,7 @@ RUN mamba install --yes -c conda-forge \
     'rapidfuzz=2.*' \
     'rasterstats=0.*' \
     'rpy2=3.*' \
+    's3contents=0.*' \
     's3fs=2022.*' \
     'slack_sdk=3.*' \
     'voila=0.*' \
