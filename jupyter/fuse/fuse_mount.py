@@ -41,30 +41,30 @@ for bucket in filter(None, aws_fuse_config["buckets"]):
 GCS_TOKEN = os.environ.get("GCS_TOKEN", "")
 
 if GCS_TOKEN:
-  class serveGCStoken(http.server.BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/plain")
-        self.end_headers()
-        self.wfile.write(bytes('{ "access_token": "' + GCS_TOKEN + '" }', "utf-8"))
+    class serveGCStoken(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+            self.wfile.write(bytes('{ "access_token": "' + GCS_TOKEN + '" }', "utf-8"))
 
-  webServer = http.server.HTTPServer(('127.0.0.1',4321), serveGCStoken)
-  x = multiprocessing.Process(target=webServer.serve_forever, args=())
-  x.start()
-  time.sleep(1)
+    webServer = http.server.HTTPServer(('127.0.0.1',4321), serveGCStoken)
+    x = multiprocessing.Process(target=webServer.serve_forever, args=())
+    x.start()
+    time.sleep(1)
 
-  # b64("{}") == b'e30='
-  gcsfuse_buckets = json.loads(base64.b64decode(os.environ.get("GCS_BUCKETS", b'e30=')))
-  for bucket in filter(None, gcsfuse_buckets.get("buckets", [])):
-    path_to_mount = f"/home/jovyan/gcs-{bucket['name']}"
-    subprocess.run(["mkdir", "-p", path_to_mount])
-    subprocess.run(
-        [
-            "gcsfuse",
-            "--token-url",
-            "http://127.0.0.1:4321/",
-            bucket["name"],
-            path_to_mount,
-        ] + (["-o", "ro"] if bucket["mode"] == "RO" else [])
-    )
-  x.terminate()
+    # b64("{}") == b'e30='
+    gcsfuse_buckets = json.loads(base64.b64decode(os.environ.get("GCS_BUCKETS", b'e30=')))
+    for bucket in filter(None, gcsfuse_buckets.get("buckets", [])):
+        path_to_mount = f"/home/jovyan/gcs-{bucket['name']}"
+        subprocess.run(["mkdir", "-p", path_to_mount])
+        subprocess.run(
+            [
+                "gcsfuse",
+                "--token-url",
+                "http://127.0.0.1:4321/",
+                bucket["name"],
+                path_to_mount,
+            ] + (["-o", "ro"] if bucket["mode"] == "RO" else [])
+        )
+    x.terminate()
