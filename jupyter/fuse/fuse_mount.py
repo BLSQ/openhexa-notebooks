@@ -58,13 +58,17 @@ if GCS_TOKEN:
     for bucket in filter(None, gcsfuse_buckets.get("buckets", [])):
         path_to_mount = f"/home/jovyan/gcs-{bucket['name']}"
         subprocess.run(["mkdir", "-p", path_to_mount])
-        subprocess.run(
-            [
+        args = [
                 "gcsfuse",
+                "-o",
+                "allow_other",
+        ]
+        args.extend(["-o", "ro"] if bucket["mode"] == "RO" else [])
+        args.extend([
                 "--token-url",
                 "http://127.0.0.1:4321/",
                 bucket["name"],
-                path_to_mount,
-            ] + (["-o", "ro"] if bucket["mode"] == "RO" else [])
-        )
+                path_to_mount
+        ])
+        subprocess.run(args)
     x.terminate()
