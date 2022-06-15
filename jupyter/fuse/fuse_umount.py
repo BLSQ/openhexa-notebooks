@@ -1,5 +1,7 @@
 import os
 import subprocess
+import json
+import base64
 
 umount_list = filter(None, os.environ.get("AWS_S3_BUCKET_NAMES", "").split(","))
 for bucket_name in umount_list:
@@ -14,9 +16,8 @@ for bucket_name in umount_list:
 
 # b64("{}") == b'e30='
 gcsfuse_buckets = json.loads(base64.b64decode(os.environ.get("GCS_BUCKETS", b'e30=')))
-umount_list = filter(None, gcsfuse_buckets.get("buckets", [])):
-for bucket_name in umount_list:
-    path_to_umount = f"/home/jovyan/gcs-{bucket_name}"
+for bucket in filter(None, gcsfuse_buckets.get("buckets", [])):
+    path_to_umount = f"/home/jovyan/gcs-{bucket['name']}"
     subprocess.run(
         [
             "umount",
