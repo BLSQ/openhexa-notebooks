@@ -3,10 +3,11 @@ import functools
 import os
 
 from jupyterhub.auth import Authenticator
-from jupyterhub.handlers import BaseHandler
+from jupyterhub.handlers import BaseHandler, LogoutHandler
 import requests
 from jupyterhub.handlers.pages import SpawnHandler
 from tornado import web
+from urllib.parse import urlparse
 
 
 # Custom authentication code to be mounted when running the hub (using hub.extraFiles in z2jh mode, or COPY / volumes
@@ -33,6 +34,7 @@ class AppAuthenticator(Authenticator):
     def get_handlers(self, app):
         return [
             (r"/login", AppAuthenticatorLoginHandler),
+            (r"/logout", AppAuthenticatorLogoutHandler),
         ]
 
     async def authenticate(self, handler, data):
@@ -131,6 +133,17 @@ class AppAuthenticatorLoginHandler(BaseHandler):
             raise web.HTTPError(401, "Your user could not be authenticated")
 
         return self.redirect(self.get_next_url(user))
+
+
+class AppAuthenticatorLogoutHandler(LogoutHandler):
+    # To logout the user from openhexa also on jupyterhub, the logout
+    # from openhexa will send us here, after jupyterhub logout the
+    # the user, this endpoint will redirect to the login page of openhexa
+    # TODO: use API https://github.com/jupyterhub/jupyterhub/issues/3688)
+    async def render_logout_page(self):
+        u = urlparse(os.environ["APP_CREDENTIALS_URL"])
+        return_url = f"{u.scheme}://{u.netloc}/"
+        return self.redirect(return_url, permanent=False)
 
 
 # Authentication configuration
