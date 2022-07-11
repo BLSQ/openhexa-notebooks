@@ -136,6 +136,10 @@ class AppAuthenticatorLoginHandler(BaseHandler):
 
 
 class AppAuthenticatorLogoutHandler(LogoutHandler):
+    # To logout the user from openhexa also on jupyterhub, the logout
+    # from openhexa will send us here, after jupyterhub logout the
+    # the user, this endpoint will redirect to the login page of openhexa
+    # TODO: use API https://github.com/jupyterhub/jupyterhub/issues/3688)
     async def render_logout_page(self):
         u = urlparse(os.environ["APP_CREDENTIALS_URL"])
         return_url = f"{u.scheme}://{u.netloc}/"
