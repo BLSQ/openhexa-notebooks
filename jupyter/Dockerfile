@@ -1,4 +1,4 @@
-FROM jupyter/datascience-notebook:4b830d5897d8
+FROM jupyter/datascience-notebook:9b3c3b183ae1
 
 USER root
 
@@ -80,6 +80,7 @@ RUN mamba install --yes -c conda-forge \
     'hybridcontents=0.*' \
     'ipywidgets=7.*' \
     'isort=5.*' \
+    'jupyterlab-git=0.*' \
     'lxml=4.*' \
     'mapclassify=2.*' \
     'nbresuse=0.*' \

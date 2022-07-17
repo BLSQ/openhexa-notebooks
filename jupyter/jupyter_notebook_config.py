@@ -14,3 +14,6 @@ c.ServerApp.tornado_settings = {"autoreload": True}
 
 # https://github.com/jupyter-server/jupyter-resource-usage
 c.ResourceUseDisplay.track_cpu_percent = True
+
+# https://github.com/jupyterlab/jupyterlab-git#server-settings
+c.JupyterLabGit.credential_helper = "cache --timeout=86400"
