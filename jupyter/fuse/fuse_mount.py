@@ -18,9 +18,11 @@ if not os.environ.get("GIT_EXTENSION_ENABLED", "false") == "true":
 aws_fuse_config = json.loads(
     base64.b64decode(os.environ.get("AWS_S3_FUSE_CONFIG", b"e30="))
 )
-os.putenv("AWSACCESSKEYID", aws_fuse_config.get("AWS_ACCESS_KEY_ID", ""))
-os.putenv("AWSSECRETACCESSKEY", aws_fuse_config.get("AWS_SECRET_ACCESS_KEY", ""))
-os.putenv("AWSSESSIONTOKEN", aws_fuse_config.get("AWS_SESSION_TOKEN", ""))
+
+# tldr: dont use putenv https://docs.python.org/2/library/os.html#os.environ
+os.environ["AWSACCESSKEYID"] = aws_fuse_config.get("AWS_ACCESS_KEY_ID", "")
+os.environ["AWSSECRETACCESSKEY"] = aws_fuse_config.get("AWS_SECRET_ACCESS_KEY", "")
+os.environ["AWSSESSIONTOKEN"] = aws_fuse_config.get("AWS_SESSION_TOKEN", "")
 
 for bucket in filter(None, aws_fuse_config.get("buckets", [])):
     path_to_mount = f"/home/jovyan/s3-{bucket['name']}"
