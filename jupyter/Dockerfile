@@ -101,7 +101,7 @@ RUN mamba install --yes -c conda-forge \
     && mamba clean --yes --all
 
 # Python packages (pip)
-RUN pip install \
+RUN pip install -U \
     'cowsay==4.*' \
     'fake-useragent==0.*' \
     'hdx-python-api==5.*' \
