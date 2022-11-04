@@ -106,6 +106,7 @@ RUN pip install -U \
     'fake-useragent==0.*' \
     'hdx-python-api==5.*' \
     'tabpy==2.*' \
+    'nlopt==2.7.*' \
     'requests'
 
 # Jupyter extensions
