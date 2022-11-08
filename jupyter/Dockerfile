@@ -58,6 +58,7 @@ RUN mamba install --yes -c conda-forge \
     'r-styler=1.*' \
     'r-tidyverse=1.*' \
     'r-viridis=0.*' \
+    'r-nloptr' \
     && mamba clean --yes --all
 
 # R packages (cran)
