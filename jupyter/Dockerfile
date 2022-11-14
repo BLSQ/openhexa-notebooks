@@ -71,6 +71,7 @@ RUN R -e "install.packages('tsbox', dependencies=TRUE, quiet=TRUE, repos='https:
 
 # Python packages (mamba + conda-forge)
 RUN mamba install --yes -c conda-forge \
+    'lerc=4.*' \
     'black=22.*' \
     'dask-ml=2022.*' \
     'descartes=1.*' \
@@ -107,7 +108,6 @@ RUN pip install -U \
     'fake-useragent==0.*' \
     'hdx-python-api==5.*' \
     'tabpy==2.*' \
-    'nlopt==2.7.*' \
     'requests'
 
 # Jupyter extensions
