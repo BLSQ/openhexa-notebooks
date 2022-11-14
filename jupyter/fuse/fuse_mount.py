@@ -23,11 +23,12 @@ aws_fuse_config = json.loads(
 os.environ["AWSACCESSKEYID"] = aws_fuse_config.get("AWS_ACCESS_KEY_ID", "")
 os.environ["AWSSECRETACCESSKEY"] = aws_fuse_config.get("AWS_SECRET_ACCESS_KEY", "")
 os.environ["AWSSESSIONTOKEN"] = aws_fuse_config.get("AWS_SESSION_TOKEN", "")
-aws_endpoit = aws_fuse_config.get("AWS_ENDPOINT", "")
+aws_endpoint = aws_fuse_config.get("AWS_ENDPOINT", "")
+s3_is_minio = True if aws_endpoint else False
 
 for bucket in filter(None, aws_fuse_config.get("buckets", [])):
     path_to_mount = f"/home/jovyan/s3-{bucket['name']}"
-    region_url = aws_endpoit if aws_endpoit else f"https://s3-{bucket['region']}.amazonaws.com/"
+    region_url = aws_endpoint if aws_endpoint else f"https://s3-{bucket['region']}.amazonaws.com/"
     subprocess.run(["mkdir", "-p", path_to_mount])
     subprocess.run(
         [
@@ -46,7 +47,8 @@ for bucket in filter(None, aws_fuse_config.get("buckets", [])):
             # "curldbg",
         ]
         + (["-o", "ro"] if bucket["mode"] == "RO" else [])
-        + (["-o", "use_path_request_style"] if aws_endpoit else [])
+        # MinIO doesn't support the subdomain request style, use the older path request style.
+        + (["-o", "use_path_request_style"] if s3_is_minio else [])
     )
 
 # GCS Fuse
