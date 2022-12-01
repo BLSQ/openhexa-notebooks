@@ -6,6 +6,10 @@
 version: 2
 updates:
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/jupyterhub"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/jupyter"
     schedule:
       interval: "weekly"
