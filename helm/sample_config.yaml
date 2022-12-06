@@ -50,6 +50,7 @@ hub:
   extraEnv:
     APP_URL: https://<HEXA_APP_DOMAIN>
     APP_CREDENTIALS_URL: https://<HEXA_APP_DOMAIN>/notebooks/credentials/
+    LOGOUT_REDIRECT_URL: https://<HEXA_FRONTEND_DOMAIN>/
     CONTENT_SECURITY_POLICY: "frame-ancestors 'self' <HEXA_APP_DOMAIN>;"
   extraVolumes:
     - name: cloudsql-oauth-credentials
