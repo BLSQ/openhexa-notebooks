@@ -71,7 +71,7 @@ if GCS_TOKEN:
     webServer = http.server.HTTPServer(("127.0.0.1", 4321), serveGCStoken)
     x = multiprocessing.Process(target=webServer.serve_forever, args=())
     x.start()
-    time.sleep(1)
+    time.sleep(0.5)
 
     # b64("{}") == b'e30='
     gcsfuse_buckets = json.loads(
@@ -91,3 +91,5 @@ if GCS_TOKEN:
         )
         subprocess.run(args)
     x.terminate()
+    time.sleep(0.5)
+    x.close()
