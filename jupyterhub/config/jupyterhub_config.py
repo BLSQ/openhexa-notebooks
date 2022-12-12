@@ -141,9 +141,8 @@ class AppAuthenticatorLogoutHandler(LogoutHandler):
     # the user, this endpoint will redirect to the login page of openhexa
     # TODO: use API https://github.com/jupyterhub/jupyterhub/issues/3688)
     async def render_logout_page(self):
-        u = urlparse(os.environ["APP_CREDENTIALS_URL"])
-        return_url = f"{u.scheme}://{u.netloc}/"
-        return self.redirect(return_url, permanent=False)
+        redirect_url = urlparse(os.environ["LOGOUT_REDIRECT_URL"])
+        return self.redirect(redirect_url, permanent=False)
 
 
 # Authentication configuration
