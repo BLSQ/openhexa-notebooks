@@ -1,7 +1,7 @@
 # This Dockerfile is only intended for development
 # (In z2jh mode, we use the image provided by the Zero to Jupyterhub Helm chart)
 # It is crucial to use the same jupyterhub version than the one used by z2jh
-FROM jupyterhub/jupyterhub:3.0.0
+FROM jupyterhub/jupyterhub:3.1.1
 
 COPY config/* /etc/jupyterhub/
 
