@@ -32,8 +32,7 @@ RUN ./aws/install
 WORKDIR $HOME
 RUN rm -rf /usr/local/src/awcli
 
-# Use mamba instead of conda
-RUN conda install --quiet --yes mamba -c conda-forge
+USER ${NB_UID}
 
 # R packages (mamba + conda-forge)
 RUN mamba install --yes -c conda-forge \
