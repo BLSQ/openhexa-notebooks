@@ -3,7 +3,6 @@ FROM jupyter/datascience-notebook:2023-01-24
 USER root
 
 # System libraries
-RUN apt-get clean
 RUN apt-get update
 
 # FUSE Amazon S3
