@@ -37,15 +37,18 @@ class AppAuthenticator(Authenticator):
             (r"/logout", AppAuthenticatorLogoutHandler),
         ]
 
-    async def authenticate(self, handler, data):
-        """Authenticate with the app component using the app cookies. We won't need to use the data argument, as
-        the cookies are accessible on the handler itself."""
-
+    async def _fetch_credentials_data(self, handler, workspace_slug=None):
         loop = asyncio.get_running_loop()
-        app_credentials_url = os.environ["APP_CREDENTIALS_URL"]
+        if workspace_slug is None:  # Default credentials, OpenHexa legacy (outside of a workspace)
+            credentials_url = os.environ["APP_CREDENTIALS_URL"]
+        else:
+            credentials_url = os.environ["WORKSPACE_CREDENTIALS_URL"].replace("<workspace_slug>", workspace_slug)
         cookies = {
             "sessionid": handler.cookies["sessionid"].value,
-            # "csrftoken": handler.cookies["csrftoken"].value,
+            "csrftoken": handler.cookies["csrftoken"].value,
+        }
+        headers = {
+            "X-CSRFToken": handler.cookies["csrftoken"].value
         }
 
         try:
@@ -55,72 +58,53 @@ class AppAuthenticator(Authenticator):
                 None,
                 functools.partial(
                     requests.post,
-                    app_credentials_url,
+                    credentials_url,
                     cookies=cookies,
+                    headers=headers
                 ),
             )
         except requests.RequestException as e:
-            self.log.warning(f"Error when calling {app_credentials_url} ({e})")
-            return None
+            self.log.warning(f"Error when calling {credentials_url} ({e})")
+            raise ValueError("Unexpected")
 
         if response.status_code != 200:
             self.log.warning(
-                f"Non-200 response when calling {app_credentials_url} ({response.status_code})"
+                f"Non-200 response when calling {credentials_url} ({response.status_code})"
             )
-            return None
+            raise ValueError("Unexpected")
 
-        response_data = response.json()
+        return response.json()
+
+    async def authenticate(self, handler, data):
+        """Authenticate with the app component using the app cookies. We won't need to use the data argument, as
+        the cookies are accessible on the handler itself."""
+
+        try:
+            credentials_data = await self._fetch_credentials_data(handler)
+        except ValueError as e:
+            self.log.warning(f"Error when fetching credentials ({e})")
+            return None
 
         # We use auth_state to store the credentials set by the app component - they will be read by the
         # pre_spawn_start() hook and set as environment variables on the spawner.
         return {
-            "name": response_data["username"],
-            "auth_state": {
-                "env": response_data["env"],
-            }
-            # TODO: handle admin in app
-            # "admin": response_data["admin"]
+            "name": credentials_data["username"],
         }
-
-    async def refresh_user(self, user, handler=None):
-        """refresh_user is called in two different circumstances:
-
-           1. When auth_refresh_age is reached
-           2. When spawning a new single-user server (if refresh_pre_spawn is set to True, which is the case here)
-
-        We don't really care about 1. at this stage, although it would be a good occasion to revoke (Jupyterhub) user
-        access for users that have been blocked / deactivated in the app component. For now, street-smart users that
-        have no access to the app component, and happen to know the URL of the notebooks component, can still enjoy
-        some kind of Jupyterhub access for a few hours. Manually deleting the user in the Jupyterhub admin will do
-        the trick until we implement a proper revoke system.
-
-        We do care about 2. though - we have set refresh_pre_spawn to True, which means that every time a new
-        single-user server is started, refresh_user() will be called. If the handler is a SpawnHandler
-        (i.e we are not in a "auth_refresh_age" situation), we re-authenticate the user, to make sure that they
-        have fresh credentials.
-        """
-
-        # No auth state -> re-authenticate
-        if isinstance(handler, SpawnHandler):
-            self.log.info(f"Regenerating fresh credentials for user {user.name}")
-
-            return await self.authenticate(handler, {})
-
-        return True
 
     async def pre_spawn_start(self, user, spawner):
         """Before spawning a single-user server, we need to read the auth state (where user credentials are stored)
         and set these credentials as environment variables on the spawner. This auth state is created during
         authenticate() calls."""
 
-        auth_state = await user.get_auth_state()
+        self.log.info(f"YOLO: {spawner.name}")
 
-        if auth_state is not None:
-            spawner.environment.update(auth_state["env"])
+        if spawner.name == "":
+            credentials_data = await self._fetch_credentials_data(spawner.handler)
         else:
-            self.log.error(
-                f"No auth state for user {user.name}",
-            )
+            credentials_data = await self._fetch_credentials_data(spawner.handler, workspace_slug=spawner.name)
+            # credentials_data = {"env": {"WORKSPACE_SECRET_STUFF": "ABC"}}
+
+        spawner.environment.update(credentials_data["env"])
 
 
 class AppAuthenticatorLoginHandler(BaseHandler):
@@ -163,3 +147,5 @@ c.Spawner.default_url = "/lab"
 c.JupyterHub.tornado_settings = {
     "headers": {"Content-Security-Policy": os.environ["CONTENT_SECURITY_POLICY"]}
 }
+
+# https://discourse.jupyter.org/t/set-kubespawner-environment-during-server-creation/15779/4
