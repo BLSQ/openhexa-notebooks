@@ -37,12 +37,8 @@ class AppAuthenticator(Authenticator):
             (r"/logout", AppAuthenticatorLogoutHandler),
         ]
 
-    async def _fetch_credentials_data(self, handler, workspace_slug=None):
+    async def _app_request(self, url, handler):
         loop = asyncio.get_running_loop()
-        if workspace_slug is None:  # Default credentials, OpenHexa legacy (outside of a workspace)
-            credentials_url = os.environ["APP_CREDENTIALS_URL"]
-        else:
-            credentials_url = os.environ["WORKSPACE_CREDENTIALS_URL"].replace("<workspace_slug>", workspace_slug)
         cookies = {
             "sessionid": handler.cookies["sessionid"].value,
             "csrftoken": handler.cookies["csrftoken"].value,
@@ -58,18 +54,18 @@ class AppAuthenticator(Authenticator):
                 None,
                 functools.partial(
                     requests.post,
-                    credentials_url,
+                    url,
                     cookies=cookies,
                     headers=headers
                 ),
             )
         except requests.RequestException as e:
-            self.log.warning(f"Error when calling {credentials_url} ({e})")
+            self.log.error(f"Error when calling {url} ({e})")
             raise ValueError("Unexpected")
 
         if response.status_code != 200:
-            self.log.warning(
-                f"Non-200 response when calling {credentials_url} ({response.status_code})"
+            self.log.error(
+                f"Non-200 response when calling {url} ({response.status_code})"
             )
             raise ValueError("Unexpected")
 
@@ -80,15 +76,13 @@ class AppAuthenticator(Authenticator):
         the cookies are accessible on the handler itself."""
 
         try:
-            credentials_data = await self._fetch_credentials_data(handler)
+            authentication_data = await self._app_request(os.environ["AUTHENTICATION_URL"], handler)
         except ValueError as e:
-            self.log.warning(f"Error when fetching credentials ({e})")
+            self.log.warning(f"Error when authenticating ({e})")
             return None
 
-        # We use auth_state to store the credentials set by the app component - they will be read by the
-        # pre_spawn_start() hook and set as environment variables on the spawner.
         return {
-            "name": credentials_data["username"],
+            "name": authentication_data["username"],
         }
 
     async def pre_spawn_start(self, user, spawner):
@@ -96,13 +90,11 @@ class AppAuthenticator(Authenticator):
         and set these credentials as environment variables on the spawner. This auth state is created during
         authenticate() calls."""
 
-        self.log.info(f"YOLO: {spawner.name}")
-
-        if spawner.name == "":
-            credentials_data = await self._fetch_credentials_data(spawner.handler)
+        if spawner.name == "":  # Default credentials, OpenHexa legacy (outside workspaces)
+            credentials_data = await self._app_request(os.environ["DEFAULT_CREDENTIALS_URL"], spawner.handler)
         else:
-            credentials_data = await self._fetch_credentials_data(spawner.handler, workspace_slug=spawner.name)
-            # credentials_data = {"env": {"WORKSPACE_SECRET_STUFF": "ABC"}}
+            credentials_url = os.environ["WORKSPACE_CREDENTIALS_URL"].replace("<workspace_slug>", spawner.name)
+            credentials_data = await self._app_request(credentials_url, spawner.handler)
 
         spawner.environment.update(credentials_data["env"])
 
@@ -132,9 +124,9 @@ class AppAuthenticatorLogoutHandler(LogoutHandler):
 # Authentication configuration
 c.JupyterHub.authenticator_class = AppAuthenticator
 # We use auth state to store user credentials
-c.Authenticator.enable_auth_state = True
+c.Authenticator.enable_auth_state = True  # TODO: we might want to remove this
 # See AppAuthenticator.pre_spawn_start() and AppAuthenticator.post_spawn_stop() for details
-c.Authenticator.refresh_pre_spawn = True
+c.Authenticator.refresh_pre_spawn = True  # TODO: might not be necessary, check
 # Will shutdown single-user servers on logout, which can be useful in our case to regenerate fresh credentials
 # (As our login is automatic, logging out will trigger an immediate login, so logging out results in
 # restarting a single-user server with fresh credentials)
@@ -147,5 +139,3 @@ c.Spawner.default_url = "/lab"
 c.JupyterHub.tornado_settings = {
     "headers": {"Content-Security-Policy": os.environ["CONTENT_SECURITY_POLICY"]}
 }
-
-# https://discourse.jupyter.org/t/set-kubespawner-environment-during-server-creation/15779/4
