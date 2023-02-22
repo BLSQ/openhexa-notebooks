@@ -5,6 +5,7 @@ version: '3'
 
 services:
   jupyterhub:
+    platform: linux/amd64
     build:
       context: jupyterhub
       dockerfile: Dockerfile.dev
@@ -31,6 +32,7 @@ services:
 
   jupyter:  # just used for building - the jupyterhub service will spawn jupyter containers on demand
     build: jupyter
+    platform: linux/amd64
     image: openhexa-base-notebook
     command: echo
 
