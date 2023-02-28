@@ -139,3 +139,27 @@ c.Spawner.default_url = "/lab"
 c.JupyterHub.tornado_settings = {
     "headers": {"Content-Security-Policy": os.environ["CONTENT_SECURITY_POLICY"]}
 }
+
+# Named servers
+c.JupyterHub.allow_named_servers = True
+
+# Services
+c.JupyterHub.services = [
+    {
+        # give the token a name
+        "name": "service-api",
+        "api_token": os.environ["HUB_APP_API_TOKEN"],
+    },
+]
+c.JupyterHub.load_roles = [
+    {
+        "name": "api-role",
+        "scopes": [
+            "admin:users",
+            "admin:servers"
+        ],
+        "services": [
+            "service-api",
+        ],
+    }
+]
