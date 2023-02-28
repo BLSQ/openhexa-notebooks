@@ -3,6 +3,7 @@
 
 import os
 from pathlib import Path
+from dockerspawner import DockerSpawner
 
 # Load main config file
 main_config_file_path = Path(__file__).parent / Path("jupyterhub_config.py")
@@ -41,3 +42,27 @@ c.DockerSpawner.env_keep = ["CONTENT_SECURITY_POLICY"]
 #  DB configuration
 # (In z2jh mode, configured through hub.db)
 c.JupyterHub.db_url = os.environ["HUB_DB_URL"]
+
+# Named servers
+c.JupyterHub.allow_named_servers = True
+
+# Services
+c.JupyterHub.services = [
+    {
+        # give the token a name
+        "name": "service-api",
+        "api_token": os.environ["HUB_APP_API_TOKEN"],
+    },
+]
+c.JupyterHub.load_roles = [
+    {
+        "name": "api-role",
+        "scopes": [
+            "admin:users",
+            "admin:servers"
+        ],
+        "services": [
+            "service-api",
+        ],
+    }
+]

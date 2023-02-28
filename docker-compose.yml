@@ -19,10 +19,13 @@ services:
       DOCKER_NETWORK_NAME: openhexa-notebooks_default
       HUB_IP: jupyterhub
       HUB_DB_URL: postgresql://postgres:postgres@postgres:5432/jupyterhub
-      APP_CREDENTIALS_URL: http://host.docker.internal:8000/notebooks/credentials/
+      AUTHENTICATION_URL: http://host.docker.internal:8000/notebooks/authenticate/
+      DEFAULT_CREDENTIALS_URL: http://host.docker.internal:8000/notebooks/default-credentials/
+      WORKSPACE_CREDENTIALS_URL: http://host.docker.internal:8000/workspaces/<workspace_slug>/credentials/
       LOGOUT_REDIRECT_URL: http://host.docker.internal:8000/
       CONTENT_SECURITY_POLICY: "frame-ancestors 'self' localhost:*"
       JUPYTERHUB_CRYPT_KEY: 0b9c2791baa0b19e10f1dc9c4a1a702dda0a37c332378870e9542271a365b9b8
+      HUB_APP_API_TOKEN: cbb352d6a412e266d7494fb014dd699373645ec8d353e00c7aa9dc79ca87800d
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./jupyterhub/config/:/etc/jupyterhub/
