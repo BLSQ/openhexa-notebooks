@@ -148,7 +148,7 @@ c.JupyterHub.services = [
     {
         # give the token a name
         "name": "service-api",
-        "api_token": os.environ["HUB_APP_API_TOKEN"],
+        "api_token": os.environ["HUB_API_TOKEN"],
     },
 ]
 c.JupyterHub.load_roles = [
