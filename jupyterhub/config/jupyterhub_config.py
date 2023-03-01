@@ -44,7 +44,8 @@ class AppAuthenticator(Authenticator):
             "csrftoken": handler.cookies["csrftoken"].value,
         }
         headers = {
-            "X-CSRFToken": handler.cookies["csrftoken"].value
+            "X-CSRFToken": handler.cookies["csrftoken"].value,
+            "Referer": f"{handler.request.protocol}://{handler.request.host}"
         }
 
         try:
