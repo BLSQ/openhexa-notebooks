@@ -154,9 +154,9 @@ c.JupyterHub.shutdown_on_logout = True
 c.Spawner.default_url = "/lab"
 
 # Allow hub to be embedded in an iframe
-c.JupyterHub.tornado_settings = {
+c.JupyterHub.tornado_settings.update({
     "headers": {"Content-Security-Policy": os.environ["CONTENT_SECURITY_POLICY"]}
-}
+})
 
 # Named servers
 c.JupyterHub.allow_named_servers = True
