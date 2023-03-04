@@ -97,6 +97,23 @@ class AppAuthenticator(Authenticator):
             credentials_url = os.environ["WORKSPACE_CREDENTIALS_URL"].replace("<workspace_slug>", spawner.name)
             credentials_data = await self._app_request(credentials_url, spawner.handler)
 
+            # Hack volume names
+            # spawner.volumes[0] = [
+            #     {
+            #         "name": volume_name_template,
+            #         "persistentVolumeClaim": {"claimName": pvc_name_template},
+            #     }
+            # ]
+            # c.KubeSpawner.volume_mounts = [
+            #     {
+            #         "mountPath": get_config("singleuser.storage.homeMountPath"),
+            #         "name": volume_name_template,
+            #     }
+            # ]
+            # spawner.storage_pvc_ensure = False
+            # spawner.volumes = []
+            # spawner.volume_mounts = []
+
         spawner.environment.update(credentials_data["env"])
 
 
@@ -145,14 +162,14 @@ c.JupyterHub.tornado_settings = {
 c.JupyterHub.allow_named_servers = True
 
 # Services
-c.JupyterHub.services = [
+c.JupyterHub.services.append(
     {
         # give the token a name
         "name": "service-api",
         "api_token": os.environ["HUB_API_TOKEN"],
     },
-]
-c.JupyterHub.load_roles = [
+)
+c.JupyterHub.load_roles.append(
     {
         "name": "api-role",
         "scopes": [
@@ -163,4 +180,4 @@ c.JupyterHub.load_roles = [
             "service-api",
         ],
     }
-]
+)
