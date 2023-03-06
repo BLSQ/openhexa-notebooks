@@ -93,26 +93,13 @@ class AppAuthenticator(Authenticator):
 
         if spawner.name == "":  # Default credentials, OpenHexa legacy (outside workspaces)
             credentials_data = await self._app_request(os.environ["DEFAULT_CREDENTIALS_URL"], spawner.handler)
-        else:
+        else:  # Workspace mode
             credentials_url = os.environ["WORKSPACE_CREDENTIALS_URL"].replace("<workspace_slug>", spawner.name)
             credentials_data = await self._app_request(credentials_url, spawner.handler)
 
-            # Hack volume names
-            # spawner.volumes[0] = [
-            #     {
-            #         "name": volume_name_template,
-            #         "persistentVolumeClaim": {"claimName": pvc_name_template},
-            #     }
-            # ]
-            # c.KubeSpawner.volume_mounts = [
-            #     {
-            #         "mountPath": get_config("singleuser.storage.homeMountPath"),
-            #         "name": volume_name_template,
-            #     }
-            # ]
-            # spawner.storage_pvc_ensure = False
-            # spawner.volumes = []
-            # spawner.volume_mounts = []
+            # Let's use a hash for the pod name
+            spawner.pod_name = f"jupyter-1234"
+            # spawner.pod_name = f"jupyter-{spawner.name}"
 
         spawner.environment.update(credentials_data["env"])
 
