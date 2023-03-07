@@ -111,7 +111,7 @@ class AppAuthenticator(Authenticator):
             # Note that the values here are not workspace-specific : the volume will be shared across workspaces.
             # (this works in combination with changing the template to xxx-{username}, and thus removing the server
             # name from the template - this is not done here but rather in our provisioning code)
-            if len(spawner.volumes) > 0 and volumes[0]["name"].startswith("volume-"):
+            if len(spawner.volumes) > 0 and spawner.volumes[0]["name"].startswith("volume-"):
                 spawner.volumes[0]["name"] = spawner.volumes[0]["name"].replace("volume-", "volume-w-")
                 spawner.volumes[0]["persistentVolumeClaim"]["claimName"] = \
                     spawner.volumes[0]["persistentVolumeClaim"]["claimName"].replace("claim-", "claim-w-")
