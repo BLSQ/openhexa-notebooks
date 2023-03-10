@@ -78,7 +78,8 @@ if GCS_TOKEN:
         base64.b64decode(os.environ.get("GCS_BUCKETS", b"e30="))
     )
     for bucket in filter(None, gcsfuse_buckets.get("buckets", [])):
-        path_to_mount = f"/home/jovyan/gcs-{bucket['name']}"
+        mount_point = bucket.get("mount", f"/gcs-{bucket['name']}")
+        path_to_mount = "/home/jovyan" + mount_point
         subprocess.run(["mkdir", "-p", path_to_mount])
         args = [
             "gcsfuse",
