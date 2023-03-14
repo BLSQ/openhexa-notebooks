@@ -28,7 +28,11 @@ s3_is_minio = True if aws_endpoint else False
 
 for bucket in filter(None, aws_fuse_config.get("buckets", [])):
     path_to_mount = f"/home/jovyan/s3-{bucket['name']}"
-    region_url = aws_endpoint if aws_endpoint else f"https://s3-{bucket['region']}.amazonaws.com/"
+    region_url = (
+        aws_endpoint
+        if aws_endpoint
+        else f"https://s3-{bucket['region']}.amazonaws.com/"
+    )
     subprocess.run(["mkdir", "-p", path_to_mount])
     subprocess.run(
         [
