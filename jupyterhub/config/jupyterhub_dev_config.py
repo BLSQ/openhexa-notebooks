@@ -24,9 +24,7 @@ c.DockerSpawner.image = os.environ["JUPYTER_IMAGE"]
 c.Spawner.debug = True  # Seems necessary to see spawner logs / to check
 c.DockerSpawner.debug = True
 c.DockerSpawner.extra_host_config = {"privileged": True, "devices": "/dev/fuse"}
-c.DockerSpawner.post_start_cmd = (
-    'su -c "python3 /home/jovyan/.fuse/fuse_mount.py" jovyan'
-)
+c.DockerSpawner.post_start_cmd = "python3 /home/jovyan/.fuse/fuse_mount.py"
 
 # This is really useful to avoid "dangling containers" that cannot connect to the Hub anymore
 # (and the dreaded The "'ip' trait of a Server instance must be a unicode string, but a value of None
