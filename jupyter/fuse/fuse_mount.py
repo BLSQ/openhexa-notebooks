@@ -94,13 +94,13 @@ if GCS_TOKEN:
         # Read only mode if requested by the user
         args.extend(["-o", "ro"] if bucket["mode"] == "RO" else [])
 
+        # Also create implicit directories structure (i.e. key /a/b/c/d will create /a, /a/b, /a/b/c)
+        args.extend(["--implicit-dirs"])
+
         # Use the custom token server to get the token
         args.extend(
             ["--token-url", "http://127.0.0.1:4321/", bucket["name"], path_to_mount]
         )
-
-        # Also create implicit directories structure (i.e. key /a/b/c/d will create /a, /a/b, /a/b/c)
-        args.extend(["--implicit-dirs"])
 
         subprocess.run(args)
     x.terminate()
