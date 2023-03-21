@@ -99,6 +99,7 @@ RUN mamba install --yes -c conda-forge \
     'voila=0.*' \
     'xarray=2022.*' \
     'zarr=2.*' \
+    'polars=0.*' \
     && mamba clean --yes --all
 
 # Python packages (pip)
