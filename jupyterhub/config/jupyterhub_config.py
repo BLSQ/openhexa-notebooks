@@ -100,24 +100,12 @@ class AppAuthenticator(Authenticator):
             # Let's use the hash generated on the app side
             spawner.pod_name = f"jupyter-{credentials_data['notebooks_server_hash']}"
 
-            # For volume, volume mounts & PVC, z2jh works with templates (example: volume-{username}{servername})
-            # Unfortunately, with named servers (that we use for workspaces), we will hit the 63 characters limit
-            # most of the time when we combine username and server name.
-            # It is also touchy to change the template at this stage, because we already have a lot of existing PVCs
-            # for our current users - before workspaces.
-            #
-            # The decision here is to change volumes, volume mounts & PVCs after the spawner has been created but before
-            # the pod itself is created.
-            # Note that the values here are not workspace-specific : the volume will be shared across workspaces.
-            # (this works in combination with changing the template to xxx-{username}, and thus removing the server
-            # name from the template - this is not done here but rather in our provisioning code)
+            # Disable persistent storage in workspaces
             if len(spawner.volumes) > 0 and spawner.volumes[0]["name"].startswith("volume-"):
-                spawner.volumes[0]["name"] = spawner.volumes[0]["name"].replace("volume-", "volume-w-")
-                spawner.volumes[0]["persistentVolumeClaim"]["claimName"] = \
-                    spawner.volumes[0]["persistentVolumeClaim"]["claimName"].replace("claim-", "claim-w-")
-                spawner.volume_mounts[0]["name"] = spawner.volume_mounts[0]["name"].replace("volume-", "volume-w-")
-                spawner.pvc_name = spawner.pvc_name.replace("claim-", "claim-w-")
-            # spawner.pod_name = f"jupyter-{spawner.name}"
+                spawner.volumes = spawner.volumes[1:]
+                spawner.volume_mounts = spawner.volume_mounts[1:]
+                spawner.storage_pvc_ensure = False
+                spawner.pvc_name = None
 
         spawner.environment.update(credentials_data["env"])
 

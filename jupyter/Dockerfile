@@ -1,4 +1,4 @@
-FROM jupyter/datascience-notebook:2023-01-24
+FROM jupyter/datascience-notebook:2023-03-20
 
 USER root
 
@@ -30,6 +30,9 @@ RUN unzip awscliv2.zip
 RUN ./aws/install
 WORKDIR $HOME
 RUN rm -rf /usr/local/src/awcli
+
+# /home/hexa symlink (preferred path for data pipelines)
+RUN ln -s /home/jovyan /home/hexa
 
 USER ${NB_UID}
 
