@@ -1,4 +1,4 @@
-FROM jupyter/datascience-notebook:2023-03-20
+FROM jupyter/datascience-notebook:2023-01-24
 
 USER root
 
