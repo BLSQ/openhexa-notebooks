@@ -33,6 +33,7 @@ RUN rm -rf /usr/local/src/awcli
 
 # /home/hexa symlink (preferred path for data pipelines)
 RUN ln -s /home/jovyan /home/hexa
+RUN chown jovyan /home/hexa
 
 USER ${NB_UID}
 
@@ -139,12 +140,10 @@ ENV PYTHONPATH /opt/local_python_modules/
 # a postStart hook defined in config.yaml
 # (see https://zero-to-jupyterhub.readthedocs.io/en/latest/customizing/user-environment.html#about-user-storage-and-adding-files-to-it)
 COPY sample_files/* /tmp/notebooks_sample_files/
-# the next line is for the local docker-compose environment only
-COPY sample_files/* /home/jovyan/
 
 # s3f fuse
 COPY fuse/fuse.conf /etc/.
 # k8s: same as sample files, we need to copy those to a temp location
 COPY fuse/* /tmp/fuse/
 # the next line is for the local docker-compose environment only
-COPY fuse/* /home/jovyan/.fuse/
+COPY scripts/* /home/jovyan/.hexa_scripts/

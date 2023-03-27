@@ -92,8 +92,10 @@ class AppAuthenticator(Authenticator):
         authenticate() calls."""
 
         if spawner.name == "":  # Default credentials, OpenHexa legacy (outside workspaces)
+            legacy_mode = True
             credentials_data = await self._app_request(os.environ["DEFAULT_CREDENTIALS_URL"], spawner.handler)
         else:  # Workspace mode
+            legacy_mode = False
             credentials_url = os.environ["WORKSPACE_CREDENTIALS_URL"].replace("<workspace_slug>", spawner.name)
             credentials_data = await self._app_request(credentials_url, spawner.handler)
 
@@ -107,7 +109,10 @@ class AppAuthenticator(Authenticator):
                 spawner.storage_pvc_ensure = False
                 spawner.pvc_name = None
 
-        spawner.environment.update(credentials_data["env"])
+        spawner.environment.update({
+            **credentials_data["env"],
+            "OPENHEXA_LEGACY": "true" if legacy_mode else "false"
+        })
 
 
 class AppAuthenticatorLoginHandler(BaseHandler):
