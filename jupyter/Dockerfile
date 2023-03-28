@@ -142,8 +142,8 @@ ENV PYTHONPATH /opt/local_python_modules/
 COPY sample_files/* /tmp/notebooks_sample_files/
 
 # s3f fuse
-COPY fuse/fuse.conf /etc/.
+COPY scripts/fuse.conf /etc/.
 # k8s: same as sample files, we need to copy those to a temp location
-COPY fuse/* /tmp/fuse/
+COPY scripts/* /tmp/hexa_scripts/
 # the next line is for the local docker-compose environment only
 COPY scripts/* /home/jovyan/.hexa_scripts/
