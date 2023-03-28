@@ -12,8 +12,8 @@ else:
     subprocess.run(["mkdir", "/home/jovyan/tmp"])
 
     # Make /home/jovyan read-only
-    subprocess.run(["chmod", "-w", "/home/jovyan"])
+    subprocess.run(["chmod", "a-w", "/home/jovyan"])
 
     # Make /home/jovyan/worskpace + /home/jovyan/tmp writable
-    subprocess.run(["chmod", "a+w", "/home/jovyan/workspace"])
-    subprocess.run(["chmod", "a+w", "/home/jovyan/tmp"])
+    subprocess.run(["chmod", "g+w", "/home/jovyan/workspace"])
+    subprocess.run(["chmod", "g+w", "/home/jovyan/tmp"])

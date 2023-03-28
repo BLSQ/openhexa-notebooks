@@ -135,15 +135,15 @@ COPY jupyter_notebook_config.py /etc/jupyter/
 COPY local_python_modules /opt/local_python_modules
 ENV PYTHONPATH /opt/local_python_modules/
 
-# sample files
-# k8s: stored in /tmp within the pod, then copied back in the home directory after the PVC has been mounted through
-# a postStart hook defined in config.yaml
-# (see https://zero-to-jupyterhub.readthedocs.io/en/latest/customizing/user-environment.html#about-user-storage-and-adding-files-to-it)
-COPY sample_files/* /tmp/notebooks_sample_files/
-
 # s3f fuse
 COPY scripts/fuse.conf /etc/.
 # k8s: same as sample files, we need to copy those to a temp location
 COPY scripts/* /tmp/hexa_scripts/
 # the next line is for the local docker-compose environment only
 COPY scripts/* /home/jovyan/.hexa_scripts/
+
+# sample files
+# k8s: stored in /tmp within the pod, then copied back in the home directory after the PVC has been mounted through
+# a postStart hook defined in config.yaml
+# (see https://zero-to-jupyterhub.readthedocs.io/en/latest/customizing/user-environment.html#about-user-storage-and-adding-files-to-it)
+COPY sample_files/ /tmp/notebooks_sample_files/
