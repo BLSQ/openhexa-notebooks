@@ -4,4 +4,10 @@
 
 # Welcome to OpenHexa!
 
-TBC - new README.
+The documentation for OpenHexa notebooks is here: https://github.com/BLSQ/openhexa/wiki/Using-notebooks-in-OpenHexa
+
+Please note that:
+
+- You can't create files or directories at the root of the filesystem
+- The `workspace` directory is where most of your work should happen
+- The `tmp` directory is a temporary directory (see https://github.com/BLSQ/openhexa/wiki/Using-notebooks-in-OpenHexa#the-tmp-directory)

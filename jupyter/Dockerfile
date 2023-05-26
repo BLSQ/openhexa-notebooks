@@ -108,11 +108,13 @@ RUN mamba install --yes -c conda-forge \
 
 # Python packages (pip)
 RUN pip install -U \
+    'contextily==1.*' \
     'cowsay==4.*' \
+    'docxtpl==0.*' \
     'fake-useragent==0.*' \
     'hdx-python-api==5.*' \
-    'tabpy==2.*' \
-    'requests'
+    'requests' \
+    'tabpy==2.*'
 
 # Jupyter extensions
 RUN mamba install -c conda-forge --yes \
