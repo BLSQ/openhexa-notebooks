@@ -1,9 +1,9 @@
-import os
-import subprocess
-import json
 import base64
 import http.server
+import json
 import multiprocessing
+import os
+import subprocess
 import time
 
 # Git plugin / deactivate if no feature flag
@@ -62,8 +62,9 @@ for bucket in filter(None, aws_fuse_config.get("buckets", [])):
 # So we span an HTTP server to use the second option.
 # Yes, it's strange, but unless we want to fork gcsfuse, we will have to live with this
 GCS_TOKEN = os.environ.get("GCS_TOKEN", "")
+WORKSPACE_BUCKET_NAME = os.environ.get("WORKSPACE_BUCKET_NAME", "")
 
-if GCS_TOKEN:
+if GCS_TOKEN and WORKSPACE_BUCKET_NAME:
 
     class serveGCStoken(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
@@ -73,36 +74,28 @@ if GCS_TOKEN:
             self.wfile.write(bytes('{ "access_token": "' + GCS_TOKEN + '" }', "utf-8"))
 
     webServer = http.server.HTTPServer(("127.0.0.1", 4321), serveGCStoken)
-    x = multiprocessing.Process(target=webServer.serve_forever, args=())
-    x.start()
+    proc = multiprocessing.Process(target=webServer.serve_forever, args=())
+    proc.start()
     time.sleep(0.5)
 
-    # b64("{}") == b'e30='
-    gcsfuse_buckets = json.loads(
-        base64.b64decode(os.environ.get("GCS_BUCKETS", b"e30="))
+    path_to_mount = "/home/jovyan/workspace"
+    subprocess.run(["mkdir", "-p", path_to_mount], check=True)
+    args = [
+        "gcsfuse",
+        "-o",
+        "allow_other",
+        "--implicit-dirs",  # Also create implicit directories structure (i.e. key /a/b/c/d will create /a, /a/b, /a/b/c)
+    ]
+
+    # Use the custom token server to get the token
+    args.extend(
+        ["--token-url", "http://127.0.0.1:4321/", WORKSPACE_BUCKET_NAME, path_to_mount]
     )
-    for bucket in filter(None, gcsfuse_buckets.get("buckets", [])):
-        mount_point = bucket.get("mount", f"/gcs-{bucket['name']}")
-        path_to_mount = "/home/jovyan" + mount_point
-        subprocess.run(["mkdir", "-p", path_to_mount])
-        args = [
-            "gcsfuse",
-            "-o",
-            "allow_other",
-        ]
-
-        # Read only mode if requested by the user
-        args.extend(["-o", "ro"] if bucket["mode"] == "RO" else [])
-
-        # Also create implicit directories structure (i.e. key /a/b/c/d will create /a, /a/b, /a/b/c)
-        args.extend(["--implicit-dirs"])
-
-        # Use the custom token server to get the token
-        args.extend(
-            ["--token-url", "http://127.0.0.1:4321/", bucket["name"], path_to_mount]
-        )
-
-        subprocess.run(args)
-    x.terminate()
-    time.sleep(0.5)
-    x.close()
+    try:
+        subprocess.run(args, check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        raise
+    finally:
+        proc.terminate()
+        time.sleep(0.5)
+        proc.close()

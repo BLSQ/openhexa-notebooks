@@ -2,12 +2,10 @@ import asyncio
 import functools
 import os
 
+import requests
 from jupyterhub.auth import Authenticator
 from jupyterhub.handlers import BaseHandler, LogoutHandler
-import requests
-from jupyterhub.handlers.pages import SpawnHandler
 from tornado import web
-from urllib.parse import urlparse
 
 
 # Custom authentication code to be mounted when running the hub (using hub.extraFiles in z2jh mode, or COPY / volumes
@@ -37,7 +35,7 @@ class AppAuthenticator(Authenticator):
             (r"/logout", AppAuthenticatorLogoutHandler),
         ]
 
-    async def _app_request(self, url, handler):
+    async def _app_request(self, url, handler, **extra):
         loop = asyncio.get_running_loop()
         cookies = {
             "sessionid": handler.cookies["sessionid"].value,
@@ -45,7 +43,7 @@ class AppAuthenticator(Authenticator):
         }
         headers = {
             "X-CSRFToken": handler.cookies["csrftoken"].value,
-            "Referer": f"{handler.request.protocol}://{handler.request.host}"
+            "Referer": f"{handler.request.protocol}://{handler.request.host}",
         }
 
         try:
@@ -54,10 +52,7 @@ class AppAuthenticator(Authenticator):
             response = await loop.run_in_executor(
                 None,
                 functools.partial(
-                    requests.post,
-                    url,
-                    cookies=cookies,
-                    headers=headers
+                    requests.post, url, cookies=cookies, headers=headers, **extra
                 ),
             )
         except requests.RequestException as e:
@@ -77,7 +72,9 @@ class AppAuthenticator(Authenticator):
         the cookies are accessible on the handler itself."""
 
         try:
-            authentication_data = await self._app_request(os.environ["AUTHENTICATION_URL"], handler)
+            authentication_data = await self._app_request(
+                os.environ["AUTHENTICATION_URL"], handler
+            )
         except ValueError as e:
             self.log.warning(f"Error when authenticating ({e})")
             return None
@@ -91,28 +88,39 @@ class AppAuthenticator(Authenticator):
         and set these credentials as environment variables on the spawner. This auth state is created during
         authenticate() calls."""
 
-        if spawner.name == "":  # Default credentials, OpenHexa legacy (outside workspaces)
+        if (
+            spawner.name == ""
+        ):  # Default credentials, OpenHexa legacy (outside workspaces)
             legacy_mode = True
-            credentials_data = await self._app_request(os.environ["DEFAULT_CREDENTIALS_URL"], spawner.handler)
+            credentials_data = await self._app_request(
+                os.environ["DEFAULT_CREDENTIALS_URL"], spawner.handler
+            )
         else:  # Workspace mode
             legacy_mode = False
-            credentials_url = os.environ["WORKSPACE_CREDENTIALS_URL"].replace("<workspace_slug>", spawner.name)
-            credentials_data = await self._app_request(credentials_url, spawner.handler)
+            credentials_data = await self._app_request(
+                os.environ["WORKSPACE_CREDENTIALS_URL"],
+                spawner.handler,
+                data={"workspace": spawner.name},
+            )
 
             # Let's use the hash generated on the app side
             spawner.pod_name = f"jupyter-{credentials_data['notebooks_server_hash']}"
 
             # Disable persistent storage in workspaces
-            if len(spawner.volumes) > 0 and spawner.volumes[0]["name"].startswith("volume-"):
+            if len(spawner.volumes) > 0 and spawner.volumes[0]["name"].startswith(
+                "volume-"
+            ):
                 spawner.volumes = spawner.volumes[1:]
                 spawner.volume_mounts = spawner.volume_mounts[1:]
                 spawner.storage_pvc_ensure = False
                 spawner.pvc_name = None
 
-        spawner.environment.update({
-            **credentials_data["env"],
-            "OPENHEXA_LEGACY": "true" if legacy_mode else "false"
-        })
+        spawner.environment.update(
+            {
+                **credentials_data["env"],
+                "OPENHEXA_LEGACY": "true" if legacy_mode else "false",
+            }
+        )
 
 
 class AppAuthenticatorLoginHandler(BaseHandler):
@@ -152,9 +160,9 @@ c.JupyterHub.shutdown_on_logout = True
 c.Spawner.default_url = "/lab"
 
 # Allow hub to be embedded in an iframe
-c.JupyterHub.tornado_settings.update({
-    "headers": {"Content-Security-Policy": os.environ["CONTENT_SECURITY_POLICY"]}
-})
+c.JupyterHub.tornado_settings.update(
+    {"headers": {"Content-Security-Policy": os.environ["CONTENT_SECURITY_POLICY"]}}
+)
 
 # Named servers
 c.JupyterHub.allow_named_servers = True
@@ -170,10 +178,7 @@ c.JupyterHub.services.append(
 c.JupyterHub.load_roles.append(
     {
         "name": "api-role",
-        "scopes": [
-            "admin:users",
-            "admin:servers"
-        ],
+        "scopes": ["admin:users", "admin:servers"],
         "services": [
             "service-api",
         ],
