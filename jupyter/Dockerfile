@@ -118,7 +118,7 @@ RUN pip install -U \
 
 # Jupyter extensions
 RUN mamba install -c conda-forge --yes \
-    'jupyter-dash=0.*' \
+    'dash=2.*' \
     'jupyter-resource-usage=0.*' \
     'jupyter-server-proxy=3.*' \
     'jupyterlab_code_formatter=1.*' \
