@@ -133,6 +133,12 @@ RUN jupyter lab build -y && \
 # custom config
 COPY jupyter_notebook_config.py /etc/jupyter/
 
+# Install openhexa-sdk & openhexa-toolbox
+ENV HEXA_ENVIRONMENT CLOUD_JUPYTER
+RUN pip install -U \
+    'openhexa-sdk==0.1.25' \
+    'openhexa-toolbox==0.1.4'
+
 # custom local (Python) modules
 COPY local_python_modules /opt/local_python_modules
 ENV PYTHONPATH /opt/local_python_modules/
@@ -149,3 +155,7 @@ COPY scripts/* /home/jovyan/.hexa_scripts/
 # a postStart hook defined in config.yaml
 # (see https://zero-to-jupyterhub.readthedocs.io/en/latest/customizing/user-environment.html#about-user-storage-and-adding-files-to-it)
 COPY sample_files/ /tmp/notebooks_sample_files/
+
+# Redefine the entrypoint to be able to launch pipelines as well
+ENTRYPOINT ["/home/jovyan/.hexa_scripts/entrypoint.sh"]
+CMD notebook
