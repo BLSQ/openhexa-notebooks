@@ -150,6 +150,9 @@ COPY scripts/* /tmp/hexa_scripts/
 # the next line is for the local docker-compose environment only
 COPY scripts/* /home/jovyan/.hexa_scripts/
 
+# Copy the entrypoint script
+COPY entrypoint.sh /opt/entrypoint.sh
+
 # sample files
 # k8s: stored in /tmp within the pod, then copied back in the home directory after the PVC has been mounted through
 # a postStart hook defined in config.yaml
@@ -157,5 +160,5 @@ COPY scripts/* /home/jovyan/.hexa_scripts/
 COPY sample_files/ /tmp/notebooks_sample_files/
 
 # Redefine the entrypoint to be able to launch pipelines as well
-ENTRYPOINT ["/home/jovyan/.hexa_scripts/entrypoint.sh"]
+ENTRYPOINT ["/opt/entrypoint.sh"]
 CMD notebook
