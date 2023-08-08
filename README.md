@@ -85,3 +85,16 @@ Build the images, and you are ready to go:
 docker-compose build
 docker-compose up
 ```
+
+### Publishing the pipelines image
+
+The docker image `openhexa-base-notebook` is also used to run pipelines. Follow the steps below to publish a new docker image depending on the environment on which you want to deploy it.
+
+```shell
+# For demo environment
+docker tag blsq/openhexa-base-notebook:<version> blsq/openhexa-base-notebook:latest
+docker push blsq/openhexa-base-notebook:latest
+# For production environment
+docker tag blsq/openhexa-base-notebook<version> blsq/openhexa-base-notebook:production
+docker push blsq/openhexa-base-notebook:production
+```
