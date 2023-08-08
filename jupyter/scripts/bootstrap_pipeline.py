@@ -46,6 +46,17 @@ def configure_cloud_run():
     os.environ.update(data["env"])
     print("Credentials injected.")
 
+    print("Mounting buckets...")
+    # setup fuse for buckets
+    if os.path.exists("/home/jovyan/.hexa_scripts/fuse_mount.py"):
+        # import fuse mount script _after_ env variables injection
+        sys.path.insert(1, "/home/jovyan/.hexa_scripts")
+        import fuse_mount  # noqa: F401, E402
+
+    if os.path.exists("/home/jovyan/.hexa_scripts/wrap_up.py"):
+        # setup sample files, et co...
+        os.environ["OPENHEXA_LEGACY"] = "false"
+
 
 def run_pipeline(config):
     if not os.path.exists("pipeline/pipeline.py"):
@@ -79,6 +90,11 @@ if __name__ == "__main__":
 
     if args.command in ("cloudrun", "run"):
         run_pipeline(config)
+        if args.command == "cloudrun" and os.path.exists(
+            "/home/jovyan/.hexa_scripts/fuse_umount.py"
+        ):
+            # clean up fuse & umount at the end
+            import fuse_umount  # noqa: F401, E402
     else:
         parser.print_help()
         sys.exit(1)
