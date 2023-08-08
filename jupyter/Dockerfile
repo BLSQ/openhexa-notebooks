@@ -136,8 +136,8 @@ COPY jupyter_notebook_config.py /etc/jupyter/
 # Install openhexa-sdk & openhexa-toolbox
 ENV HEXA_ENVIRONMENT CLOUD_JUPYTER
 RUN pip install -U \
-    'openhexa-sdk==0.1.25' \
-    'openhexa-toolbox==0.1.4'
+    'openhexa-sdk==0.1.26' \
+    'openhexa-toolbox==0.1.5'
 
 # custom local (Python) modules
 COPY local_python_modules /opt/local_python_modules
