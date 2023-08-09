@@ -158,4 +158,4 @@ COPY sample_files/ /tmp/notebooks_sample_files/
 
 # Redefine the entrypoint to be able to launch pipelines as well
 ENTRYPOINT ["/tmp/hexa_scripts/entrypoint.sh"]
-CMD notebook
+CMD singleuser

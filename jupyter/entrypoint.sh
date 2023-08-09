@@ -26,6 +26,9 @@ case "$command" in
 "notebook")
   start-notebook.sh
   ;;
+"singleuser")
+  start-singleuser.sh
+  ;;
 "pipeline")
   python /home/hexa/.hexa_scripts/bootstrap_pipeline.py $arguments
   ;;
