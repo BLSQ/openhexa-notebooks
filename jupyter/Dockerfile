@@ -156,8 +156,9 @@ COPY scripts/* /home/jovyan/.hexa_scripts/
 # (see https://zero-to-jupyterhub.readthedocs.io/en/latest/customizing/user-environment.html#about-user-storage-and-adding-files-to-it)
 COPY sample_files/ /tmp/notebooks_sample_files/
 
-COPY entrypoint.sh /tmp/hexa_scripts/
+# Copy the entrypoint at the same location as the ones defined in the base image
+COPY entrypoint.sh /usr/local/bin/
 
 # Redefine the entrypoint to be able to launch pipelines as well
-ENTRYPOINT ["/tmp/hexa_scripts/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD singleuser
