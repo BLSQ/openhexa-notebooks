@@ -9,7 +9,7 @@ for bucket_name in umount_list:
             "umount",
             path_to_umount,
         ]
-    )q
+    )
     subprocess.run(["rmdir", path_to_umount])
 
 
