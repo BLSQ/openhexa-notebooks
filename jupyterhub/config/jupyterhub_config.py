@@ -118,6 +118,8 @@ class AppAuthenticator(Authenticator):
         spawner.environment.update(
             {
                 **credentials_data["env"],
+                "HEXA_SERVER_URL": os.environ["HEXA_SERVER_URL"],
+                "HEXA_WORKSPACE": spawner.name,
                 "OPENHEXA_LEGACY": "true" if legacy_mode else "false",
             }
         )
