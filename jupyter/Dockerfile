@@ -1,4 +1,4 @@
-FROM jupyter/datascience-notebook:2023-01-24
+FROM jupyter/datascience-notebook:2023-10-02
 
 USER root
 
@@ -136,8 +136,8 @@ COPY jupyter_notebook_config.py /etc/jupyter/
 # Install openhexa-sdk & openhexa-toolbox
 ENV HEXA_ENVIRONMENT CLOUD_JUPYTER
 RUN pip install -U \
-    'openhexa-sdk==0.1.26' \
-    'openhexa-toolbox==0.1.5'
+    'openhexa-sdk==0.1.29' \
+    'openhexa-toolbox==0.1.7'
 
 # custom local (Python) modules
 COPY local_python_modules /opt/local_python_modules
