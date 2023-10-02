@@ -39,7 +39,7 @@ USER ${NB_UID}
 
 # R packages (mamba + conda-forge)
 RUN mamba install --yes -c conda-forge \
-    'r-arrow=7.*' \
+    'r-arrow=13.*' \
     'r-aws.s3=0.*' \
     'r-geojsonio=0.*' \
     'r-getpass=0.*' \
