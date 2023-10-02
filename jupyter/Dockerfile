@@ -93,7 +93,7 @@ RUN mamba install --yes -c conda-forge \
     'papermill==2.*' \
     'plotly=5.*' \
     'psycopg2=2.*' \
-    'pyarrow=7.*' \
+    'pyarrow=13.*' \
     'rapidfuzz=2.*' \
     'rasterstats=0.*' \
     'rpy2=3.*' \
