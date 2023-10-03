@@ -1,4 +1,4 @@
-FROM jupyter/datascience-notebook:2023-10-02
+FROM jupyter/datascience-notebook:2023-01-24
 
 USER root
 
@@ -39,7 +39,7 @@ USER ${NB_UID}
 
 # R packages (mamba + conda-forge)
 RUN mamba install --yes -c conda-forge \
-    'r-arrow=13.*' \
+    'r-arrow=7.*' \
     'r-aws.s3=0.*' \
     'r-geojsonio=0.*' \
     'r-getpass=0.*' \
@@ -93,13 +93,14 @@ RUN mamba install --yes -c conda-forge \
     'papermill==2.*' \
     'plotly=5.*' \
     'psycopg2=2.*' \
-    'pyarrow=13.*' \
+    'pyarrow=7.*' \
     'rapidfuzz=2.*' \
     'rasterstats=0.*' \
     'rpy2=3.*' \
     's3contents=0.*' \
     's3fs=2022.*' \
     'slack_sdk=3.*' \
+    'voila=0.*' \
     'xarray=2022.*' \
     'zarr=2.*' \
     'polars=0.*' \
