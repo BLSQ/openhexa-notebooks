@@ -95,6 +95,6 @@ The docker image `openhexa-base-notebook` is also used to run pipelines. Follow 
 docker tag blsq/openhexa-base-notebook:<version> blsq/openhexa-base-notebook:latest
 docker push blsq/openhexa-base-notebook:latest
 # For production environment
-docker tag blsq/openhexa-base-notebook<version> blsq/openhexa-base-notebook:production
+docker tag blsq/openhexa-base-notebook:<version> blsq/openhexa-base-notebook:production
 docker push blsq/openhexa-base-notebook:production
 ```
