@@ -39,7 +39,7 @@ USER ${NB_UID}
 
 # R packages (mamba + conda-forge)
 RUN mamba install --yes -c conda-forge \
-    'r-arrow=7.*' \
+    'r-arrow=11.0.0' \
     'r-aws.s3=0.*' \
     'r-geojsonio=0.*' \
     'r-getpass=0.*' \
@@ -93,7 +93,7 @@ RUN mamba install --yes -c conda-forge \
     'papermill==2.*' \
     'plotly=5.*' \
     'psycopg2=2.*' \
-    'pyarrow=7.*' \
+    'pyarrow=11.0.0' \
     'rapidfuzz=2.*' \
     'rasterstats=0.*' \
     'rpy2=3.*' \
