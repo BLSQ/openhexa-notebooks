@@ -79,11 +79,18 @@ Local development
 This repository provides a ready-to-use `docker-compose.yaml` file for local development. It assumes that the 
 [App component](https://github.com/blsq/openhexa-app) is running on [http://localhost:8000](http://localhost:8000).
 
-Build the images, and you are ready to go:
+If you want to use our published Docker Image of the Jupyter notebook, you can
+start JupyterHub as it follows:
 
 ```bash
-docker-compose build
-docker-compose up
+docker compose -f docker-compose.yml -f docker-compose-withdockerhub.yml up
+```
+
+Otherwise, build the images (that can take a long time) and you are ready to go:
+
+```bash
+docker compose build
+docker compose up
 ```
 
 ### Publishing the pipelines image
