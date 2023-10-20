@@ -18,7 +18,7 @@ services:
     environment:
       LOAD_DEV_CONFIG: "true"
       JUPYTER_IMAGE: openhexa-base-notebook
-      DOCKER_NETWORK_NAME: openhexa-notebooks_default
+      DOCKER_NETWORK_NAME: openhexa
       HUB_IP: jupyterhub
       HUB_DB_URL: postgresql://postgres:postgres@postgres:5432/jupyterhub
       AUTHENTICATION_URL: http://app:8000/notebooks/authenticate/
