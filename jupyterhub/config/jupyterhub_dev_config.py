@@ -22,6 +22,7 @@ c.JupyterHub.hub_connect_ip = os.environ[
 c.JupyterHub.spawner_class = "dockerspawner.DockerSpawner"
 c.DockerSpawner.image = os.environ["JUPYTER_IMAGE"]
 c.Spawner.debug = True  # Seems necessary to see spawner logs / to check
+c.Spawner.cmd = "singleuser"
 c.DockerSpawner.debug = True
 c.DockerSpawner.extra_host_config = {"privileged": True, "devices": "/dev/fuse"}
 c.DockerSpawner.post_start_cmd = 'sh -c "python3 /home/jovyan/.hexa_scripts/fuse_mount.py;python3 /home/jovyan/.hexa_scripts/wrap_up.py"'
