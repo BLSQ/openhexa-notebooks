@@ -11,6 +11,8 @@ services:
       dockerfile: Dockerfile.dev
     command: ["jupyterhub", "-f", "/etc/jupyterhub/jupyterhub_dev_config.py"]
     container_name: jupyterhub
+    networks:
+      - openhexa
     depends_on:
       - postgres
     environment:
@@ -19,10 +21,11 @@ services:
       DOCKER_NETWORK_NAME: openhexa-notebooks_default
       HUB_IP: jupyterhub
       HUB_DB_URL: postgresql://postgres:postgres@postgres:5432/jupyterhub
-      AUTHENTICATION_URL: http://host.docker.internal:8000/notebooks/authenticate/
-      DEFAULT_CREDENTIALS_URL: http://host.docker.internal:8000/notebooks/default-credentials/
-      WORKSPACE_CREDENTIALS_URL: http://host.docker.internal:8000/workspaces/credentials/
-      LOGOUT_REDIRECT_URL: http://host.docker.internal:8000/
+      AUTHENTICATION_URL: http://app:8000/notebooks/authenticate/
+      DEFAULT_CREDENTIALS_URL: http://app:8000/notebooks/default-credentials/
+      WORKSPACE_CREDENTIALS_URL: http://app:8000/workspaces/credentials/
+      LOGOUT_REDIRECT_URL: http://app:8000/
+      HEXA_SERVER_URL: http://app:8000/
       CONTENT_SECURITY_POLICY: "frame-ancestors 'self' localhost:*"
       JUPYTERHUB_CRYPT_KEY: 0b9c2791baa0b19e10f1dc9c4a1a702dda0a37c332378870e9542271a365b9b8
       HUB_API_TOKEN: cbb352d6a412e266d7494fb014dd699373645ec8d353e00c7aa9dc79ca87800d
@@ -35,13 +38,22 @@ services:
 
   jupyter:  # just used for building - the jupyterhub service will spawn jupyter containers on demand
     build: jupyter
+    networks:
+      - openhexa
     platform: linux/amd64
     image: openhexa-base-notebook
     command: echo
 
   postgres:
     image: postgres:12
+    networks:
+      - openhexa
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: jupyterhub
+
+networks:
+  openhexa:
+    name: openhexa
+    external: true

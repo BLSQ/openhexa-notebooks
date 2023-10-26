@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  jupyterhub:
+    environment:
+      JUPYTER_IMAGE: blsq/openhexa-base-notebook
+
+  jupyter:
+    image: blsq/openhexa-base-notebook
+    platform: linux/amd64
+    command: echo
