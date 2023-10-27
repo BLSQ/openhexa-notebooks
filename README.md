@@ -73,6 +73,16 @@ docker push blsq/openhexa-base-notebook:<version>
 docker push blsq/openhexa-base-notebook:latest
 ```
 
+Container
+---------
+
+OpenHexa Notebook and JupyterHub are published as a Docker Image on Docker Hub:
+[blsq/openhexa-base-notebook](https://hub.docker.com/r/blsq/openhexa-base-notebook) and
+[blsq/openhexa-jupyterhub](https://hub.docker.com/r/blsq/openhexa-base-notebook) (resp.).
+
+If you're looking something working out of the box for local development, go to
+the next section.
+
 Local development
 -----------------
 
