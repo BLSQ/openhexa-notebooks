@@ -10,7 +10,8 @@ RUN sudo apt-get install -y s3fs
 
 # FUSE Google Cloud Storage
 RUN apt-get install -y \
-    gnupg && \
+    gnupg \
+    lsb-release && \
     gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
     echo "deb https://packages.cloud.google.com/apt $gcsFuseRepo main" | \
     tee /etc/apt/sources.list.d/gcsfuse.list && \
