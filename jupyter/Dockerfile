@@ -5,8 +5,7 @@ USER root
 # System libraries
 RUN apt-get update
 RUN sudo apt-get install -y gnupg2
-RUN export GCSFUSE_REPO=gcsfuse-`lsb_release -c -s`
-RUN echo "deb https://packages.cloud.google.com/apt $GCSFUSE_REPO main" | sudo tee /etc/apt/sources.list.d/gcsfuse.list
+RUN echo "deb https://packages.cloud.google.com/apt gcsfuse-$(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/gcsfuse.list
 RUN wget -q https://packages.cloud.google.com/apt/doc/apt-key.gpg -O- | sudo apt-key add -
 
 # FUSE Amazon S3
