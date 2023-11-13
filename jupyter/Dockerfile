@@ -4,15 +4,21 @@ USER root
 
 # System libraries
 RUN apt-get update
-RUN sudo apt-get install -y gnupg2
-RUN echo "deb https://packages.cloud.google.com/apt gcsfuse-$(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/gcsfuse.list
-RUN wget -q https://packages.cloud.google.com/apt/doc/apt-key.gpg -O- | sudo apt-key add -
 
 # FUSE Amazon S3
 RUN sudo apt-get install -y s3fs
 
 # FUSE Google Cloud Storage
-RUN sudo apt-get install -y gcsfuse
+RUN apt-get install -y \
+    gnupg \
+    gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
+    echo "deb https://packages.cloud.google.com/apt $gcsFuseRepo main" | \
+    tee /etc/apt/sources.list.d/gcsfuse.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+    apt-key add - && \
+    apt-get update && \
+    apt-get install -y gcsfuse && \
+    apt-get clean
 
 WORKDIR $HOME
 
