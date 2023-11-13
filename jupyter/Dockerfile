@@ -10,7 +10,7 @@ RUN echo "deb https://packages.cloud.google.com/apt $GCSFUSE_REPO main" | sudo t
 RUN wget -q https://packages.cloud.google.com/apt/doc/apt-key.gpg -O- | sudo apt-key add -
 
 # FUSE Amazon S3
-RUN sudo apt install -y s3fs
+RUN sudo apt-get install -y s3fs
 
 # FUSE Google Cloud Storage
 RUN sudo apt-get install -y gcsfuse
