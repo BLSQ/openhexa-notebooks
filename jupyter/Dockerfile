@@ -6,7 +6,7 @@ USER root
 RUN apt-get update
 RUN export GCSFUSE_REPO=gcsfuse-`lsb_release -c -s`
 RUN echo "deb https://packages.cloud.google.com/apt $GCSFUSE_REPO main" | sudo tee /etc/apt/sources.list.d/gcsfuse.list
-RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+RUN wget -q https://packages.cloud.google.com/apt/doc/apt-key.gpg -O- | sudo apt-key add -
 
 # FUSE Amazon S3
 RUN sudo apt install -y s3fs
