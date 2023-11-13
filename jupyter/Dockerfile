@@ -4,15 +4,16 @@ USER root
 
 # System libraries
 RUN apt-get update
+RUN export GCSFUSE_REPO=gcsfuse-`lsb_release -c -s`
+RUN echo "deb https://packages.cloud.google.com/apt $GCSFUSE_REPO main" | sudo tee /etc/apt/sources.list.d/gcsfuse.list
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 
 # FUSE Amazon S3
 RUN sudo apt install -y s3fs
 
 # FUSE Google Cloud Storage
-WORKDIR /tmp
-RUN wget -q "https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v0.40.0/gcsfuse_0.40.0_amd64.deb" -O "gcsfuse.deb"
-RUN apt install -y ./gcsfuse.deb
-RUN rm ./gcsfuse.deb
+RUN sudo apt-get install -y gcsfuse
+
 WORKDIR $HOME
 
 # Add locales
