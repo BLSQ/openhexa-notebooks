@@ -107,8 +107,9 @@ class AppAuthenticator(Authenticator):
             spawner.pod_name = f"jupyter-{credentials_data['notebooks_server_hash']}"
            
             # SET DOCKER IMAGE
-            if credentials_data.get('WORKSPACE_DOCKER_IMAGE', None):
-                spawner.image = credentials_data["WORKSPACE_DOCKER_IMAGE"]
+            if credentials_data.get("image") is not None:
+                self.log.info(f"Using custom image: {credentials_data['image']}")
+                spawner.image = credentials_data["image"]
 
             # Disable persistent storage in workspaces
             if len(spawner.volumes) > 0 and spawner.volumes[0]["name"].startswith(

@@ -1,7 +1,7 @@
 # This compose file can be useful to develop and debug Jupyterhub code locally.
 # It is not meant to be deployed in production.
 
-version: '3'
+version: "3.9"
 
 services:
   jupyterhub:
@@ -38,10 +38,19 @@ services:
 
   jupyter:  # just used for building - the jupyterhub service will spawn jupyter containers on demand
     build: jupyter
-    networks:
-      - openhexa
     platform: linux/amd64
     image: openhexa-base-notebook
+    command: echo
+
+  # TODO: check if we want to keep this for testing purposes
+  jupyter_alternate:  # just used for building - the jupyterhub service will spawn jupyter containers on demand
+    depends_on:
+      - jupyter
+    build:
+      context: jupyter
+      dockerfile: Dockerfile.alternate
+    platform: linux/amd64
+    image: openhexa-alternate-notebook
     command: echo
 
   postgres:

@@ -1,0 +1,3 @@
+FROM openhexa-base-notebook
+
+RUN pip install -U 'httpx==0.25.1'
