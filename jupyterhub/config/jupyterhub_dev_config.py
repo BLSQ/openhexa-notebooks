@@ -20,7 +20,7 @@ c.JupyterHub.hub_connect_ip = os.environ[
 # (In z2jh mode, Kubespawner is used instead)
 
 c.JupyterHub.spawner_class = "dockerspawner.DockerSpawner"
-c.DockerSpawner.image = os.environ["JUPYTER_IMAGE"]
+# c.DockerSpawner.image = os.environ["JUPYTER_IMAGE"]
 c.Spawner.debug = True  # Seems necessary to see spawner logs / to check
 c.Spawner.cmd = "singleuser"
 c.DockerSpawner.debug = True
