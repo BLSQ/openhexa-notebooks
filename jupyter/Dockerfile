@@ -6,13 +6,21 @@ USER root
 RUN apt-get update
 
 # FUSE Amazon S3
-RUN sudo apt install -y s3fs
+RUN sudo apt-get install -y s3fs
 
 # FUSE Google Cloud Storage
-WORKDIR /tmp
-RUN wget -q "https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v0.40.0/gcsfuse_0.40.0_amd64.deb" -O "gcsfuse.deb"
-RUN apt install -y ./gcsfuse.deb
-RUN rm ./gcsfuse.deb
+RUN apt-get install -y \
+    gnupg \
+    lsb-release && \
+    gcsFuseRepo=gcsfuse-`lsb_release -c -s` && \
+    echo "deb https://packages.cloud.google.com/apt $gcsFuseRepo main" | \
+    tee /etc/apt/sources.list.d/gcsfuse.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+    apt-key add - && \
+    apt-get update && \
+    apt-get install -y gcsfuse && \
+    apt-get clean
+
 WORKDIR $HOME
 
 # Add locales
