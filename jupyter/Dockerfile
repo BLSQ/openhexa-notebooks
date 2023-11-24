@@ -155,14 +155,16 @@ ENV PYTHONPATH /opt/local_python_modules/
 COPY scripts/fuse.conf /etc/.
 # k8s: same as sample files, we need to copy those to a temp location
 COPY scripts/* /tmp/hexa_scripts/
-# the next line is for the local docker-compose environment only
+# please note that if a PVC is mounted at /home/jovyan (for OpenHexa legacy notebooks), this directory will be
+# "lost" - they need to be copied again from /tmp after mounting the PVC
 COPY scripts/* /home/jovyan/.hexa_scripts/
 
 # sample files
 # k8s: stored in /tmp within the pod, then copied back in the home directory after the PVC has been mounted through
-# a postStart hook defined in config.yaml
+# a postStart hook defined in config.yaml, and also by the wrap_up.py file
+# TODO: postStart hook should not be necessary anymore
 # (see https://zero-to-jupyterhub.readthedocs.io/en/latest/customizing/user-environment.html#about-user-storage-and-adding-files-to-it)
-COPY sample_files/ /tmp/notebooks_sample_files/
+COPY sample_files/* /tmp/notebooks_sample_files/
 
 # Copy the entrypoint at the same location as the ones defined in the base image
 COPY entrypoint.sh /usr/local/bin/
