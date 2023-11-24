@@ -42,17 +42,6 @@ services:
     image: openhexa-base-notebook
     command: echo
 
-  # TODO: check if we want to keep this for testing purposes
-  jupyter_alternate:  # just used for building - the jupyterhub service will spawn jupyter containers on demand
-    depends_on:
-      - jupyter
-    build:
-      context: jupyter
-      dockerfile: Dockerfile.alternate
-    platform: linux/amd64
-    image: openhexa-alternate-notebook
-    command: echo
-
   postgres:
     image: postgres:12
     networks:
