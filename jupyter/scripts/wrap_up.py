@@ -7,7 +7,8 @@ if os.environ["OPENHEXA_LEGACY"] == "true":
         ["cp", "/tmp/notebooks_sample_files/legacy/README.md", "/home/jovyan/README.md"]
     )
 else:
-    # Copy README
+    # Copy README (might not be needed, the file is already in the Docker image and we don't have PVC in
+    # workspaces)
     subprocess.run(
         ["cp", "/tmp/notebooks_sample_files/README.md", "/home/jovyan/README.md"]
     )
