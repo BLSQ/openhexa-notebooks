@@ -4,19 +4,36 @@ import base64
 import json
 import os
 import sys
+import subprocess
 
 import requests
 from openhexa.sdk.pipelines import download_pipeline, import_pipeline
 
 
-def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
+def run_pipeline(config):
+    if not os.path.exists("pipeline/pipeline.py"):
+        print("No pipeline.py found", file=sys.stderr)
+        sys.exit(1)
+
+    if os.path.exists("./pipeline/requirements.txt"):
+        print("Installing requirements...")
+        os.system("pip install -r ./pipeline/requirements.txt")
+
+    installed, uninstalled = version_info()
+    if len(installed) > 0:
+        print("Using {}".format(", ".join(installed)))
+    if len(uninstalled) > 0:
+        print("Warning, uninstalled libraries: {}".format(", ".join(uninstalled)))
+
+    print("Running pipeline...")
+    pipeline = import_pipeline("pipeline")
+    pipeline(config=config)
 
 
 def configure_cloud_run():
     # cloud run -> need to download the code from cloud
     if "HEXA_TOKEN" not in os.environ or "HEXA_SERVER_URL" not in os.environ:
-        eprint("Need token and url to download the code")
+        print("Need token and url to download the code", file=sys.stderr)
         sys.exit(1)
 
     access_token = os.environ["HEXA_TOKEN"]
@@ -58,19 +75,18 @@ def configure_cloud_run():
         os.environ["OPENHEXA_LEGACY"] = "false"
 
 
-def run_pipeline(config):
-    if not os.path.exists("pipeline/pipeline.py"):
-        eprint("No pipeline.py found")
-        sys.exit(1)
+def version_info():
+    installed = []
+    uninstalled = []
+    for lib in ["openhexa.sdk", "openhexa.toolbox"]:
+        completed_process = subprocess.run(f"pip freeze | grep {lib}", shell=True, capture_output=True)
+        lib_version = completed_process.stdout.decode("utf-8").strip()
+        if lib_version == "":
+            uninstalled.append(lib)
+        else:
+            installed.append(lib_version)
 
-    if os.path.exists("./pipeline/requirements.txt"):
-        print("Installing requirements...")
-        os.system("pip install -r ./pipeline/requirements.txt")
-
-    print("Running pipeline...")
-    pipeline = import_pipeline("pipeline")
-
-    pipeline(config=config)
+    return installed, uninstalled
 
 
 if __name__ == "__main__":
@@ -81,17 +97,14 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    config = {}
-    if args.config:
-        config = json.loads(base64.b64decode(args.config).decode("utf-8"))
-
     if args.command == "cloudrun":
         configure_cloud_run()
 
     if args.command in ("cloudrun", "run"):
-        run_pipeline(config)
+        args_config = json.loads(base64.b64decode(args.config).decode("utf-8")) if args.config else {}
+        run_pipeline(args_config)
         if args.command == "cloudrun" and os.path.exists(
-            "/home/jovyan/.hexa_scripts/fuse_umount.py"
+                "/home/jovyan/.hexa_scripts/fuse_umount.py"
         ):
             # clean up fuse & umount at the end
             import fuse_umount  # noqa: F401, E402
