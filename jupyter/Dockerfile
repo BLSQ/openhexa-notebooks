@@ -154,7 +154,7 @@ ENV PYTHONPATH /opt/local_python_modules/
 COPY scripts/fuse.conf /etc/.
 # k8s: same as sample files, we need to copy those to a temp location
 COPY scripts/* /tmp/hexa_scripts/
-# please note that if a PVC is mounted at /home/jovyan (for OpenHexa legacy notebooks), this directory will be
+# Please note that if a PVC is mounted at /home/jovyan (for OpenHEXA legacy notebooks), this directory will be
 # "lost" - they need to be copied again from /tmp after mounting the PVC
 COPY scripts/* /home/jovyan/.hexa_scripts/
 

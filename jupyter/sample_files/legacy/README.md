@@ -1,15 +1,15 @@
 <div align="center" style="margin-top:20px;">
-   <img alt="OpenHexa Logo" src="https://raw.githubusercontent.com/BLSQ/openhexa-app/main/hexa/static/img/logo/logo_with_text_grey.svg" height="80">
+   <img alt="OpenHEXA Logo" src="https://raw.githubusercontent.com/BLSQ/openhexa-app/main/hexa/static/img/logo/logo_with_text_grey.svg" height="80">
 </div>
 
-# Welcome to OpenHexa!
+# Welcome to OpenHEXA!
 
-Welcome to OpenHexa, the Bluesquare Data Science platform.
+Welcome to OpenHEXA, the Bluesquare Data Science platform.
 
 This file is an introduction to the platform - make sure you read it before going further as it contains important 
 information regarding security.
 
-## 🚧 OpenHexa is alpha/beta software
+## 🚧 OpenHEXA is alpha/beta software
 
 This platform is a work in progress, and cannot be considered stable yet. Be prepared for some major changes 
 along the way.
@@ -19,17 +19,17 @@ the platform.
 
 ## 🚒 An important note about sensitive data
 
-At this stage, the OpenHexa platform is not equipped to deal with sensitive data (for example data that contains 
+At this stage, the OpenHEXA platform is not equipped to deal with sensitive data (for example data that contains 
 personal information).
 
-**Never upload sensitive or personal data on the OpenHexa platform.**
+**Never upload sensitive or personal data on the OpenHEXA platform.**
 
 ## 💽 File storage
 
-OpenHexa allows you to store files in 2 different types of storage:
+OpenHEXA allows you to store files in 2 different types of storage:
 
 1. **Cloud Storage**: buckets shared with your team
-1. A **personal filesystem**: for your personal drafts and temporary data
+2. A **personal filesystem**: for your personal drafts and temporary data
 
 ### Cloud Storage
 
@@ -39,7 +39,7 @@ These directories correspond to Amazon S3 or Google Cloud Storage buckets. They 
 backed up on a regular basis.  If you experience any problem related to bucket access, please restart the
 Jupyter Server, by going to File -> Logout, then clicking on "restart", then "start the server".
 
-**Using Cloud Storage is the recommended way to store code or data in OpenHexa.**
+**Using Cloud Storage is the recommended way to store code or data in OpenHEXA.**
 
 **Pro tip**: you can copy the path to an existing file in this bucket by right-clicking on it and selecting the 
 "Copy path" menu item. 
@@ -70,7 +70,7 @@ resources often require credentials.
 **Never store those credentials in any form on the platform**.
 
 First, consider whether the data that you want to access can be extracted in a dedicated, secure data pipeline 
-outside OpenHexa.
+outside OpenHEXA.
 
 If it is not the case, and you really need to access a protected external resource, use a password prompt so 
 that credentials are not leaked in the file itself or in the notebook output.

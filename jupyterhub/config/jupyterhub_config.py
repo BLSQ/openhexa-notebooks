@@ -90,7 +90,7 @@ class AppAuthenticator(Authenticator):
 
         if (
             spawner.name == ""
-        ):  # Default credentials, OpenHexa legacy (outside workspaces)
+        ):  # Default credentials, OpenHEXA legacy (outside workspaces)
             legacy_mode = True
             credentials_data = await self._app_request(
                 os.environ["DEFAULT_CREDENTIALS_URL"], spawner.handler
