@@ -47,7 +47,7 @@ Authentication
 --------------
 
 The **Notebooks component** uses a custom authenticator that will connect to the 
-(**App component**)[https://github.com/blsq/openhexa-app] to authenticate users. You will need to have the App 
+[App component](https://github.com/blsq/openhexa-app) to authenticate users. You will need to have the App
 component up-and-running to be able to authenticate users.
 
 Local development
