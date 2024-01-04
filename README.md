@@ -26,13 +26,7 @@ When the hub starts a single-user Jupyter notebook server, it actually spawns a 
 Each single-user server instance is totally isolated from other instances.
 
 Those single-user server instances use a customized Docker image based on the `datascience-notebook` image provided by
-the [Jupyter Docker Stacks](https://github.com/jupyter/docker-stacks) project. The OpenHEXA Docker image is publicly
-available on [Docker Hub](https://hub.docker.com/r/blsq/openhexa-jupyuter).
-
-For more information about the technical aspects of OpenHEXA, you might be interested in the two following wiki pages:
-
-- [Installing OpenHEXA](https://github.com/BLSQ/openhexa/wiki/Installation-instructions)
-- [Technical Overview](https://github.com/BLSQ/openhexa/wiki/Technical-overview)
+the [Jupyter Docker Stacks](https://github.com/jupyter/docker-stacks) project.
 
 Docker images
 -------------
