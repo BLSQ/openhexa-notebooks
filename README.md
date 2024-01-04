@@ -34,6 +34,15 @@ For more information about the technical aspects of OpenHEXA, you might be inter
 - [Installing OpenHEXA](https://github.com/BLSQ/openhexa/wiki/Installation-instructions)
 - [Technical Overview](https://github.com/BLSQ/openhexa/wiki/Technical-overview)
 
+Docker images
+-------------
+
+The OpenHEXA notebooks component and the custom JupyterHub setup are published as Docker images on Docker Hub:
+- [blsq/openhexa-base-notebook](https://hub.docker.com/r/blsq/openhexa-base-notebook)
+- [blsq/openhexa-jupyterhub](https://hub.docker.com/r/blsq/openhexa-base-notebook)
+
+If you're looking something working out of the box for local development, see "Local development" section below.
+
 Authentication
 --------------
 
@@ -41,34 +50,14 @@ The **Notebooks component** uses a custom authenticator that will connect to the
 (**App component**)[https://github.com/blsq/openhexa-app] to authenticate users. You will need to have the App 
 component up-and-running to be able to authenticate users.
 
-Building the Docker image
--------------------------
-
-The OpenHEXA Notebooks base Docker image is publicly available on Docker Hub
-([blsq/openhexa-base-notebook](https://hub.docker.com/r/blsq/openhexa-base-notebook)).
-
-This repository also provides a Github workflow to build the Docker image in the `.github/workflows` directory.
-
-To build and push the image manually:
-
-```bash
-docker build -t blsq/openhexa-base-notebook:<version> -t blsq/openhexa-base-notebook:latest jupyter
-docker push blsq/openhexa-base-notebook:<version>
-docker push blsq/openhexa-base-notebook:latest
-```
-
-Container
----------
-
-OpenHEXA Notebook and JupyterHub are published as a Docker Image on Docker Hub:
-[blsq/openhexa-base-notebook](https://hub.docker.com/r/blsq/openhexa-base-notebook) and
-[blsq/openhexa-jupyterhub](https://hub.docker.com/r/blsq/openhexa-base-notebook) (resp.).
-
-If you're looking something working out of the box for local development, go to
-the next section.
-
 Local development
 -----------------
+
+Please refer to the
+[Development installation](https://github.com/BLSQ/openhexa/wiki/Installation-instructions#development-installation)
+section of our wiki for more information about running OpenHEXA on your machine.
+
+To run the OpenHEXA notebooks components locally, you will need [Docker](https://www.docker.com/).
 
 This repository provides a ready-to-use `docker-compose.yaml` file for local development. It assumes that the 
 [App component](https://github.com/blsq/openhexa-app) is running on [http://localhost:8000](http://localhost:8000).
@@ -80,22 +69,23 @@ start JupyterHub as it follows:
 docker compose -f docker-compose.yml -f docker-compose-withdockerhub.yml up
 ```
 
-Otherwise, build the images (that can take a long time) and you are ready to go:
+Otherwise, build the images (it can take a long time) and you are ready to go:
 
 ```bash
 docker compose build
 docker compose up
 ```
 
-### Publishing the pipelines image
+Building the Docker images
+--------------------------
 
-The docker image `openhexa-base-notebook` is also used to run pipelines. Follow the steps below to publish a new docker image depending on the environment on which you want to deploy it.
+The base notebooks image and the custom Jupyterhub are built using Github workflows (see `.github/workflows` directory).
+
+The image `openhexa-base-notebook` Docker is also used to run pipelines.
+
+Follow the following steps to tag and push a production version:
 
 ```shell
-# For demo environment
-docker tag blsq/openhexa-base-notebook:<version> blsq/openhexa-base-notebook:latest
-docker push blsq/openhexa-base-notebook:latest
-# For production environment
 docker tag blsq/openhexa-base-notebook:<version> blsq/openhexa-base-notebook:production
 docker push blsq/openhexa-base-notebook:production
 ```
