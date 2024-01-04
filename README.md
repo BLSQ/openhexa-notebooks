@@ -53,9 +53,8 @@ component up-and-running to be able to authenticate users.
 Local development
 -----------------
 
-Please refer to the
-[Development installation](https://github.com/BLSQ/openhexa/wiki/Installation-instructions#development-installation)
-section of our wiki for more information about running OpenHEXA on your machine.
+The [Installation instructions](https://github.com/BLSQ/openhexa/wiki/Installation-instructions#development-installation)
+section of our wiki gives an overview of the local development setup required to run OpenHEXA locally.
 
 To run the OpenHEXA notebooks components locally, you will need [Docker](https://www.docker.com/).
 
