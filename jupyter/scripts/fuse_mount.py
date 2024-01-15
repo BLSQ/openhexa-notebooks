@@ -55,14 +55,44 @@ for bucket in filter(None, aws_fuse_config.get("buckets", [])):
         + (["-o", "use_path_request_style"] if s3_is_minio else [])
     )
 
+GCS_TOKEN = os.environ.get("GCS_TOKEN", "")
+WORKSPACE_BUCKET_NAME = os.environ.get("WORKSPACE_BUCKET_NAME", "")
+
+# NO GCS_TOKEN but a WORKSPACE BUCKET NAME => minio or s3 for the workspace mount
+if not(GCS_TOKEN) and WORKSPACE_BUCKET_NAME:
+    path_to_mount = "/home/jovyan/workspace"
+    region_url = aws_endpoint
+    
+    subprocess.run(["mkdir", "-p", path_to_mount])
+    results = subprocess.run(
+        [
+            "s3fs",
+            WORKSPACE_BUCKET_NAME,
+            path_to_mount,
+            "-o",
+            "allow_other",
+            "-o",
+            "url=" + region_url,
+            # Debug
+            # "-o",
+            # "dbglevel=info",
+            # "-f",
+            # "-o",
+            # "curldbg",
+        ]
+        # always rw  # + (["-o", "ro"] if bucket["mode"] == "RO" else [])
+        # MinIO doesn't support the subdomain request style, use the older path request style.
+        + (["-o", "use_path_request_style"] if s3_is_minio else [])
+    )
+
+
 # GCS Fuse
 # gcsfuse offers 2 choices to authenticate:
 # 1) using a 'JSON key file', with static credentials
 # 2) using a token (that can be a short lived one) served over HTTP
 # So we span an HTTP server to use the second option.
 # Yes, it's strange, but unless we want to fork gcsfuse, we will have to live with this
-GCS_TOKEN = os.environ.get("GCS_TOKEN", "")
-WORKSPACE_BUCKET_NAME = os.environ.get("WORKSPACE_BUCKET_NAME", "")
+
 
 if GCS_TOKEN and WORKSPACE_BUCKET_NAME:
 
