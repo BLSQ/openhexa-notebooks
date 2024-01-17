@@ -6,7 +6,7 @@ version: '3'
 services:
   jupyter:
     build: jupyter
-    image: openhexa-base-notebook
+    image: blsq/openhexa-base-environment
     volumes:
       - ./jupyter/local_python_modules:/opt/local_python_modules
       - ./jupyter/config:/etc/jupyter

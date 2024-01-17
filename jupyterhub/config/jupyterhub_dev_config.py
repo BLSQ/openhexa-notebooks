@@ -3,6 +3,7 @@
 
 import os
 from pathlib import Path
+
 from dockerspawner import DockerSpawner
 
 # Load main config file
@@ -25,7 +26,7 @@ c.Spawner.debug = True  # Seems necessary to see spawner logs / to check
 c.Spawner.cmd = "singleuser"
 c.DockerSpawner.debug = True
 c.DockerSpawner.extra_host_config = {"privileged": True, "devices": "/dev/fuse"}
-c.DockerSpawner.post_start_cmd = 'sh -c "python3 /home/jovyan/.hexa_scripts/fuse_mount.py;python3 /home/jovyan/.hexa_scripts/wrap_up.py"'
+c.DockerSpawner.post_start_cmd = 'sh -c "python3 /home/jovyan/.hexa_scripts/fuse_mount.py && python3 /home/jovyan/.hexa_scripts/wrap_up.py"'
 
 # This is really useful to avoid "dangling containers" that cannot connect to the Hub anymore
 # (and the dreaded The "'ip' trait of a Server instance must be a unicode string, but a value of None
