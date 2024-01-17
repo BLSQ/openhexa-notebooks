@@ -1,7 +1,0 @@
-.github
-.git
-.idea
-helm
-
-**/*.DS_Store
-**/*.pyc

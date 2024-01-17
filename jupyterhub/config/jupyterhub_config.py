@@ -3,9 +3,10 @@ import functools
 import os
 
 import requests
+from tornado import web
+
 from jupyterhub.auth import Authenticator
 from jupyterhub.handlers import BaseHandler, LogoutHandler
-from tornado import web
 
 
 # Custom authentication code to be mounted when running the hub (using hub.extraFiles in z2jh mode, or COPY / volumes
@@ -87,7 +88,6 @@ class AppAuthenticator(Authenticator):
         """Before spawning a single-user server, we need to read the auth state (where user credentials are stored)
         and set these credentials as environment variables on the spawner. This auth state is created during
         authenticate() calls."""
-
         if (
             spawner.name == ""
         ):  # Default credentials, OpenHEXA legacy (outside workspaces)
@@ -105,7 +105,7 @@ class AppAuthenticator(Authenticator):
 
             # Let's use the hash generated on the app side
             spawner.pod_name = f"jupyter-{credentials_data['notebooks_server_hash']}"
-           
+
             # SET DOCKER IMAGE
             if credentials_data.get("image") is not None:
                 self.log.info(f"Using custom image: {credentials_data['image']}")

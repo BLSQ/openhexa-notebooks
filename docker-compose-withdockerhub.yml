@@ -3,9 +3,9 @@ version: '3'
 services:
   jupyterhub:
     environment:
-      JUPYTER_IMAGE: blsq/openhexa-base-notebook
+      JUPYTER_IMAGE: blsq/openhexa-base-environment
 
   jupyter:
-    image: blsq/openhexa-base-notebook
+    image: blsq/openhexa-base-environment
     platform: linux/amd64
     command: echo
