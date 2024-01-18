@@ -91,12 +91,10 @@ class AppAuthenticator(Authenticator):
         if (
             spawner.name == ""
         ):  # Default credentials, OpenHEXA legacy (outside workspaces)
-            legacy_mode = True
             credentials_data = await self._app_request(
                 os.environ["DEFAULT_CREDENTIALS_URL"], spawner.handler
             )
         else:  # Workspace mode
-            legacy_mode = False
             credentials_data = await self._app_request(
                 os.environ["WORKSPACE_CREDENTIALS_URL"],
                 spawner.handler,
@@ -120,12 +118,19 @@ class AppAuthenticator(Authenticator):
                 spawner.storage_pvc_ensure = False
                 spawner.pvc_name = None
 
+        # Double the brackets to avoid the KubeSpawner to interpret them as placeholders (cfr https://github.com/jupyterhub/kubespawner/pull/642)
+        if c.JupyterHub.spawner_class == "dockerspawner.DockerSpawner":
+            extra_env = credentials_data["env"]
+        else:
+            extra_env = {
+                key: value.replace("{", "{{").replace("}", "}}")
+                for key, value in credentials_data["env"].items()
+            }
         spawner.environment.update(
             {
-                **credentials_data["env"],
+                **extra_env,
                 "HEXA_SERVER_URL": os.environ["HEXA_SERVER_URL"],
                 "HEXA_WORKSPACE": spawner.name,
-                "OPENHEXA_LEGACY": "true" if legacy_mode else "false",
             }
         )
 

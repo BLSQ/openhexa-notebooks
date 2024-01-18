@@ -22,6 +22,9 @@ c.JupyterHub.hub_connect_ip = os.environ[
 
 c.JupyterHub.spawner_class = "dockerspawner.DockerSpawner"
 c.DockerSpawner.image = os.environ["JUPYTER_IMAGE"]
+c.DockerSpawner.allowed_images = (
+    "*"  # To allow all images to be used via user_options (needed for workspaces)
+)
 c.Spawner.debug = True  # Seems necessary to see spawner logs / to check
 c.Spawner.cmd = "singleuser"
 c.DockerSpawner.debug = True
