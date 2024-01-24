@@ -41,7 +41,3 @@ c.DockerSpawner.network_name = os.environ["DOCKER_NETWORK_NAME"]
 # We want the spawner to keep this environment variable so that it is forwarded to single-user servers
 # (In z2jh mode, CONTENT_SECURITY_POLICY is set explicitly)
 c.DockerSpawner.env_keep = ["CONTENT_SECURITY_POLICY"]
-
-#  DB configuration
-# (In z2jh mode, configured through hub.db)
-c.JupyterHub.db_url = os.environ["HUB_DB_URL"]
