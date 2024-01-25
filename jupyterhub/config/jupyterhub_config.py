@@ -3,10 +3,10 @@ import functools
 import os
 
 import requests
-from tornado import web
-
 from jupyterhub.auth import Authenticator
 from jupyterhub.handlers import BaseHandler, LogoutHandler
+from jupyterhub.utils import new_token
+from tornado import web
 
 
 # Custom authentication code to be mounted when running the hub (using hub.extraFiles in z2jh mode, or COPY / volumes
@@ -38,10 +38,15 @@ class AppAuthenticator(Authenticator):
 
     async def _app_request(self, url, handler, **extra):
         loop = asyncio.get_running_loop()
-        cookies = {
-            "sessionid": handler.cookies["sessionid"].value,
-            "csrftoken": handler.cookies["csrftoken"].value,
-        }
+        try:
+            cookies = {
+                "sessionid": handler.cookies["sessionid"].value,
+                "csrftoken": handler.cookies["csrftoken"].value,
+            }
+        except KeyError:
+            self.log.warning("Missing cookies")
+            raise ValueError("Unexpected")
+
         headers = {
             "X-CSRFToken": handler.cookies["csrftoken"].value,
             "Referer": f"{handler.request.protocol}://{handler.request.host}",
@@ -152,6 +157,33 @@ class AppAuthenticatorLogoutHandler(LogoutHandler):
     # from openhexa will send us here, after jupyterhub logout the
     # the user, this endpoint will redirect to the login page of openhexa
     # TODO: use API https://github.com/jupyterhub/jupyterhub/issues/3688)
+
+    async def get(self):
+        # Authenticate the user using the sessionid and csrftoken in the cookies
+        authenticated = await self.authenticate({})
+        if authenticated:
+            user = self.find_user(authenticated["name"])
+        # We override the _jupyterhub_user attribute to make sure that the logout operation will be performed
+        self._jupyterhub_user = user
+
+        # Call the default handler that will shut down servers if set in config
+        response = await super().get()
+
+        # If we had a user, we set a new cookie_id to force a new login
+        # We have to do this because the default behavior of JupyterHub is to
+        # clear the session cookie on the client side but not updates the
+        # cookie_id in the database
+        # Since we call this endpoint from openhexa-app, we cannot clear the cookie
+        # on the client side (they are on different domains)
+        if user:
+            self.log.info(f"Logging out user {user}")
+            user.cookie_id = new_token()
+            self.db.add(user)
+            self.db.commit()
+            self.log.info(f"User {user.name} logged out")
+
+        return response
+
     async def render_logout_page(self):
         redirect_url = os.environ["LOGOUT_REDIRECT_URL"]
         return self.redirect(redirect_url, permanent=False)
@@ -163,7 +195,7 @@ c.JupyterHub.authenticator_class = AppAuthenticator
 c.Authenticator.enable_auth_state = True  # TODO: we might want to remove this
 # See AppAuthenticator.pre_spawn_start() and AppAuthenticator.post_spawn_stop() for details
 c.Authenticator.refresh_pre_spawn = True  # TODO: might not be necessary, check
-# Will shutdown single-user servers on logout, which can be useful in our case to regenerate fresh credentials
+# Will shut down single-user servers on logout, which can be useful in our case to regenerate fresh credentials
 # (As our login is automatic, logging out will trigger an immediate login, so logging out results in
 # restarting a single-user server with fresh credentials)
 c.JupyterHub.shutdown_on_logout = True
