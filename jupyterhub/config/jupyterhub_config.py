@@ -3,10 +3,10 @@ import functools
 import os
 
 import requests
-from tornado import web
-
 from jupyterhub.auth import Authenticator
 from jupyterhub.handlers import BaseHandler, LogoutHandler
+from jupyterhub.utils import new_token
+from tornado import web
 
 
 # Custom authentication code to be mounted when running the hub (using hub.extraFiles in z2jh mode, or COPY / volumes
@@ -152,6 +152,25 @@ class AppAuthenticatorLogoutHandler(LogoutHandler):
     # from openhexa will send us here, after jupyterhub logout the
     # the user, this endpoint will redirect to the login page of openhexa
     # TODO: use API https://github.com/jupyterhub/jupyterhub/issues/3688)
+
+    async def default_handle_logout(self):
+        current_user = await self.get_current_user()
+        self.log.info(f"Logging out user {current_user}")
+        self.log.info(f"Current user cookie_id: {self.get_current_user_cookie()}")
+        self.log.info(f"Headers: {self.request.headers}")
+        if current_user:
+            current_user.cookie_id = new_token()
+            self.db.add(current_user)
+            self.db.commit()
+
+        return super().default_handle_logout()
+
+    async def get(self):
+        current_user = await self.get_current_user()
+        self.log.info(f"Logging out user {current_user}")
+        self.log.info(f"Current user cookie_id: {self.get_current_user_cookie()}")
+        return None
+
     async def render_logout_page(self):
         redirect_url = os.environ["LOGOUT_REDIRECT_URL"]
         return self.redirect(redirect_url, permanent=False)
