@@ -161,6 +161,7 @@ class AppAuthenticatorLogoutHandler(LogoutHandler):
     async def get(self):
         # Authenticate the user using the sessionid and csrftoken in the cookies
         authenticated = await self.authenticate({})
+        user = None
         if authenticated:
             user = self.find_user(authenticated["name"])
         # We override the _jupyterhub_user attribute to make sure that the logout operation will be performed
