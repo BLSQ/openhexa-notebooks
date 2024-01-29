@@ -33,7 +33,7 @@ Docker image
 ------------
 
 The OpenHEXA customized JupyterHub setup us published as a Docker image on Docker Hub:
-[blsq/openhexa-jupyterhub](https://hub.docker.com/r/blsq/openhexa-base-notebook)
+[blsq/openhexa-jupyterhub](https://hub.docker.com/r/blsq/openhexa-jupyterhub)
 
 If you're looking something working out of the box for local development, see "Local development" section below.
 
@@ -69,16 +69,7 @@ docker compose build
 docker compose up
 ```
 
-Building the Docker images
---------------------------
+Building the Docker image
+-------------------------
 
-The base notebooks image and the custom Jupyterhub are built using Github workflows (see `.github/workflows` directory).
-
-The image `openhexa-base-notebook` Docker is also used to run pipelines.
-
-Follow the following steps to tag and push a production version:
-
-```shell
-docker tag blsq/openhexa-base-notebook:<version> blsq/openhexa-base-notebook:production
-docker push blsq/openhexa-base-notebook:production
-```
+The custom Jupyterhub is built using a Github workflow (see `.github/workflows` directory).
