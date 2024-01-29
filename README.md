@@ -25,15 +25,15 @@ to manage deployments.
 When the hub starts a single-user Jupyter notebook server, it actually spawns a new pod within the Kubernetes cluster.
 Each single-user server instance is totally isolated from other instances.
 
-Those single-user server instances use a customized Docker image based on the `datascience-notebook` image provided by
-the [Jupyter Docker Stacks](https://github.com/jupyter/docker-stacks) project.
+Those single-user server instances use [customized Docker images](https://github.com/BLSQ/openhexa-docker-images)
+based on the `datascience-notebook` image provided by the
+[Jupyter Docker Stacks](https://github.com/jupyter/docker-stacks) project.
 
-Docker images
--------------
+Docker image
+------------
 
-The OpenHEXA notebooks component and the custom JupyterHub setup are published as Docker images on Docker Hub:
-- [blsq/openhexa-base-notebook](https://hub.docker.com/r/blsq/openhexa-base-notebook)
-- [blsq/openhexa-jupyterhub](https://hub.docker.com/r/blsq/openhexa-base-notebook)
+The OpenHEXA customized JupyterHub setup us published as a Docker image on Docker Hub:
+[blsq/openhexa-jupyterhub](https://hub.docker.com/r/blsq/openhexa-base-notebook)
 
 If you're looking something working out of the box for local development, see "Local development" section below.
 
