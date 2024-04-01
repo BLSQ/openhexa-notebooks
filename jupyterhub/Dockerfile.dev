@@ -2,7 +2,7 @@
 # In z2jh mode, we use the image provided by the Zero to Jupyterhub Helm chart (first column of the following link)
 # It is crucial to use the same jupyterhub version than the one used by z2jh
 # URL: https://hub.jupyter.org/helm-chart/
-FROM jupyterhub/jupyterhub:4.0.2
+FROM jupyterhub/jupyterhub:4.1.4
 
 
 COPY config/* /etc/jupyterhub/
