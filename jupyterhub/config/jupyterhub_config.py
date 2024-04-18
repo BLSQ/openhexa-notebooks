@@ -3,10 +3,11 @@ import functools
 import os
 
 import requests
+from tornado import web
+
 from jupyterhub.auth import Authenticator
 from jupyterhub.handlers import BaseHandler, LogoutHandler
 from jupyterhub.utils import new_token
-from tornado import web
 
 
 # Custom authentication code to be mounted when running the hub (using hub.extraFiles in z2jh mode, or COPY / volumes
@@ -231,4 +232,4 @@ c.JupyterHub.load_roles.append(
 )
 
 # Set additional labels on pods (useful for monitoring & billing)
-c.KubeSpawner.extra_labels = {"hexa-workspace": "{servername}"}
+c.KubeSpawner.extra_labels = {"hexa-workspace": "{unescaped_servername}"}
