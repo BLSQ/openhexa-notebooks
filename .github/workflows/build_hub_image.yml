@@ -57,4 +57,25 @@ jobs:
           tags: |
             blsq/openhexa-jupyterhub:${{ github.event.inputs.tag }}
             blsq/openhexa-jupyterhub:latest
-
+      - name: Build and push for local deployment (on release)
+        if: ${{ github.event_name == 'release' }}
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: jupyterhub
+          file: jupyterhub/Dockerfile.dev
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            blsq/openhexa-jupyterhub:local-${{ steps.version.outputs.number }}
+      - name: Build and push for local deployment (manual)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: jupyterhub
+          file: jupyterhub/Dockerfile.dev
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            blsq/openhexa-jupyterhub:local-${{ github.event.inputs.tag }}
