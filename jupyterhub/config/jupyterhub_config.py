@@ -3,11 +3,10 @@ import functools
 import os
 
 import requests
-from tornado import web
-
 from jupyterhub.auth import Authenticator
 from jupyterhub.handlers import BaseHandler, LogoutHandler
 from jupyterhub.utils import new_token
+from tornado import web
 
 
 # Custom authentication code to be mounted when running the hub (using hub.extraFiles in z2jh mode, or COPY / volumes
@@ -123,6 +122,17 @@ class AppAuthenticator(Authenticator):
                 spawner.volume_mounts = spawner.volume_mounts[1:]
                 spawner.storage_pvc_ensure = False
                 spawner.pvc_name = None
+
+            if credentials_data["env"].get("WORKSPACE_STORAGE_ENGINE") == "local":
+                mount_path = credentials_data["env"]["WORKSPACE_STORAGE_MOUNT_PATH"]
+                spawner.mounts = [
+                    {
+                        "type": "bind",
+                        "source": mount_path,
+                        "target": "/home/jovyan/workspace",
+                        "read_only": False,
+                    }
+                ]
 
         # Double the brackets to avoid the KubeSpawner to interpret them as placeholders (cfr https://github.com/jupyterhub/kubespawner/pull/642)
         if c.JupyterHub.spawner_class == "dockerspawner.DockerSpawner":
