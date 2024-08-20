@@ -123,6 +123,18 @@ class AppAuthenticator(Authenticator):
                 spawner.volume_mounts = spawner.volume_mounts[1:]
                 spawner.storage_pvc_ensure = False
                 spawner.pvc_name = None
+            
+            if credentials_data["env"].get("WORKSPACE_STORAGE_ENGINE") == "local":
+                self.log.warning('HEYYYY')
+                self.log.warning(credentials_data["env"]["WORKSPACE_STORAGE_BUCKET_NAME"])
+                root_folder = os.environ["WORKSPACE_BUCKET_FOLDER"] 
+                bucket_name = credentials_data['env']['WORKSPACE_STORAGE_BUCKET_NAME']
+                spawner.mounts = [{
+                    'type': 'bind',
+                    "source": f"{root_folder}/",
+                    "target": '/home/jovyan/workspace2',
+                    'read_only': False
+                }]
 
         # Double the brackets to avoid the KubeSpawner to interpret them as placeholders (cfr https://github.com/jupyterhub/kubespawner/pull/642)
         if c.JupyterHub.spawner_class == "dockerspawner.DockerSpawner":
