@@ -24,17 +24,15 @@ services:
       AUTHENTICATION_URL: http://app:8000/notebooks/authenticate/
       DEFAULT_CREDENTIALS_URL: http://app:8000/notebooks/default-credentials/
       WORKSPACE_CREDENTIALS_URL: http://app:8000/workspaces/credentials/
-      
       LOGOUT_REDIRECT_URL: http://app:8000/
       HEXA_SERVER_URL: http://app:8000/
       CONTENT_SECURITY_POLICY: "frame-ancestors 'self' localhost:*"
       JUPYTERHUB_CRYPT_KEY: 0b9c2791baa0b19e10f1dc9c4a1a702dda0a37c332378870e9542271a365b9b8
       HUB_API_TOKEN: cbb352d6a412e266d7494fb014dd699373645ec8d353e00c7aa9dc79ca87800d
-      WORKSPACE_BUCKET_FOLDER: /data
+      WORKSPACE_STORAGE_LOCATION: /Users/quentin/Work/Bluesquare/data
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./jupyterhub/config/:/etc/jupyterhub/
-      - ../data:/data
     ports:
       - 8001:8000
     restart: on-failure
@@ -47,7 +45,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: jupyterhub
-
 networks:
   openhexa:
     name: openhexa
