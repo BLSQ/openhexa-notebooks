@@ -124,12 +124,11 @@ class AppAuthenticator(Authenticator):
                 spawner.pvc_name = None
 
             if credentials_data["env"].get("WORKSPACE_STORAGE_ENGINE") == "local":
-                root_folder = os.environ["WORKSPACE_STORAGE_LOCATION"]
-                bucket_name = credentials_data["env"]["WORKSPACE_STORAGE_BUCKET_NAME"]
+                mount_path = os.environ["WORKSPACE_STORAGE_MOUNT_PATH"]
                 spawner.mounts = [
                     {
                         "type": "bind",
-                        "source": f"{root_folder}/{bucket_name}",
+                        "source": mount_path,
                         "target": "/home/jovyan/workspace",
                         "read_only": False,
                     }

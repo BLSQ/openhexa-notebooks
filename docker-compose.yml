@@ -29,7 +29,6 @@ services:
       CONTENT_SECURITY_POLICY: "frame-ancestors 'self' localhost:*"
       JUPYTERHUB_CRYPT_KEY: 0b9c2791baa0b19e10f1dc9c4a1a702dda0a37c332378870e9542271a365b9b8
       HUB_API_TOKEN: cbb352d6a412e266d7494fb014dd699373645ec8d353e00c7aa9dc79ca87800d
-      WORKSPACE_STORAGE_LOCATION: /Users/quentin/Work/Bluesquare/data
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./jupyterhub/config/:/etc/jupyterhub/
