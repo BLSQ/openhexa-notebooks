@@ -124,7 +124,7 @@ class AppAuthenticator(Authenticator):
                 spawner.pvc_name = None
 
             if credentials_data["env"].get("WORKSPACE_STORAGE_ENGINE") == "local":
-                mount_path = os.environ["WORKSPACE_STORAGE_MOUNT_PATH"]
+                mount_path = credentials_data["env"]["WORKSPACE_STORAGE_MOUNT_PATH"]
                 spawner.mounts = [
                     {
                         "type": "bind",
