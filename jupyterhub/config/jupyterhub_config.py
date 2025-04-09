@@ -8,6 +8,8 @@ from jupyterhub.handlers import BaseHandler, LogoutHandler
 from jupyterhub.utils import new_token
 from tornado import web
 
+# Documentation of this file: https://jupyterhub.readthedocs.io/en/stable/reference/config-reference.html
+
 
 # Custom authentication code to be mounted when running the hub (using hub.extraFiles in z2jh mode, or COPY / volumes
 # with Docker if working locally). Could be moved to a module (Pypi / Github), but this would require maintaining
