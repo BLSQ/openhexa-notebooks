@@ -51,7 +51,6 @@ class AppAuthenticator(Authenticator):
             "X-CSRFToken": handler.cookies["csrftoken"].value,
             "Referer": f"{handler.request.protocol}://{handler.request.host}",
         }
-
         try:
             # We need to avoid blocking calls here, otherwise the whole Tornado loop is blocked and cannot process
             # other requests
@@ -70,13 +69,11 @@ class AppAuthenticator(Authenticator):
                 f"Non-200 response when calling {url} ({response.status_code})"
             )
             raise ValueError("Unexpected")
-
         return response.json()
 
     async def authenticate(self, handler, data):
         """Authenticate with the app component using the app cookies. We won't need to use the data argument, as
         the cookies are accessible on the handler itself."""
-
         try:
             authentication_data = await self._app_request(
                 os.environ["AUTHENTICATION_URL"], handler
@@ -211,6 +208,10 @@ c.Authenticator.refresh_pre_spawn = True  # TODO: might not be necessary, check
 # (As our login is automatic, logging out will trigger an immediate login, so logging out results in
 # restarting a single-user server with fresh credentials)
 c.JupyterHub.shutdown_on_logout = True
+
+# Allow every user who can successfully authenticate to access JupyterHub.
+# https://jupyterhub.readthedocs.io/en/stable/reference/api/auth.html#jupyterhub.auth.Authenticator.allow_all
+c.Authenticator.allow_all = True
 
 # Use Jupyterlab by default
 c.Spawner.default_url = "/lab"
