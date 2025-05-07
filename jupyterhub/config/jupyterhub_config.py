@@ -243,3 +243,6 @@ c.JupyterHub.load_roles.append(
         ],
     }
 )
+
+# Set additional labels on pods (useful for monitoring & billing)
+c.KubeSpawner.extra_labels = {"hexa-workspace": "{unescaped_servername}"}

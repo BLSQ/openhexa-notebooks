@@ -4,8 +4,8 @@
 # URL: https://hub.jupyter.org/helm-chart/
 FROM jupyterhub/jupyterhub:5.2.1
 
-COPY config/jupyterhub_config_base.py /etc/jupyterhub/jupyterhub_config.d/jupyterhub_base_config.py
-COPY config/jupyterhub_config_docker.py /etc/jupyterhub/jupyterhub_config.d/jupyterhub_config.py
+
+COPY config/* /etc/jupyterhub/
 
 RUN pip install --upgrade pip
 RUN pip install dockerspawner==13.* psycopg2-binary==2.*
