@@ -9,7 +9,7 @@ services:
     build:
       context: jupyterhub
       dockerfile: Dockerfile.dev
-    command: ["jupyterhub", "-f", "/etc/jupyterhub/jupyterhub_dev_config.py"]
+    command: ["jupyterhub"]
     container_name: jupyterhub
     networks:
       - openhexa
