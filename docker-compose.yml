@@ -1,8 +1,6 @@
 # This compose file can be useful to develop and debug Jupyterhub code locally.
 # It is not meant to be deployed in production.
 
-version: "3.9"
-
 services:
   jupyterhub:
     platform: linux/amd64

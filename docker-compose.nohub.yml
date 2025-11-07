@@ -1,8 +1,6 @@
 # This compose file can be useful to debug the Jupyter(lab) part, outside of Jupyterhub
 # It is not meant to be deployed in production.
 
-version: '3'
-
 services:
   jupyter:
     build: jupyter
