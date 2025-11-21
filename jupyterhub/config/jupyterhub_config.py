@@ -114,11 +114,31 @@ class AppAuthenticator(Authenticator):
                 spawner.image = credentials_data["image"]
 
             # Disable persistent storage in workspaces
-            if len(spawner.volumes) > 0 and spawner.volumes[0]["name"].startswith(
-                "volume-"
-            ):
-                spawner.volumes = spawner.volumes[1:]
-                spawner.volume_mounts = spawner.volume_mounts[1:]
+            # Remove the volumes that start with prefix `volume-`
+            # Example:
+            # c.KubeSpawner.volumes = {
+            #     "02-group-beta": {
+            #         'name': 'volumes-beta',
+            #         ...
+            #     },
+            #     ...
+            # }
+            self.log.info(f"Spawner.volumes: {spawner.volumes}")
+            if spawner.volumes:
+                self.log.info(f"Spawner.volume_mounts: {spawner.volume_mounts}")
+                filtered_volumes = {
+                    key: config
+                    for key, config in spawner.volumes.items()
+                    if not config.get("name").startswith("volume-")
+                }
+                filtered_volume_mounts = {
+                    key: config
+                    for key, config in spawner.volume_mounts.items()
+                    if not config.get("name").startswith("volume-")
+                }
+
+                spawner.volumes = filtered_volumes
+                spawner.volume_mounts = filtered_volume_mounts
                 spawner.storage_pvc_ensure = False
                 spawner.pvc_name = None
 
