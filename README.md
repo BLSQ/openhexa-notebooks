@@ -1,12 +1,11 @@
 <div align="center">
-   <img alt="OpenHEXA Logo" src="https://raw.githubusercontent.com/BLSQ/openhexa-app/main/hexa/static/img/logo/logo_with_text_grey.svg" height="80">
+   <img alt="OpenHEXA Logo" src="https://raw.githubusercontent.com/BLSQ/openhexa-app/main/backend/hexa/static/img/logo/logo_with_text_black.svg" height="80">
 </div>
 <p align="center">
     <em>Open-source Data integration platform</em>
 </p>
 
-OpenHEXA Notebooks Component
-============================
+# OpenHEXA Notebooks Component
 
 OpenHEXA is an open-source data integration platform developed by [Bluesquare](https://bluesquarehub.com).
 
@@ -29,30 +28,27 @@ Those single-user server instances use [customized Docker images](https://github
 based on the `datascience-notebook` image provided by the
 [Jupyter Docker Stacks](https://github.com/jupyter/docker-stacks) project.
 
-Docker image
-------------
+## Docker image
 
 The OpenHEXA customized JupyterHub setup us published as a Docker image on Docker Hub:
 [blsq/openhexa-jupyterhub](https://hub.docker.com/r/blsq/openhexa-jupyterhub)
 
 If you're looking something working out of the box for local development, see "Local development" section below.
 
-Authentication
---------------
+## Authentication
 
-The **Notebooks component** uses a custom authenticator that will connect to the 
+The **Notebooks component** uses a custom authenticator that will connect to the
 [App component](https://github.com/blsq/openhexa-app) to authenticate users. You will need to have the App
 component up-and-running to be able to authenticate users.
 
-Local development
------------------
+## Local development
 
 The [Installation instructions](https://github.com/BLSQ/openhexa/wiki/Installation-instructions#development-installation)
 section of our wiki gives an overview of the local development setup required to run OpenHEXA locally.
 
 To run the OpenHEXA notebooks components locally, you will need [Docker](https://www.docker.com/).
 
-This repository provides a ready-to-use `docker-compose.yaml` file for local development. It assumes that the 
+This repository provides a ready-to-use `docker-compose.yaml` file for local development. It assumes that the
 [App component](https://github.com/blsq/openhexa-app) is running on [http://localhost:8000](http://localhost:8000).
 
 If you want to use our published Docker Image of the Jupyter notebook, you can
@@ -69,7 +65,6 @@ docker compose build
 docker compose up
 ```
 
-Building the Docker image
--------------------------
+## Building the Docker image
 
 The custom Jupyterhub is built using a Github workflow (see `.github/workflows` directory).
