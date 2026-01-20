@@ -25,8 +25,8 @@ When the hub starts a single-user Jupyter notebook server, it actually spawns a 
 Each single-user server instance is totally isolated from other instances.
 
 Those single-user server instances use [customized Docker images](https://github.com/BLSQ/openhexa-docker-images)
-based on the `datascience-notebook` image provided by the
-[Jupyter Docker Stacks](https://github.com/jupyter/docker-stacks) project.
+based on the `scipy-notebook` image provided by the
+[Jupyter Docker Stacks](https://github.com/jupyter/docker-stacks) project (hosted on `quay.io/jupyter/`).
 
 ## Docker image
 
