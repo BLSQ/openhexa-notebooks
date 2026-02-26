@@ -266,3 +266,6 @@ c.JupyterHub.load_roles.append(
 
 # Set additional labels on pods (useful for monitoring & billing)
 c.KubeSpawner.extra_labels = {"hexa-workspace": "{unescaped_servername}"}
+
+# Serving JupyterHub from `/notebooks` instead of `notebooks` subdomain
+c.JupyterHub.base_url = "/notebooks"
