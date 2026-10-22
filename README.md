@@ -65,6 +65,8 @@ docker compose build
 docker compose up
 ```
 
+A `Makefile` wraps these and a few other common commands (logs, shell, database). Run `make` to list them.
+
 ## Building the Docker image
 
 The custom Jupyterhub is built using a Github workflow (see `.github/workflows` directory).
