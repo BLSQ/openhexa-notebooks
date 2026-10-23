@@ -67,6 +67,22 @@ docker compose up
 
 A `Makefile` wraps these and a few other common commands (logs, shell, database). Run `make` to list them.
 
-## Building the Docker image
+## Releasing and building the Docker image
 
-The custom Jupyterhub is built using a Github workflow (see `.github/workflows` directory).
+Releases are managed by [release-please](https://github.com/googleapis/release-please). Every push to `main`
+updates (or opens) a release pull request that accumulates the changelog from
+[Conventional Commits](https://www.conventionalcommits.org/). Merging that pull request creates a tag and a
+GitHub release.
+
+The `Build custom hub image` workflow (see `.github/workflows` directory) then pushes the image to Docker Hub:
+
+| Trigger                  | Tags pushed                                      |
+|--------------------------|--------------------------------------------------|
+| GitHub release published | `<version>`, `latest`, `local-<version>`         |
+| Push to `main`           | `latest-unstable`, `local-latest-unstable`       |
+| Manual (`workflow_dispatch`) | `<tag>`, `local-<tag>` (does not touch `latest`) |
+
+Use the manual trigger for one-off builds from a branch, e.g. to test a change before it is released.
+
+Infrastructure pins a specific `<version>` tag per environment; `latest` and `latest-unstable` are provided
+for convenience only.
