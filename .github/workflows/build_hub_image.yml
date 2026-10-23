@@ -3,10 +3,12 @@ name: Build custom hub image
 on:
   release:
     types: [ published ]
+  push:
+    branches: [ main ]
   workflow_dispatch:
     inputs:
       tag:
-        description: Image tag
+        description: Image tag (for one-off builds; does not update "latest")
         required: true
 
 jobs:
@@ -27,14 +29,34 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Resolve the tags to push:
+      # - release (created by release-please): <version> + latest
+      # - push to main:                          latest-unstable
+      # - manual:                                the tag given as input
+      - name: Resolve image tags
+        id: tags
+        run: |
+          case "${{ github.event_name }}" in
+            release)
+              # GITHUB_REF looks like "refs/tags/3.0.0"
+              VERSION="${GITHUB_REF##*/}"
+              echo "hub=blsq/openhexa-jupyterhub:${VERSION},blsq/openhexa-jupyterhub:latest" >> "$GITHUB_OUTPUT"
+              echo "local=blsq/openhexa-jupyterhub:local-${VERSION}" >> "$GITHUB_OUTPUT"
+              ;;
+            push)
+              echo "hub=blsq/openhexa-jupyterhub:latest-unstable" >> "$GITHUB_OUTPUT"
+              echo "local=blsq/openhexa-jupyterhub:local-latest-unstable" >> "$GITHUB_OUTPUT"
+              ;;
+            workflow_dispatch)
+              TAG="${{ github.event.inputs.tag }}"
+              echo "hub=blsq/openhexa-jupyterhub:${TAG}" >> "$GITHUB_OUTPUT"
+              echo "local=blsq/openhexa-jupyterhub:local-${TAG}" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
       # Publish to Docker hub
-      - name: Store version number (on release)
-        if: ${{ github.event_name == 'release' }}
-        id: version
-        # GITHUB_REF looks like "refs/tags/0.3.1" - we need to extract the actual version without the v prefix
-        run: echo ::set-output name=number::${GITHUB_REF##*/}
-      - name: Build and push (on release)
-        if: ${{ github.event_name == 'release' }}
+      - name: Build and push
         uses: docker/build-push-action@v7
         with:
           push: true
@@ -42,23 +64,9 @@ jobs:
           file: jupyterhub/Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: |
-            blsq/openhexa-jupyterhub:${{ steps.version.outputs.number }}
-            blsq/openhexa-jupyterhub:latest
-      - name: Build and push (manual)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: docker/build-push-action@v7
-        with:
-          push: true
-          context: jupyterhub
-          file: jupyterhub/Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          tags: |
-            blsq/openhexa-jupyterhub:${{ github.event.inputs.tag }}
-            blsq/openhexa-jupyterhub:latest
-      - name: Build and push for local deployment (on release)
-        if: ${{ github.event_name == 'release' }}
+          tags: ${{ steps.tags.outputs.hub }}
+
+      - name: Build and push for local deployment
         uses: docker/build-push-action@v7
         with:
           push: true
@@ -66,16 +74,4 @@ jobs:
           file: jupyterhub/Dockerfile.dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: |
-            blsq/openhexa-jupyterhub:local-${{ steps.version.outputs.number }}
-      - name: Build and push for local deployment (manual)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: docker/build-push-action@v7
-        with:
-          push: true
-          context: jupyterhub
-          file: jupyterhub/Dockerfile.dev
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          tags: |
-            blsq/openhexa-jupyterhub:local-${{ github.event.inputs.tag }}
+          tags: ${{ steps.tags.outputs.local }}

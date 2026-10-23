@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "e1f52fb294649ead01b65e34e763a395d4a96cb4",
+  "release-type": "simple",
+  "include-component-in-tag": false,
+  "include-v-in-tag": false,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": false,
+  "changelog-type": "default",
+  "packages": {
+    ".": {
+      "package-name": "openhexa-notebooks",
+      "changelog-path": "CHANGELOG.md",
+      "changelog-sections": [
+        {
+          "type": "feat",
+          "section": "Features"
+        },
+        {
+          "type": "fix",
+          "section": "Bug Fixes"
+        },
+        {
+          "type": "chore",
+          "section": "Miscellaneous",
+          "hidden": false
+        }
+      ]
+    }
+  }
+}

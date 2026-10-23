@@ -1,22 +1,7 @@
-Changelog
-=========
+# Changelog
 
-Notebook image (jupyter)
-------------------------
+This changelog is maintained by [release-please](https://github.com/googleapis/release-please).
+Entries are generated from Conventional Commits merged into `main`.
 
-### Version 0.6.0
-
-- Use latest jupyter/datascience-notebook version compatible with Jupyterhub 1.5.0
-- Unpinned Papermill to 2.*
-
-### Version 0.5.0
-
-- Fuse support
-
-
-Z2JH image (Jupyterhub)
------------------------
-
-### Version 1.2.0
-
-- Updated to jupyterhub/k8s-hub:1.2.0
+Versions prior to 3.0.0 were tagged manually; see the
+[blsq/openhexa-jupyterhub](https://hub.docker.com/r/blsq/openhexa-jupyterhub/tags) tag list on Docker Hub.
