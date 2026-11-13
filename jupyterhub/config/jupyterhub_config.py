@@ -89,69 +89,71 @@ class AppAuthenticator(Authenticator):
         }
 
     async def pre_spawn_start(self, user, spawner):
-        """Before spawning a single-user server, we need to read the auth state (where user credentials are stored)
-        and set these credentials as environment variables on the spawner. This auth state is created during
-        authenticate() calls."""
-        if (
-            spawner.name == ""
-        ):  # Default credentials, OpenHEXA legacy (outside workspaces)
-            credentials_data = await self._app_request(
-                os.environ["DEFAULT_CREDENTIALS_URL"], spawner.handler
-            )
-        else:  # Workspace mode
-            credentials_data = await self._app_request(
-                os.environ["WORKSPACE_CREDENTIALS_URL"],
-                spawner.handler,
-                data={"workspace": spawner.name},
-            )
+        """Before spawning a single-user server, we ask the app for the credentials of the workspace (the server
+        name) and set them as environment variables on the spawner."""
+        # A server without a name is not tied to a workspace. It used to be the OpenHEXA legacy server, started
+        # with the default image and every legacy bucket of the user; links without a workspace ended up there.
+        if spawner.name == "":
+            message = "Notebooks can only be opened from an OpenHEXA workspace."
+            # 403 and not 404: the hub's 404 page does not show a message. And jupyterhub_message, because the
+            # hub otherwise replaces the message of a failed spawn with "Failed to start your server".
+            error = web.HTTPError(403, message)
+            error.jupyterhub_message = message
+            raise error
 
-            # Let's use the hash generated on the app side
-            spawner.pod_name = f"jupyter-{credentials_data['notebooks_server_hash']}"
+        credentials_data = await self._app_request(
+            os.environ["WORKSPACE_CREDENTIALS_URL"],
+            spawner.handler,
+            data={"workspace": spawner.name},
+        )
 
-            # SET DOCKER IMAGE
-            if credentials_data.get("image") is not None:
-                self.log.info(f"Using custom image: {credentials_data['image']}")
-                spawner.image = credentials_data["image"]
+        # Let's use the hash generated on the app side
+        spawner.pod_name = f"jupyter-{credentials_data['notebooks_server_hash']}"
 
-            # Disable persistent storage in workspaces
-            # Remove the volumes that start with prefix `volume-`
-            # Example:
-            # c.KubeSpawner.volumes = {
-            #     "02-group-beta": {
-            #         'name': 'volumes-beta',
-            #         ...
-            #     },
-            #     ...
-            # }
-            self.log.info(f"Spawner.volumes: {spawner.volumes}")
-            if spawner.volumes:
-                self.log.info(f"Spawner.volume_mounts: {spawner.volume_mounts}")
-                filtered_volumes = {
-                    key: config
-                    for key, config in spawner.volumes.items()
-                    if not config.get("name").startswith("volume-")
+        # SET DOCKER IMAGE
+        if credentials_data.get("image") is not None:
+            self.log.info(f"Using custom image: {credentials_data['image']}")
+            spawner.image = credentials_data["image"]
+
+        # Disable persistent storage in workspaces
+        # Remove the volumes that start with prefix `volume-`
+        # Example:
+        # c.KubeSpawner.volumes = {
+        #     "02-group-beta": {
+        #         'name': 'volumes-beta',
+        #         ...
+        #     },
+        #     ...
+        # }
+        self.log.info(f"Spawner.volumes: {spawner.volumes}")
+        if spawner.volumes:
+            self.log.info(f"Spawner.volume_mounts: {spawner.volume_mounts}")
+            filtered_volumes = {
+                key: config
+                for key, config in spawner.volumes.items()
+                if not config.get("name").startswith("volume-")
+            }
+            filtered_volume_mounts = {
+                key: config
+                for key, config in spawner.volume_mounts.items()
+                if not config.get("name").startswith("volume-")
+            }
+
+            spawner.volumes = filtered_volumes
+            spawner.volume_mounts = filtered_volume_mounts
+            spawner.storage_pvc_ensure = False
+            spawner.pvc_name = None
+
+        if credentials_data["env"].get("WORKSPACE_STORAGE_ENGINE") == "local":
+            mount_path = credentials_data["env"]["WORKSPACE_STORAGE_MOUNT_PATH"]
+            spawner.mounts = [
+                {
+                    "type": "bind",
+                    "source": mount_path,
+                    "target": "/home/jovyan/workspace",
+                    "read_only": False,
                 }
-                filtered_volume_mounts = {
-                    key: config
-                    for key, config in spawner.volume_mounts.items()
-                    if not config.get("name").startswith("volume-")
-                }
-
-                spawner.volumes = filtered_volumes
-                spawner.volume_mounts = filtered_volume_mounts
-                spawner.storage_pvc_ensure = False
-                spawner.pvc_name = None
-
-            if credentials_data["env"].get("WORKSPACE_STORAGE_ENGINE") == "local":
-                mount_path = credentials_data["env"]["WORKSPACE_STORAGE_MOUNT_PATH"]
-                spawner.mounts = [
-                    {
-                        "type": "bind",
-                        "source": mount_path,
-                        "target": "/home/jovyan/workspace",
-                        "read_only": False,
-                    }
-                ]
+            ]
 
         # Double the brackets to avoid the KubeSpawner to interpret them as placeholders (cfr https://github.com/jupyterhub/kubespawner/pull/642)
         if c.JupyterHub.spawner_class == "dockerspawner.DockerSpawner":
