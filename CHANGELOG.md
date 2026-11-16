@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/BLSQ/openhexa-notebooks/compare/3.0.0...3.0.1) (2026-11-16)
+
+
+### Bug Fixes
+
+* demo cookie name ([#122](https://github.com/BLSQ/openhexa-notebooks/issues/122)) ([b286ed4](https://github.com/BLSQ/openhexa-notebooks/commit/b286ed490e54e78d8d753a747d834f5afed08098))
+
 ## [3.0.0](https://github.com/BLSQ/openhexa-notebooks/compare/2.2.2...3.0.0) (2026-11-16)
 
 
