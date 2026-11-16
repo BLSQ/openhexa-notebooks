@@ -52,7 +52,8 @@ docker compose up
 
 The `AppAuthenticator` class handles:
 - Cookie-based authentication with OpenHEXA App
-- Credential injection from workspace or default endpoints
+- Credential injection from the workspace endpoint; a server without a
+  workspace (the unnamed default server) is refused
 - Dynamic Docker image selection for workspaces
 - Storage configuration (persistent vs ephemeral)
 - Environment variable management for spawned containers
@@ -61,7 +62,7 @@ The `AppAuthenticator` class handles:
 
 Key variables for local development:
 - `AUTHENTICATION_URL`: App authentication endpoint
-- `DEFAULT_CREDENTIALS_URL`: Default credentials endpoint
+- `DEFAULT_CREDENTIALS_URL`: Default credentials endpoint (no longer read by the hub)
 - `WORKSPACE_CREDENTIALS_URL`: Workspace credentials endpoint
 - `HEXA_SERVER_URL`: OpenHEXA server URL
 - `HUB_DB_URL`: PostgreSQL connection string
