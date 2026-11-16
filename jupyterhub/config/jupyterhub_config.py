@@ -10,6 +10,11 @@ from tornado import web
 
 # Documentation of this file: https://jupyterhub.readthedocs.io/en/stable/reference/config-reference.html
 
+# Must match the app's SESSION_COOKIE_NAME / CSRF_COOKIE_NAME, which differ between
+# environments sharing a parent cookie domain.
+SESSION_COOKIE_NAME = os.environ.get("SESSION_COOKIE_NAME", "sessionid")
+CSRF_COOKIE_NAME = os.environ.get("CSRF_COOKIE_NAME", "csrftoken")
+
 
 # Custom authentication code to be mounted when running the hub (using hub.extraFiles in z2jh mode, or COPY / volumes
 # with Docker if working locally). Could be moved to a module (Pypi / Github), but this would require maintaining
@@ -42,15 +47,15 @@ class AppAuthenticator(Authenticator):
         loop = asyncio.get_running_loop()
         try:
             cookies = {
-                "sessionid": handler.cookies["sessionid"].value,
-                "csrftoken": handler.cookies["csrftoken"].value,
+                SESSION_COOKIE_NAME: handler.cookies[SESSION_COOKIE_NAME].value,
+                CSRF_COOKIE_NAME: handler.cookies[CSRF_COOKIE_NAME].value,
             }
         except KeyError:
             self.log.warning("Missing cookies")
             raise ValueError("Unexpected")
 
         headers = {
-            "X-CSRFToken": handler.cookies["csrftoken"].value,
+            "X-CSRFToken": handler.cookies[CSRF_COOKIE_NAME].value,
             "Referer": f"{handler.request.protocol}://{handler.request.host}",
         }
         try:
@@ -189,7 +194,7 @@ class AppAuthenticatorLogoutHandler(LogoutHandler):
     # TODO: use API https://github.com/jupyterhub/jupyterhub/issues/3688)
 
     async def get(self):
-        # Authenticate the user using the sessionid and csrftoken in the cookies
+        # Authenticate the user using the app's session and CSRF cookies
         authenticated = await self.authenticate({})
         user = None
         if authenticated:
