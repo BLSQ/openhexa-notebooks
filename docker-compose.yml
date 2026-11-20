@@ -35,7 +35,7 @@ services:
     restart: on-failure
 
   postgres:
-    image: postgres:18
+    image: postgres:19
     networks:
       - openhexa
     environment:
