@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2](https://github.com/BLSQ/openhexa-notebooks/compare/3.0.1...3.0.2) (2026-11-23)
+
+
+### Bug Fixes
+
+* use psycopg 3 in the dev image ([#127](https://github.com/BLSQ/openhexa-notebooks/issues/127)) ([b37caa6](https://github.com/BLSQ/openhexa-notebooks/commit/b37caa62b997ad226e650c289f2419befdcd16da))
+
 ## [3.0.1](https://github.com/BLSQ/openhexa-notebooks/compare/3.0.0...3.0.1) (2026-11-16)
 
 
