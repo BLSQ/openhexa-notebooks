@@ -8,4 +8,4 @@ FROM jupyterhub/jupyterhub:5.5.4
 COPY config/* /etc/jupyterhub/
 
 RUN pip install --upgrade pip
-RUN pip install dockerspawner==13.* psycopg2-binary==2.*
+RUN pip install dockerspawner==13.* "psycopg[binary]==3.*"
